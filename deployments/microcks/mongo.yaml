@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microcks-mongo
+  name: microcks-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microcks-mongo
+  template:
+    metadata:
+      labels:
+        app: microcks-mongo
+    spec:
+      containers:
+        - name: microcks-mongo
+          image: mongo:3.4.23
+          args: ["--dbpath","/data/db"]
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data/db
+              name: microcks-mongo
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1200Mi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+      volumes:
+        - name: microcks-mongo
+          persistentVolumeClaim:
+            claimName: microcks-mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: microcks-mongo
+  name: microcks-mongo
+spec:
+  ports:
+    - port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    app: microcks-mongo
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: microcks-mongo
+  name: microcks-mongo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

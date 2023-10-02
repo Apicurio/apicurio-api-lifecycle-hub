@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-echo-2
+    component: apicurio-echo-2
+  name: apicurio-echo-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: apicurio-echo-2
+  template:
+    metadata:
+      labels:
+        app: apicurio-echo-2
+    spec:
+      containers:
+      - image: quay.io/apicurio/apicurio-echo:latest-release
+        name: apicurio-echo-2
+        ports:
+          - name: web
+            containerPort: 3000
+            protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        livenessProbe:
+          httpGet:
+            path: /apis/echo/v0/system/info
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /apis/echo/v0/system/info
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apicurio-echo-2
+    template: apicurio-echo-2
+  name: apicurio-echo-2
+spec:
+  selector:
+    app: apicurio-echo-2
+  ports:
+    - name: web
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: apicurio-echo-2
+    template: apicurio-echo-2
+  name: apicurio-echo-2
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: echo-app-2.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio-echo-2
+                port:
+                  number: 3000

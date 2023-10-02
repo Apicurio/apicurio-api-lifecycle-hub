@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microcks
+    component: microcks
+  name: microcks
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: microcks
+  template:
+    metadata:
+      labels:
+        app: microcks
+    spec:
+      containers:
+      - image: quay.io/microcks/microcks:1.7.1
+        name: microcks
+        ports:
+          - name: web
+            containerPort: 8080
+            protocol: TCP
+          - name: other
+            containerPort: 9090
+            protocol: TCP
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod
+          - name: SPRING_DATA_MONGODB_URI
+            value: mongodb://microcks-mongo:27017
+          - name: SPRING_DATA_MONGODB_DATABASE
+            value: microcks
+          - name: POSTMAN_RUNNER_URL
+            value: http://microcks-postman:3000
+          - name: TEST_CALLBACK_URL
+            value: http://microcks.local
+          - name: SERVICES_UPDATE_INTERVAL
+            value: "0 0 0/2 * * *"
+          - name: KEYCLOAK_URL
+            value: http://keycloak.keycloak.svc.cluster.local:8080
+          - name: KEYCLOAK_PUBLIC_URL
+            value: http://keycloak.local
+          - name: KEYCLOAK_REALM
+            value: apicurio
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1000Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: microcks
+    template: microcks
+  name: microcks
+spec:
+  selector:
+    app: microcks
+  ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: other
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: microcks
+    template: microcks
+  name: microcks
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: microcks.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: microcks
+                port:
+                  number: 8080

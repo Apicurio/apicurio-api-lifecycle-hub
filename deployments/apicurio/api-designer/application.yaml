@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-api-designer
+    component: apicurio-api-designer
+  name: apicurio-api-designer
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: apicurio-api-designer
+  template:
+    metadata:
+      labels:
+        app: apicurio-api-designer
+    spec:
+      containers:
+      - image: quay.io/apicurio/apicurio-api-designer-mem:latest-snapshot
+        name: apicurio-api-designer
+        ports:
+          - name: web
+            containerPort: 8080
+            protocol: TCP
+        env:
+          - name: DESIGNER_LOG_LEVEL
+            value: DEBUG
+          - name: DESIGNER_ACCESS_LOG_ENABLE
+            value: "true"
+          - name: QUARKUS_PROFILE
+            value: prod
+          - name: DESIGNER_API_URL
+            value: /apis/designer/v0
+          - name: CORS_ALLOWED_ORIGINS
+            value: "*"
+
+          - name: AUTH_ENABLED
+            value: "true"
+          - name: OIDC_TOKENT_ENDPOINT
+            value: http://keycloak.keycloak.svc.cluster.local:8080/realms/apicurio
+          - name: OIDC_URL
+            value: http://keycloak.keycloak.svc.cluster.local:8080/realms/apicurio
+          - name: OIDC_API_CLIENT_ID
+            value: designer-api
+
+          - name: UI_AUTH_TYPE
+            value: oidc
+          - name: DESIGNER_UI_CONFIG_AUTH_OIDC_URL
+            value: http://keycloak.local/realms/apicurio
+          - name: OIDC_UI_CLIENT_ID
+            value: designer-ui
+          - name: OIDC_UI_REDIRECT_URL
+            value: http://api-designer.local/ui
+
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1000Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+        livenessProbe:
+          httpGet:
+            path: /apis/designer/v0/system/info
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /apis/designer/v0/system/info
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apicurio-api-designer
+    template: apicurio-api-designer
+  name: apicurio-api-designer
+spec:
+  selector:
+    app: apicurio-api-designer
+  ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: apicurio-api-designer
+    template: apicurio-api-designer
+  name: apicurio-api-designer
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: api-designer.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio-api-designer
+                port:
+                  number: 8080

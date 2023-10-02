@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: keycloak-postgresql
+  name: keycloak-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-postgresql
+  template:
+    metadata:
+      labels:
+        app: keycloak-postgresql
+    spec:
+      containers:
+        - name: keycloak-postgresql
+          image: postgres:15.4
+          env:
+            - name: POSTGRES_USER
+              value: pguser
+            - name: POSTGRES_PASSWORD
+              value: pgpass12345
+            - name: POSTGRES_DB
+              value: keycloakdb
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: keycloak-postgresql
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1200Mi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+      volumes:
+        - name: keycloak-postgresql
+          persistentVolumeClaim:
+            claimName: keycloak-postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: keycloak-postgresql
+  name: keycloak-postgresql
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: keycloak-postgresql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: keycloak-postgresql
+  name: keycloak-postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

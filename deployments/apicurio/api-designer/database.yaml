@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-api-designer-postgresql
+  name: apicurio-api-designer-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apicurio-api-designer-postgresql
+  template:
+    metadata:
+      labels:
+        app: apicurio-api-designer-postgresql
+    spec:
+      containers:
+        - name: apicurio-api-designer-postgresql
+          image: postgres:15.4
+          env:
+            - name: POSTGRES_USER
+              value: pguser
+            - name: POSTGRES_PASSWORD
+              value: pgpass12345
+            - name: POSTGRES_DB
+              value: apicuriodb
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: apicurio-api-designer-postgresql
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1200Mi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+      volumes:
+        - name: apicurio-api-designer-postgresql
+          persistentVolumeClaim:
+            claimName: apicurio-api-designer-postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio-api-designer-postgresql
+  name: apicurio-api-designer-postgresql
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: apicurio-api-designer-postgresql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: apicurio-api-designer-postgresql
+  name: apicurio-api-designer-postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
