@@ -1,0 +1,16 @@
+
+.masthead .logo-link {
+    color: white;
+    text-decoration: none;
+}
+
+.masthead .logo-image {
+    height: 46px;
+}
+
+.masthead .logo-text {
+    line-height: 44px;
+    font-size: 24px;
+    margin-left: 10px;
+    padding-top: 8px;
+}

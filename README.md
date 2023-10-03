@@ -72,16 +72,16 @@ find that by doing this:
     kubectl apply -f ./deployments/apicurio/api-registry/database.yaml -n api-registry
     kubectl apply -f ./deployments/apicurio/api-registry/application.yaml -n api-registry
 
-## Echo Test Applications
-
-    kubectl create namespace echo-1
-    kubectl apply -f ./deployments/testing/echo-1/application.yaml -n echo-1
-    kubectl create namespace echo-2
-    kubectl apply -f ./deployments/testing/echo-2/application.yaml -n echo-2
-
 ## Microcks
 
     kubectl create namespace microcks
     kubectl apply -f ./deployments/microcks/mongo.yaml -n microcks
     kubectl apply -f ./deployments/microcks/postman.yaml -n microcks
     kubectl apply -f ./deployments/microcks/application.yaml -n microcks
+
+## Echo Test Applications
+
+    kubectl create namespace echo-1
+    kubectl apply -f ./deployments/testing/echo-1/application.yaml -n echo-1
+    kubectl create namespace echo-2
+    kubectl apply -f ./deployments/testing/echo-2/application.yaml -n echo-2
