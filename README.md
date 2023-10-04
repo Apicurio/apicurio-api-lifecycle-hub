@@ -58,6 +58,7 @@ find that by doing this:
 
     kubectl create namespace keycloak
     kubectl create configmap keycloak-realm-config --from-file=deployments/keycloak/config/keycloak-realm-full.json -n keycloak
+    kubectl apply -f ./deployments/keycloak/database.yaml -n keycloak
     kubectl apply -f ./deployments/keycloak/application.yaml -n keycloak
 
 ## Apicurio API Designer

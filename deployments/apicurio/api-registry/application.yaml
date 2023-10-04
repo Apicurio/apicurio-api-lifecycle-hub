@@ -16,7 +16,7 @@ spec:
         app: apicurio-registry
     spec:
       containers:
-      - image: quay.io/apicurio/apicurio-registry-mem:latest-release
+      - image: quay.io/apicurio/apicurio-registry-sql:latest-release
         name: apicurio-registry
         ports:
           - name: web
@@ -49,6 +49,13 @@ spec:
             value: registry-ui
           - name: KEYCLOAK_REALM
             value: apicurio
+
+          - name: REGISTRY_DATASOURCE_URL
+            value: jdbc:postgresql://apicurio-registry-postgresql:5432/apicuriodb
+          - name: REGISTRY_DATASOURCE_USERNAME
+            value: pguser
+          - name: REGISTRY_DATASOURCE_PASSWORD
+            value: pgpass12345
         resources:
           limits:
             cpu: 500m
