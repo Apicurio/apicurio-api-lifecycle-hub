@@ -1,0 +1,31 @@
+{
+  "name": "@apicurio/api-lifecycle-validator",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "A node.js service that exposes Spectral Rules as a REST service.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Apicurio/apicurio-api-lifecycle-hub.git"
+  },
+  "keywords": [
+    "apicurio",
+    "spectral",
+    "validation"
+  ],
+  "author": "Eric Wittmann",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Apicurio/apicurio-api-lifecycle-hub/issues"
+  },
+  "homepage": "https://github.com/Apicurio/apicurio-api-lifecycle-hub#readme",
+  "dependencies": {
+    "@stoplight/spectral-core": "1.18.3",
+    "@stoplight/spectral-runtime": "1.1.2",
+    "@stoplight/spectral-parsers": "1.0.3",
+    "@stoplight/spectral-ruleset-bundler": "1.5.2",
+    "express": "4.18.2"
+  }
+}

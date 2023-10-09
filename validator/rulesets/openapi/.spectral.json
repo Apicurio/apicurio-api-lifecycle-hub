@@ -1,0 +1,6 @@
+{
+  "description": "OpenAPI Rules",
+  "extends": [
+    "spectral:oas"
+  ]
+}
