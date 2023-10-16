@@ -16,7 +16,7 @@ spec:
         app: apicurio-api-designer
     spec:
       containers:
-      - image: quay.io/apicurio/apicurio-api-designer-mem:latest-snapshot
+      - image: quay.io/apicurio/apicurio-api-designer-sql:latest-snapshot
         name: apicurio-api-designer
         ports:
           - name: web
@@ -43,15 +43,12 @@ spec:
           - name: OIDC_API_CLIENT_ID
             value: designer-api
 
-          - name: UI_AUTH_TYPE
-            value: oidc
-          - name: DESIGNER_UI_CONFIG_AUTH_OIDC_URL
-            value: http://keycloak.local/realms/apicurio
-          - name: OIDC_UI_CLIENT_ID
-            value: designer-ui
-          - name: OIDC_UI_REDIRECT_URL
-            value: http://api-designer.local/ui
-
+          - name: DESIGNER_STORAGE_DATASOURCE_URL
+            value: jdbc:postgresql://apicurio-api-designer-postgresql:5432/apicuriodb
+          - name: DESIGNER_STORAGE_DATASOURCE_USERNAME
+            value: pguser
+          - name: DESIGNER_STORAGE_DATASOURCE_PASSWORD
+            value: pgpass12345
         resources:
           limits:
             cpu: 500m
@@ -108,7 +105,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
-    - host: api-designer.local
+    - host: api-designer-api.local
       http:
         paths:
           - path: /(.*)

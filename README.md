@@ -47,6 +47,7 @@ file:
 
     MINIKUBE_IP keycloak.local
     MINIKUBE_IP api-designer.local
+    MINIKUBE_IP api-designer-api.local
     MINIKUBE_IP api-registry.local
 
 Replace the `MINIKUBE_IP` above with the IP address of your minikube cluster.  You can
@@ -66,6 +67,7 @@ find that by doing this:
     kubectl create namespace api-designer
     kubectl apply -f ./deployments/apicurio/api-designer/database.yaml -n api-designer
     kubectl apply -f ./deployments/apicurio/api-designer/application.yaml -n api-designer
+    kubectl apply -f ./deployments/apicurio/api-designer/ui.yaml -n api-designer
 
 ## Apicurio Registry
 
@@ -79,6 +81,11 @@ find that by doing this:
     kubectl apply -f ./deployments/microcks/mongo.yaml -n microcks
     kubectl apply -f ./deployments/microcks/postman.yaml -n microcks
     kubectl apply -f ./deployments/microcks/application.yaml -n microcks
+
+## Apicurio API Lifecycle Components
+
+    kubectl create namespace api-lifecycle
+    kubectl apply -f ./deployments/apicurio/validator/application.yaml -n api-lifecycle
 
 ## Echo Test Applications
 

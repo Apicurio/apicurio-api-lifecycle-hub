@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-api-lifecycle-validator
+    component: apicurio-api-lifecycle-validator
+  name: apicurio-api-lifecycle-validator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apicurio-api-lifecycle-validator
+  template:
+    metadata:
+      labels:
+        app: apicurio-api-lifecycle-validator
+    spec:
+      containers:
+      - image: apicurio/apicurio-api-lifecycle-validator:latest
+        name: apicurio-api-lifecycle-validator
+        ports:
+          - name: web
+            containerPort: 3000
+            protocol: TCP
+        env:
+          - name: LOG_LEVEL
+            value: DEBUG
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1000Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apicurio-api-lifecycle-validator
+    template: apicurio-api-lifecycle-validator
+  name: apicurio-api-lifecycle-validator
+spec:
+  selector:
+    app: apicurio-api-lifecycle-validator
+  ports:
+    - name: web
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: apicurio-api-lifecycle-validator
+    template: apicurio-api-lifecycle-validator
+  name: apicurio-api-lifecycle-validator
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: validator.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio-api-lifecycle-validator
+                port:
+                  number: 3000
