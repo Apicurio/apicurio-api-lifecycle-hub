@@ -2,18 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: apicurio-api-designer-ui
+    app: apicurio-api-designer
     component: apicurio-api-designer-ui
   name: apicurio-api-designer-ui
 spec:
   replicas: 1
   selector:
     matchLabels: 
-      app: apicurio-api-designer-ui
+      component: apicurio-api-designer-ui
   template:
     metadata:
       labels:
-        app: apicurio-api-designer-ui
+        app: apicurio-api-designer
+        component: apicurio-api-designer-ui
     spec:
       containers:
       - image: quay.io/apicurio/apicurio-api-designer-ui:latest-snapshot
@@ -46,12 +47,12 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: apicurio-api-designer-ui
+    app: apicurio-api-designer
     template: apicurio-api-designer-ui
   name: apicurio-api-designer-ui
 spec:
   selector:
-    app: apicurio-api-designer-ui
+    component: apicurio-api-designer-ui
   ports:
     - name: web
       port: 8080
@@ -63,7 +64,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    app: apicurio-api-designer-ui
+    app: apicurio-api-designer
     template: apicurio-api-designer-ui
   name: apicurio-api-designer-ui
   annotations:

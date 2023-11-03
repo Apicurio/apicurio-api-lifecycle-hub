@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-registry
+    component: apicurio-registry-ui
+  name: apicurio-registry-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: apicurio-registry-ui
+  template:
+    metadata:
+      labels:
+        app: apicurio-registry
+        component: apicurio-registry-ui
+    spec:
+      containers:
+      - image: quay.io/apicurio/apicurio-registry-ui:latest-snapshot
+        name: apicurio-registry-ui
+        ports:
+          - name: web
+            containerPort: 8080
+            protocol: TCP
+        env:
+          - name: REGISTRY_API_URL
+            value: http://api-registry-api.local/apis/registry/v2
+
+          - name: REGISTRY_AUTH_TYPE
+            value: "oidc"
+          - name: REGISTRY_AUTH_URL
+            value: http://keycloak.local/realms/apicurio
+          - name: REGISTRY_AUTH_CLIENT_ID
+            value: registry-ui
+          - name: REGISTRY_AUTH_REDIRECT_URL
+            value: http://api-registry.local/
+          - name: REGISTRY_AUTH_RBAC_ENABLED
+            value: 'true'
+          - name: REGISTRY_FEATURE_ROLE_MANAGEMENT
+            value: 'false'
+          - name: REGISTRY_FEATURE_SETTINGS
+            value: 'true'
+        resources:
+          limits:
+            cpu: 400m
+            memory: 800Mi
+          requests:
+            cpu: 100m
+            memory: 250Mi
+        livenessProbe:
+          httpGet:
+            path: /config.js
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /config.js
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apicurio-registry
+    template: apicurio-registry-ui
+  name: apicurio-registry-ui
+spec:
+  selector:
+    component: apicurio-registry-ui
+  ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: apicurio-registry
+    template: apicurio-registry-ui
+  name: apicurio-registry-ui
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: api-registry.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio-registry-ui
+                port:
+                  number: 8080

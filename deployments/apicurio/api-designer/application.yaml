@@ -3,21 +3,22 @@ kind: Deployment
 metadata:
   labels:
     app: apicurio-api-designer
-    component: apicurio-api-designer
-  name: apicurio-api-designer
+    component: apicurio-api-designer-api
+  name: apicurio-api-designer-api
 spec:
   replicas: 1
   selector:
     matchLabels: 
-      app: apicurio-api-designer
+      component: apicurio-api-designer-api
   template:
     metadata:
       labels:
         app: apicurio-api-designer
+        component: apicurio-api-designer-api
     spec:
       containers:
       - image: quay.io/apicurio/apicurio-api-designer-sql:latest-snapshot
-        name: apicurio-api-designer
+        name: apicurio-api-designer-api
         ports:
           - name: web
             containerPort: 8080
@@ -82,11 +83,11 @@ kind: Service
 metadata:
   labels:
     app: apicurio-api-designer
-    template: apicurio-api-designer
-  name: apicurio-api-designer
+    template: apicurio-api-designer-api
+  name: apicurio-api-designer-api
 spec:
   selector:
-    app: apicurio-api-designer
+    component: apicurio-api-designer-api
   ports:
     - name: web
       port: 8080
@@ -99,8 +100,8 @@ kind: Ingress
 metadata:
   labels:
     app: apicurio-api-designer
-    template: apicurio-api-designer
-  name: apicurio-api-designer
+    template: apicurio-api-designer-api
+  name: apicurio-api-designer-api
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
@@ -112,6 +113,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: apicurio-api-designer
+                name: apicurio-api-designer-api
                 port:
                   number: 8080

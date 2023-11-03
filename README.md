@@ -49,6 +49,7 @@ file:
     MINIKUBE_IP api-designer.local
     MINIKUBE_IP api-designer-api.local
     MINIKUBE_IP api-registry.local
+    MINIKUBE_IP api-registry-api.local
 
 Replace the `MINIKUBE_IP` above with the IP address of your minikube cluster.  You can
 find that by doing this:
@@ -74,6 +75,7 @@ find that by doing this:
     kubectl create namespace api-registry
     kubectl apply -f ./deployments/apicurio/api-registry/database.yaml -n api-registry
     kubectl apply -f ./deployments/apicurio/api-registry/application.yaml -n api-registry
+    kubectl apply -f ./deployments/apicurio/api-registry/ui.yaml -n api-registry
 
 ## Microcks
 
