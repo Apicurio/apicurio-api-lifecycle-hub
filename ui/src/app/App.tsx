@@ -1,42 +1,38 @@
 import "./App.css";
-import {
-    Masthead, MastheadBrand, MastheadContent,
-    MastheadMain,
-    Page, PageSection, PageSectionVariants,
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem
-} from "@patternfly/react-core";
+import "@patternfly/patternfly/patternfly.css";
+import "@patternfly/patternfly/patternfly-addons.css";
 
-function App() {
+import { FunctionComponent } from "react";
+import { Page } from "@patternfly/react-core";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { AppHeader, ApplicationAuth } from "@app/components";
+import { Services } from "../services";
+import { HomePage } from "@app/pages";
 
-    const headerToolbar = (
-        <Toolbar id="vertical-toolbar">
-            <ToolbarContent>
-                <ToolbarItem></ToolbarItem>
-            </ToolbarContent>
-        </Toolbar>
-    );
+export type AppProps = {
+    // No props
+};
 
-    const header = (
-        <Masthead className="masthead">
-            <MastheadMain>
-                <MastheadBrand href="https://www.apicur.io" target="_blank" className="logo-link">
-                    <img className="logo-image" src="/logo.png" />
-                    <div className="logo-text">API Lifecycle Hub</div>
-                </MastheadBrand>
-            </MastheadMain>
-            <MastheadContent>{headerToolbar}</MastheadContent>
-        </Masthead>
-    );
+/**
+ * The main application class.
+ */
+export const App: FunctionComponent<AppProps> = () => {
+    const contextPath: string | undefined = Services.getConfigService().uiContextPath();
+    Services.getLoggerService().info("[App] Using app contextPath: ", contextPath);
 
     return (
-        <Page header={header}>
-            <PageSection variant={PageSectionVariants.darker}>Section with darker background</PageSection>
-            <PageSection variant={PageSectionVariants.dark}>Section with dark background</PageSection>
-            <PageSection variant={PageSectionVariants.light}>Section with light background</PageSection>
-        </Page>
+        <ApplicationAuth>
+            <Router basename={contextPath}>
+                <Page
+                    className="pf-m-redhat-font"
+                    isManagedSidebar={false}
+                    header={<AppHeader />}
+                >
+                    <Routes>
+                        <Route path="/" element={ <HomePage /> } />
+                    </Routes>
+                </Page>
+            </Router>
+        </ApplicationAuth>
     );
-}
-
-export default App;
+};

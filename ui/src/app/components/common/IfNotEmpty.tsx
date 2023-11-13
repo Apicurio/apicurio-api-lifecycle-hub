@@ -1,11 +1,11 @@
 import React, { FunctionComponent } from "react";
-import { EmptyState, EmptyStateBody, EmptyStateVariant, Title } from "@patternfly/react-core";
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateVariant } from "@patternfly/react-core";
 
 /**
  * Properties
  */
-export type IfNotEmptyProps = {
-    collection?: any[];
+export interface IfNotEmptyProps {
+    collection?: any[] | undefined;
     emptyState?: React.ReactNode;
     emptyStateTitle?: string;
     emptyStateMessage?: string;
@@ -24,12 +24,12 @@ export const IfNotEmpty: FunctionComponent<IfNotEmptyProps> = ({ collection, emp
 
     const empty: React.ReactNode = emptyState || (
         <EmptyState variant={EmptyStateVariant.xs}>
-            <Title headingLevel="h4" size="md">{emptyStateTitle || "None found"}</Title>
+            <EmptyStateHeader titleText={emptyStateTitle || "None found"} headingLevel="h4" />
             <EmptyStateBody>{emptyStateMessage || "No items found."}</EmptyStateBody>
         </EmptyState>
     );
 
     return isEmpty() ?
-        (<React.Fragment children={empty}/>) :
-        (<React.Fragment children={children} />);
+        <React.Fragment children={empty}/> :
+        <React.Fragment children={children} />;
 };
