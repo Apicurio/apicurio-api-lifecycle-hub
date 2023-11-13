@@ -17,7 +17,7 @@ spec:
         component: apicurio-lifecycle-validator
     spec:
       containers:
-      - image: apicurio/apicurio-lifecycle-validator:latest
+      - image: apicurio/apicurio-api-lifecycle-validator:latest-snapshot
         name: apicurio-lifecycle-validator
         ports:
           - name: web
