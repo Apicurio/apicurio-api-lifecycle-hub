@@ -15,11 +15,11 @@ To build the container image for this project, do this (docker is required):
 
 ```
 $ npm install
-$ docker build -f Dockerfile -t apicurio/apicurio-api-lifecycle-validator:latest .
+$ docker build -f Dockerfile -t apicurio/apicurio-api-lifecycle-validator:latest-snapshot .
 ```
 
 Then you can run the docker image by doing this:
 
 ```
-$ docker run -it -p 3000:3000 apicurio/apicurio-api-lifecycle-validator:latest
+$ docker run -it -p 3000:3000 apicurio/apicurio-api-lifecycle-validator:latest-snapshot
 ```
