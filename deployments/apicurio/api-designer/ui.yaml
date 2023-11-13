@@ -2,30 +2,30 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: apicurio-api-designer
-    component: apicurio-api-designer-ui
-  name: apicurio-api-designer-ui
+    app: apicurio-designer
+    component: apicurio-designer-ui
+  name: apicurio-designer-ui
 spec:
   replicas: 1
   selector:
     matchLabels: 
-      component: apicurio-api-designer-ui
+      component: apicurio-designer-ui
   template:
     metadata:
       labels:
-        app: apicurio-api-designer
-        component: apicurio-api-designer-ui
+        app: apicurio-designer
+        component: apicurio-designer-ui
     spec:
       containers:
       - image: quay.io/apicurio/apicurio-api-designer-ui:latest-snapshot
-        name: apicurio-api-designer-ui
+        name: apicurio-designer-ui
         ports:
           - name: web
             containerPort: 8080
             protocol: TCP
         env:
           - name: DESIGNER_API_URL
-            value: http://api-designer-api.local/apis/designer/v0
+            value: http://designer-api.local/apis/designer/v0
 
           - name: DESIGNER_AUTH_TYPE
             value: oidc
@@ -34,7 +34,7 @@ spec:
           - name: DESIGNER_AUTH_CLIENT_ID
             value: designer-ui
           - name: DESIGNER_AUTH_REDIRECT_URL
-            value: http://api-designer.local/
+            value: http://designer.local/
         resources:
           limits:
             cpu: 250m
@@ -47,12 +47,12 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: apicurio-api-designer
-    template: apicurio-api-designer-ui
-  name: apicurio-api-designer-ui
+    app: apicurio-designer
+    template: apicurio-designer-ui
+  name: apicurio-designer-ui
 spec:
   selector:
-    component: apicurio-api-designer-ui
+    component: apicurio-designer-ui
   ports:
     - name: web
       port: 8080
@@ -64,20 +64,20 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    app: apicurio-api-designer
-    template: apicurio-api-designer-ui
-  name: apicurio-api-designer-ui
+    app: apicurio-designer
+    template: apicurio-designer-ui
+  name: apicurio-designer-ui
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
-    - host: api-designer.local
+    - host: designer.local
       http:
         paths:
           - path: /(.*)
             pathType: Prefix
             backend:
               service:
-                name: apicurio-api-designer-ui
+                name: apicurio-designer-ui
                 port:
                   number: 8080

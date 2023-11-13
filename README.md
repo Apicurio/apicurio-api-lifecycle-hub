@@ -46,10 +46,10 @@ nicely in minikube, you will need to add the following mappings to your `/etc/ho
 file:
 
     MINIKUBE_IP keycloak.local
-    MINIKUBE_IP api-designer.local
-    MINIKUBE_IP api-designer-api.local
-    MINIKUBE_IP api-registry.local
-    MINIKUBE_IP api-registry-api.local
+    MINIKUBE_IP designer.local
+    MINIKUBE_IP designer-api.local
+    MINIKUBE_IP registry.local
+    MINIKUBE_IP registry-api.local
 
 Replace the `MINIKUBE_IP` above with the IP address of your minikube cluster.  You can
 find that by doing this:
@@ -62,6 +62,10 @@ find that by doing this:
     kubectl create configmap keycloak-realm-config --from-file=deployments/keycloak/config/keycloak-realm-full.json -n keycloak
     kubectl apply -f ./deployments/keycloak/database.yaml -n keycloak
     kubectl apply -f ./deployments/keycloak/application.yaml -n keycloak
+
+Note: the default admin credentials are `admin/admin`.
+
+Note: a non-admin user is also created with credentials `user/password`.
 
 ## Apicurio API Designer
 

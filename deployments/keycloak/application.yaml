@@ -16,8 +16,12 @@ spec:
     spec:
       containers:
         - name: keycloak
-          image: quay.io/keycloak/keycloak:22.0.3
-          args: [ "start", "--import-realm", "--db", "postgres", "--db-url", "jdbc:postgresql://keycloak-postgresql:5432/keycloakdb", "--db-username", "pguser", "--db-password", "pgpass12345" ]
+          image: quay.io/keycloak/keycloak:22.0.5
+          args: [
+            "start", "--import-realm", "--db", "postgres", "--db-url", 
+            "jdbc:postgresql://keycloak-postgresql:5432/keycloakdb", 
+            "--db-username", "pguser", "--db-password", "pgpass12345"
+          ]
           volumeMounts:
             - name: config-volume
               mountPath: /opt/keycloak/data/import
@@ -30,13 +34,6 @@ spec:
               value: edge
             - name: KC_HOSTNAME_URL
               value: http://keycloak.local
-
-            - name: KC_DATABASE
-              value: postgres
-            - name: KC_STORAGE
-              value: jpa
-            - name: KC_DATABASE_URL
-              value: jdbc:postgresql://keycloak-postgresql:5432/keycloakdb
           ports:
             - name: http
               containerPort: 8080

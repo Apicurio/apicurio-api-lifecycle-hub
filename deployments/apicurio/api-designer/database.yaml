@@ -2,20 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: apicurio-api-designer-postgresql
-  name: apicurio-api-designer-postgresql
+    app: apicurio-designer
+    component: apicurio-designer-postgresql
+  name: apicurio-designer-postgresql
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apicurio-api-designer-postgresql
+      component: apicurio-designer-postgresql
   template:
     metadata:
       labels:
-        app: apicurio-api-designer-postgresql
+        app: apicurio-designer
+        component: apicurio-designer-postgresql
     spec:
       containers:
-        - name: apicurio-api-designer-postgresql
+        - name: apicurio-designer-postgresql
           image: postgres:15.4
           env:
             - name: POSTGRES_USER
@@ -39,7 +41,7 @@ spec:
             periodSeconds: 20
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
-              name: apicurio-api-designer-postgresql
+              name: apicurio-designer-postgresql
           resources:
             limits:
               cpu: 1000m
@@ -48,31 +50,32 @@ spec:
               cpu: 200m
               memory: 400Mi
       volumes:
-        - name: apicurio-api-designer-postgresql
+        - name: apicurio-designer-postgresql
           persistentVolumeClaim:
-            claimName: apicurio-api-designer-postgresql
+            claimName: apicurio-designer-postgresql
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: apicurio-api-designer-postgresql
-  name: apicurio-api-designer-postgresql
+    app: apicurio-designer
+    template: apicurio-designer-postgresql
+  name: apicurio-designer-postgresql
 spec:
   ports:
     - port: 5432
       protocol: TCP
       targetPort: 5432
   selector:
-    app: apicurio-api-designer-postgresql
+    component: apicurio-designer-postgresql
   type: ClusterIP
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    name: apicurio-api-designer-postgresql
-  name: apicurio-api-designer-postgresql
+    app: apicurio-designer
+  name: apicurio-designer-postgresql
 spec:
   accessModes:
     - ReadWriteOnce
