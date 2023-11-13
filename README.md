@@ -26,76 +26,23 @@ of a smooth transition to production kubernetes environments.
 * kubectl
 * docker
 
-# Reset minikube (fresh installation)
-
-Before installing all of the components in minikube, you might want to reset your 
-cluster with the following commands:
-
-    minikube stop
-    minikube delete
-
 # Installation
+There is a happy little script called `install-all.sh` that you can run, which will
+use the `minikube` and `kubectl` CLIs to install all necessary components into a
+local minikube cluster.  The install script can optionally create/initialize the
+minikube cluster for you, or you can simply let it install into the existing 
+cluster.
 
-    minikube start --driver=docker --memory 16384 --cpus 4
-    minikube addons enable ingress
+# Usage
+Once everything is installed and running, the following applications will be available:
 
-## Update your /etc/hosts file
+* [Keycloak](http://keycloak.local)
+* [Apicurio API Designer](http://designer.local)
+* [Apicurio Registry](http://registry.local)
+* [Microcks](http://microcks.local)
+* [Lifecycle Hub](http://lifeycle-hub.local)
 
-There are multiple ingresses needed for the configuration.  For the ingresses to work 
-nicely in minikube, you will need to add the following mappings to your `/etc/hosts`
-file:
+The best starting point is the [Lifecycle Hub](http://lifecycle-hub.local).  Happy API'ing!
 
-    MINIKUBE_IP keycloak.local
-    MINIKUBE_IP designer.local
-    MINIKUBE_IP designer-api.local
-    MINIKUBE_IP registry.local
-    MINIKUBE_IP registry-api.local
-
-Replace the `MINIKUBE_IP` above with the IP address of your minikube cluster.  You can
-find that by doing this:
-
-    minikube ip
-
-## Keycloak
-
-    kubectl create namespace keycloak
-    kubectl create configmap keycloak-realm-config --from-file=deployments/keycloak/config/keycloak-realm-full.json -n keycloak
-    kubectl apply -f ./deployments/keycloak/database.yaml -n keycloak
-    kubectl apply -f ./deployments/keycloak/application.yaml -n keycloak
-
-Note: the default admin credentials are `admin/admin`.
-
-Note: a non-admin user is also created with credentials `user/password`.
-
-## Apicurio API Designer
-
-    kubectl create namespace api-designer
-    kubectl apply -f ./deployments/apicurio/api-designer/database.yaml -n api-designer
-    kubectl apply -f ./deployments/apicurio/api-designer/application.yaml -n api-designer
-    kubectl apply -f ./deployments/apicurio/api-designer/ui.yaml -n api-designer
-
-## Apicurio Registry
-
-    kubectl create namespace api-registry
-    kubectl apply -f ./deployments/apicurio/api-registry/database.yaml -n api-registry
-    kubectl apply -f ./deployments/apicurio/api-registry/application.yaml -n api-registry
-    kubectl apply -f ./deployments/apicurio/api-registry/ui.yaml -n api-registry
-
-## Microcks
-
-    kubectl create namespace microcks
-    kubectl apply -f ./deployments/microcks/mongo.yaml -n microcks
-    kubectl apply -f ./deployments/microcks/postman.yaml -n microcks
-    kubectl apply -f ./deployments/microcks/application.yaml -n microcks
-
-## Apicurio API Lifecycle Components
-
-    kubectl create namespace api-lifecycle
-    kubectl apply -f ./deployments/apicurio/validator/application.yaml -n api-lifecycle
-
-## Echo Test Applications
-
-    kubectl create namespace echo-1
-    kubectl apply -f ./deployments/testing/echo-1/application.yaml -n echo-1
-    kubectl create namespace echo-2
-    kubectl apply -f ./deployments/testing/echo-2/application.yaml -n echo-2
+Note: the default admin credentials for Keycloak are `admin/admin`.
+Note: a non-admin user is available with credentials `user/user`.
