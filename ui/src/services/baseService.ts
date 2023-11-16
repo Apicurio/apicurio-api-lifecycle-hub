@@ -241,7 +241,7 @@ export abstract class BaseService implements Service {
     }
 
     protected apiBaseHref(): string {
-        let apiUrl: string = this.config?.lifecycleHubUrl() || "";
+        let apiUrl: string = this.config?.hubUrl() || "";
         if (apiUrl.endsWith("/")) {
             apiUrl = apiUrl.substring(0, apiUrl.length - 1);
         }

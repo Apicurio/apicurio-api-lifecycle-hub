@@ -50,7 +50,8 @@
     </developers>
 
     <modules>
-        <module>base</module>
+        <module>app</module>
+        <module>client</module>
     </modules>
 
     <properties>
@@ -78,7 +79,7 @@
 
         <!-- Dependency versions -->
         <lombok.version>1.18.30</lombok.version>
-        <apicurio-common-app-components.version>0.2.1.Final</apicurio-common-app-components.version>
+        <apicurio-common-app-components.version>0.2.4.Final</apicurio-common-app-components.version>
 
         <!-- Specifications -->
         <annotation-api.version>1.3.5</annotation-api.version>

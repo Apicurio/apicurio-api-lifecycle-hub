@@ -1,6 +1,6 @@
 const ApiLifecycleConfig = {
     apis: {
-        lifecycleHub: "http://localhost:8080/apis/lifecycle/v0"
+        hub: "http://localhost:8080/apis/hub/v0"
     },
     ui: {
         contextPath: "/",

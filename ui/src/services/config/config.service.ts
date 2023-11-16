@@ -3,7 +3,7 @@ import { Service } from "../baseService";
 
 const DEFAULT_CONFIG: ConfigType = {
     apis: {
-        lifecycleHub: "http://localhost:8080/apis/lifecycle/v0"
+        hub: "http://localhost:8080/apis/hub/v0"
     },
     auth: {
         type: "none"
@@ -44,8 +44,8 @@ export class ConfigService implements Service {
         // Nothing to init (done in c'tor)
     }
 
-    public lifecycleHubUrl(): string {
-        return this.config.apis.lifecycleHub || "";
+    public hubUrl(): string {
+        return this.config.apis.hub || "";
     }
 
     public uiContextPath(): string {

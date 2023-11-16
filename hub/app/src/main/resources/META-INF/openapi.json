@@ -1,0 +1,723 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Apicurio API Lifecycle Hub API [v0]",
+        "version": "0.1.x",
+        "description": "Apicurio API Lifecycle Hub.",
+        "contact": {
+            "name": "Apicurio",
+            "url": "https://github.com/apicurio/api-lifecycle-hub",
+            "email": "apicurio@lists.jboss.org"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        }
+    },
+    "paths": {
+        "/system/info": {
+            "summary": "Retrieve system information",
+            "get": {
+                "tags": [
+                    "System"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SystemInfo"
+                                }
+                            }
+                        },
+                        "description": "On success, returns the system information."
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getSystemInfo",
+                "summary": "Get system information",
+                "description": "This operation retrieves information about the running system, such as the version\nof the software and when it was built."
+            }
+        },
+        "/users/me": {
+            "summary": "Retrieves information about the current user",
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserInfo"
+                                }
+                            }
+                        },
+                        "description": "Response when the endpoint is successfully invoked."
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getCurrentUserInfo",
+                "summary": "Get current user",
+                "description": "Returns information about the currently authenticated user."
+            }
+        },
+        "/apis/{apiId}": {
+            "summary": "Path used to manage a single API.",
+            "description": "The REST endpoint/path used to get, update, and delete single instances of an `API`.  This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and delete tasks, respectively.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Api"
+                                }
+                            }
+                        },
+                        "description": "Successful response - returns a single `API`."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getAPI",
+                "summary": "Get a API",
+                "description": "Gets the details of a single instance of a `API`."
+            },
+            "put": {
+                "requestBody": {
+                    "description": "Updated `API` information.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateApi"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "202": {
+                        "description": "Successful response."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "updateAPI",
+                "summary": "Update a API",
+                "description": "Updates an existing `API`."
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "deleteAPI",
+                "summary": "Delete a API",
+                "description": "Deletes an existing `API`."
+            },
+            "parameters": [
+                {
+                    "name": "apiId",
+                    "description": "A unique identifier for a `API`.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/apis": {
+            "summary": "Path used to manage the list of apis.",
+            "description": "The REST endpoint/path used to list and create zero or more `API` entities.  This path contains a `GET` and `POST` operation to perform the list and create tasks, respectively.",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "description": "Filter by API name.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "offset",
+                        "description": "The number of APIs to skip before starting to collect the result set.  Defaults to 0.",
+                        "schema": {
+                            "default": 0,
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "limit",
+                        "description": "The number of APIs to return.  Defaults to 20.",
+                        "schema": {
+                            "default": 20,
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "order",
+                        "description": "Sort order, ascending (`asc`) or descending (`desc`).",
+                        "schema": {
+                            "$ref": "#/components/schemas/SortOrder"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "orderby",
+                        "description": "The field to sort by.  Can be one of:\n\n* `apiId` (default)\n* `name`\n* `createdOn`\n",
+                        "schema": {
+                            "$ref": "#/components/schemas/ApiSortBy"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "labels",
+                        "description": "Filter by one or more name/value property.  Separate each name/value pair using a colon.  For\nexample `properties=foo:bar` will return only artifacts with a custom property named `foo`\nand value `bar`.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "description",
+                        "description": "Filter by description.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiSearchResults"
+                                }
+                            }
+                        },
+                        "description": "Successful response - returns an array of `API` entities."
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getAPIS",
+                "summary": "List All APIS",
+                "description": "Gets a list of all `API` entities."
+            },
+            "post": {
+                "requestBody": {
+                    "description": "A new `API` to be created.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewApi"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful response."
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "createAPI",
+                "summary": "Create a API",
+                "description": "Creates a new instance of a `API`."
+            }
+        },
+        "x-codegen-contextRoot": "/apis/hub/v0"
+    },
+    "components": {
+        "schemas": {
+            "SystemInfo": {
+                "title": "Root Type for SystemInfo",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "builtOn": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "name": "Apicurio API Lifecycle Hub (SQL)",
+                    "description": "The Apicurio API Lifecycle Hub application.",
+                    "version": "1.0.0.Final",
+                    "builtOn": "2024-03-19T12:55:00Z"
+                }
+            },
+            "UserInfo": {
+                "title": "Root Type for UserInfo",
+                "description": "Information about a single user.",
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "username": "dprince",
+                    "displayName": "Diana Prince"
+                }
+            },
+            "ObjectReference": {
+                "required": [
+                    "id",
+                    "kind"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "href": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Error": {
+                "title": "Error",
+                "description": "",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ObjectReference"
+                    },
+                    {
+                        "required": [
+                            "code",
+                            "reason"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "reason": {
+                                "type": "string"
+                            },
+                            "code": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            },
+            "Labels": {
+                "description": "",
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "x-codegen-inline": true,
+                "x-codegen-type": "StringMap"
+            },
+            "SortOrder": {
+                "description": "",
+                "enum": [
+                    "asc",
+                    "desc"
+                ],
+                "type": "string"
+            },
+            "Api": {
+                "title": "Root Type for API",
+                "description": "",
+                "required": [
+                    "type",
+                    "owner",
+                    "name",
+                    "encoding",
+                    "createdOn",
+                    "apiId"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ApiType"
+                    },
+                    "encoding": {
+                        "type": "string"
+                    },
+                    "owner": {
+                        "type": "string"
+                    },
+                    "createdOn": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "apiId": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "labels": {
+                        "$ref": "#/components/schemas/Labels",
+                        "properties": {
+                            "foo": {
+                                "type": "string"
+                            },
+                            "baz": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "example": {
+                    "apiId": "my-first-api",
+                    "type": "OPENAPI",
+                    "encoding": "application/json",
+                    "owner": "user1",
+                    "createdOn": "2022-01-01T12:33:00Z",
+                    "name": "My First API",
+                    "description": "A great first API!",
+                    "labels": {
+                        "foo": "bar",
+                        "baz": "jam"
+                    }
+                }
+            },
+            "ApiSearchResults": {
+                "description": "Describes the response received when searching for APIs.",
+                "required": [
+                    "count",
+                    "apis"
+                ],
+                "type": "object",
+                "properties": {
+                    "apis": {
+                        "description": "The APIs returned in the result set.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SearchedApi"
+                        }
+                    },
+                    "count": {
+                        "description": "The total number of APIs that matched the query that produced the result set (may be \nmore than the number of APIs in the result set).",
+                        "type": "integer"
+                    }
+                }
+            },
+            "ApiSortBy": {
+                "description": "",
+                "enum": [
+                    "apiId",
+                    "name",
+                    "createdOn"
+                ],
+                "type": "string"
+            },
+            "ApiType": {
+                "description": "",
+                "enum": [
+                    "OPENAPI",
+                    "ASYNCAPI"
+                ],
+                "type": "string"
+            },
+            "UpdateApi": {
+                "title": "Root Type for NewAPI",
+                "description": "",
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "labels": {
+                        "$ref": "#/components/schemas/Labels",
+                        "properties": {
+                            "foo": {
+                                "type": "string"
+                            },
+                            "baz": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "example": {
+                    "name": "My Best API",
+                    "description": "A really great new API.",
+                    "labels": {
+                        "foo": "bar",
+                        "baz": "jam"
+                    }
+                }
+            },
+            "NewApi": {
+                "title": "Root Type for NewAPI",
+                "description": "",
+                "required": [
+                    "encoding",
+                    "name",
+                    "type",
+                    "apiId"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "encoding": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "labels": {
+                        "$ref": "#/components/schemas/Labels",
+                        "properties": {
+                            "foo": {
+                                "type": "string"
+                            },
+                            "baz": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "apiId": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "apiId": "my-best-api",
+                    "type": "OPENAPI",
+                    "encoding": "application/json",
+                    "name": "My Best API",
+                    "description": "A really great new API.",
+                    "labels": {
+                        "foo": "bar",
+                        "baz": "jam"
+                    }
+                }
+            },
+            "SearchedApi": {
+                "description": "",
+                "required": [
+                    "type",
+                    "owner",
+                    "name",
+                    "encoding",
+                    "createdOn",
+                    "apiId"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ApiType"
+                    },
+                    "encoding": {
+                        "type": "string"
+                    },
+                    "owner": {
+                        "type": "string"
+                    },
+                    "createdOn": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "apiId": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "apiId": "my-first-api",
+                    "type": "OPENAPI",
+                    "encoding": "application/json",
+                    "owner": "user1",
+                    "createdOn": "2022-01-01T12:33:00Z",
+                    "name": "My First API",
+                    "description": "A great first API!"
+                }
+            }
+        },
+        "responses": {
+            "NotFound": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        "examples": {
+                            "NotFoundExample": {
+                                "value": {
+                                    "error_code": 404,
+                                    "message": "No artifact with id 'Topic-1/Inbound' could be found."
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Common response for all operations that can return a `404` error."
+            },
+            "MethodNotAllowed": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        "examples": {
+                            "MethodNotAllowedExample": {
+                                "value": {
+                                    "error_code": 405,
+                                    "message": "Method is currently not supported or disabled."
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Common response for all operations that can fail due to method not allowed or disabled."
+            },
+            "ServerError": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        "examples": {
+                            "ErrorExample": {
+                                "value": {
+                                    "error_code": 500,
+                                    "message": "Lost connection to the database."
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Common response for all operations that can fail with an unexpected server error."
+            },
+            "BadRequest": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                },
+                "description": "Common response for all operations that can return a `400` error."
+            },
+            "Conflict": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        "examples": {
+                            "ConflictExample": {
+                                "value": {
+                                    "error_code": 409,
+                                    "message": "The artifact content was invalid."
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Common response used when an input conflicts with existing data."
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "System",
+            "description": "System operations."
+        }
+    ],
+    "x-codegen": {
+        "suppress-date-time-formatting": true,
+        "bean-annotations": [
+            "io.quarkus.runtime.annotations.RegisterForReflection",
+            {
+                "annotation": "lombok.experimental.SuperBuilder",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.AllArgsConstructor",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.NoArgsConstructor",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.EqualsAndHashCode",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.ToString(callSuper = true)",
+                "excludeEnums": true
+            }
+        ]
+    }
+}

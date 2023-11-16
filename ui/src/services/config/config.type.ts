@@ -1,6 +1,6 @@
 
 export interface ApisConfig {
-    lifecycleHub: string;
+    hub: string;
 }
 
 export interface UiConfig {
