@@ -2,9 +2,9 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { AboutModal, Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core";
 import { VersionType } from "@services/version";
 import { Services } from "@services/services.ts";
-import { SystemInfo } from "@models/systemInfo.model.ts";
 import { If } from "@app/components";
 import "./AppAboutModal.css";
+import { SystemInfo } from "@client/models";
 
 
 export type AppAboutModalProps = {
@@ -59,7 +59,7 @@ export const AppAboutModal: FunctionComponent<AppAboutModalProps> = (props: AppA
                         <TextListItem component="dd">{ info?.version || "" }</TextListItem>
 
                         <TextListItem component="dt">Built on</TextListItem>
-                        <TextListItem component="dd">{ info?.builtOn || "" }</TextListItem>
+                        <TextListItem component="dd">{ info?.builtOn?.toString() || "" }</TextListItem>
                     </TextList>
                 </If>
             </TextContent>

@@ -7,12 +7,14 @@
   "repository": "https://github.com/Apicurio/apicurio-api-lifecycle-hub.git",
   "scripts": {
     "clean": "rimraf dist",
+    "generate": "kiota generate -l typescript -d ../hub/app/src/main/resources/META-INF/openapi.json -c LifecycleHubClient -o ./generated-src",
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives"
   },
   "devDependencies": {
     "@apicurio/eslint-config": "0.2.0",
+    "@redhat-developer/kiota-gen": "0.1.0",
     "@types/luxon": "3.3.4",
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.14",
@@ -28,11 +30,18 @@
     "vite-tsconfig-paths": "4.2.1"
   },
   "dependencies": {
+    "@microsoft/kiota-abstractions": "1.0.0-preview.32",
+    "@microsoft/kiota-serialization-json": "1.0.0-preview.32",
+    "@microsoft/kiota-serialization-text": "1.0.0-preview.29",
+    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.11",
+    "@microsoft/kiota-serialization-form": "1.0.0-preview.21",
+    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.31",
+
     "@patternfly/patternfly": "5.1.0",
     "@patternfly/react-core": "5.1.1",
     "@patternfly/react-icons": "5.1.1",
     "@patternfly/react-table": "5.1.1",
-    "axios": "1.6.1",
+
     "luxon": "3.4.3",
     "oidc-client-ts": "2.4.0",
     "react": "18.2.0",

@@ -26,6 +26,7 @@
       "@components/*": [ "./src/components/*" ],
       "@models/*": [ "./src/models/*" ],
       "@hooks/*": [ "./src/hooks/*" ],
+      "@client/*": [ "./generated-src/*" ],
       "@services/*": [ "./src/services/*" ]
     }
   },

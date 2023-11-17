@@ -11,15 +11,18 @@ Prior to building this project make sure you have these applications installed.
 Install development/build dependencies
 `npm install`
 
+Generate REST client from openapi.json
+`npm run generate`
+
 Run a full build
 `npm run build`
 
 Initialize config-oidc.js
-`./init-dev.sh none`
+`./init-dev.sh`
 
 Note: the init-dev.sh script just copies an appropriate file from config/config-*.js to the right place.  You can
-either specify `none` or `oidc` as the argument to the script.  The choice depends on how you are running the
-back-end component.
+either specify `none` (default) or `oidc` as the argument to the script.  The choice depends on how you are running 
+the back-end component.
 
 Start the development server
 `npm run dev`

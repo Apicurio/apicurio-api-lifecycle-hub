@@ -1,15 +1,15 @@
 import { BaseService } from "../baseService";
-import { SystemInfo } from "@models/systemInfo.model.ts";
+import { SystemInfo } from "@client/models";
 
 /**
  * The System service.
  */
 export class SystemService extends BaseService {
 
-    public getInfo(): Promise<SystemInfo> {
+    public getInfo(): Promise<SystemInfo | undefined> {
         this.logger?.info("[SystemService] Getting the global list of artifactTypes.");
-        const endpoint: string = this.endpoint("/system/info");
-        return this.httpGet<SystemInfo>(endpoint);
+
+        return this.client().system.info.get();
     }
 
 }
