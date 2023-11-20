@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { PageSection, PageSectionVariants, Text, TextContent } from "@patternfly/react-core";
 import {
     ApiList,
@@ -7,12 +7,14 @@ import {
     CreateApiModal,
     IfNotEmpty,
     IsLoading,
+    NavPage,
     PleaseWaitModal
 } from "@app/components";
 import { ApiSearchResults, NewApi } from "@client/models";
 import { Services } from "@services/services.ts";
 import { ApisEmptyState } from "@app/components/apis/ApisEmptyState.tsx";
 import { ApisSort } from "@models/ApisSort.model.ts";
+import { AppPage } from "@app/components/layout/AppPage.tsx";
 
 
 export type ApisPageProps = {
@@ -94,7 +96,7 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
     }, [apiSearchCriteria]);
 
     return (
-        <React.Fragment>
+        <AppPage page={NavPage.APIS}>
             <PageSection variant={PageSectionVariants.light} isWidthLimited>
                 <TextContent>
                     <Text component="h1" className="title">APIs</Text>
@@ -124,6 +126,6 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
             </PageSection>
             <CreateApiModal isOpen={isCreateModalOpen} onCancel={onCreateModalCancel} onCreate={onCreateModalCreate} />
             <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />
-        </React.Fragment>
+        </AppPage>
     );
 };

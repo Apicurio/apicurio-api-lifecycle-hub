@@ -1,6 +1,8 @@
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import {
-    Card, CardBody, CardHeader,
+    Card,
+    CardBody,
+    CardHeader,
     Gallery,
     GalleryItem,
     PageSection,
@@ -8,6 +10,8 @@ import {
     Text,
     TextContent
 } from "@patternfly/react-core";
+import { AppPage } from "@app/components/layout/AppPage.tsx";
+import { NavPage } from "@app/components";
 
 export type DashboardPageProps = {
     // No properties.
@@ -16,7 +20,7 @@ export type DashboardPageProps = {
 export const DashboardPage: FunctionComponent<DashboardPageProps> = () => {
 
     return (
-        <React.Fragment>
+        <AppPage page={NavPage.DASHBOARD}>
             <PageSection variant={PageSectionVariants.light} isWidthLimited>
                 <TextContent>
                     <Text component="h1">Dashboard</Text>
@@ -42,6 +46,6 @@ export const DashboardPage: FunctionComponent<DashboardPageProps> = () => {
                     </GalleryItem>
                 </Gallery>
             </PageSection>
-        </React.Fragment>
+        </AppPage>
     );
 };

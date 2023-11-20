@@ -6,7 +6,7 @@ import { FunctionComponent } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ApplicationAuth } from "@app/components";
 import { Services } from "../services";
-import { Layout } from "@app/Layout.tsx";
+import { AppRoutes } from "@app/AppRoutes.tsx";
 
 export type AppProps = {
     // No props
@@ -22,7 +22,7 @@ export const App: FunctionComponent<AppProps> = () => {
     return (
         <ApplicationAuth>
             <Router basename={contextPath}>
-                <Layout />
+                <AppRoutes />
             </Router>
         </ApplicationAuth>
     );
