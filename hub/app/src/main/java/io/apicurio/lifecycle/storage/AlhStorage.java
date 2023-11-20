@@ -16,6 +16,7 @@
 
 package io.apicurio.lifecycle.storage;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,11 +30,14 @@ import io.apicurio.common.apps.storage.exceptions.StorageExceptionMapper;
 import io.apicurio.common.apps.storage.sql.BaseSqlStorageComponent;
 import io.apicurio.common.apps.storage.sql.jdbi.HandleFactory;
 import io.apicurio.lifecycle.storage.dtos.ApiDto;
+import io.apicurio.lifecycle.storage.dtos.ApiSearchResultsDto;
 import io.apicurio.lifecycle.storage.dtos.LabelDto;
 import io.apicurio.lifecycle.storage.dtos.NewApiDto;
+import io.apicurio.lifecycle.storage.dtos.SearchedApiDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateApiDto;
 import io.apicurio.lifecycle.storage.mappers.ApiDtoMapper;
 import io.apicurio.lifecycle.storage.mappers.LabelDtoMapper;
+import io.apicurio.lifecycle.storage.mappers.SearchedApiDtoMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -180,6 +184,23 @@ public class AlhStorage {
             
             return null;
         });        
+    }
+
+    public ApiSearchResultsDto listApis(BigInteger offset, BigInteger limit) {
+        log.debug("Searching for APIs");
+        // TODO implement paging and filtering
+        return handles.withHandleNoExceptionMapped(handle -> {
+            List<SearchedApiDto> apis = handle.createQuery(sqlStatements.selectApis())
+                    .map(SearchedApiDtoMapper.instance)
+                    .list();
+            
+            int count = apis.size();
+            
+            return ApiSearchResultsDto.builder()
+                    .apis(apis)
+                    .count(count)
+                    .build();
+        });
     }
 
 }

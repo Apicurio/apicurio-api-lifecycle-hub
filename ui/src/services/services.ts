@@ -5,9 +5,10 @@ import { DownloaderService } from "./downloader";
 import { AuthService } from "./auth";
 import { VersionService } from "@services/version";
 import { SystemService } from "@services/system";
+import { ApisService } from "@services/apis";
 
 /**
- * Class that provides access to all of the services in the application.
+ * Class that provides access to all the services in the application.
  */
 export class Services {
 
@@ -33,6 +34,10 @@ export class Services {
         return Services.all.system;
     }
 
+    public static getApisService(): ApisService {
+        return Services.all.apis;
+    }
+
     public static getAuthService(): AuthService {
         return Services.all.auth;
     }
@@ -44,6 +49,7 @@ export class Services {
         system: new SystemService(),
         logger: new LoggerService(),
         auth: new AuthService(),
+        apis: new ApisService(),
     };
 
     // tslint:disable-next-line:member-ordering member-access

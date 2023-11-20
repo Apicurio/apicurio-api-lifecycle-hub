@@ -19,9 +19,12 @@ package io.apicurio.lifecycle.storage.dtos;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.apicurio.lifecycle.rest.v0.beans.Api;
+import io.apicurio.lifecycle.rest.v0.beans.ApiSearchResults;
 import io.apicurio.lifecycle.rest.v0.beans.ApiType;
+import io.apicurio.lifecycle.rest.v0.beans.SearchedApi;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -49,6 +52,25 @@ public class ToBean {
             });
         }
         return rval;
+    }
+
+    private static SearchedApi searchedApi(SearchedApiDto dto) {
+        return SearchedApi.builder()
+                .apiId(dto.getApiId())
+                .createdOn(dto.getCreatedOn())
+                .description(dto.getDescription())
+                .encoding(dto.getEncoding())
+                .name(dto.getName())
+                .owner(dto.getOwner())
+                .type(ApiType.fromValue(dto.getType()))
+                .build();
+    }
+
+    public static ApiSearchResults apiSearchResults(ApiSearchResultsDto dto) {
+        return ApiSearchResults.builder()
+                .count(dto.getCount())
+                .apis(dto.getApis().stream().map(api -> ToBean.searchedApi(api)).collect(Collectors.toList()))
+                .build();
     }
 
 }

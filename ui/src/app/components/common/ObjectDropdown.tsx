@@ -24,6 +24,7 @@ export type ObjectDropdownProps = {
     menuAppendTo?: HTMLElement | (() => HTMLElement) | "inline";
     isKebab?: boolean;
     testId?: string;
+    popperProps?: DropdownPopperProps;
 };
 
 /**
@@ -54,7 +55,7 @@ export const ObjectDropdown: FunctionComponent<ObjectDropdownProps> = (props: Ob
         return testId;
     };
 
-    const popperProps: DropdownPopperProps = {
+    const popperProps: DropdownPopperProps = props.popperProps || {
         appendTo: props.menuAppendTo
     };
 

@@ -29,6 +29,7 @@ import io.apicurio.lifecycle.rest.v0.beans.NewApi;
 import io.apicurio.lifecycle.rest.v0.beans.SortOrder;
 import io.apicurio.lifecycle.rest.v0.beans.UpdateApi;
 import io.apicurio.lifecycle.storage.AlhStorage;
+import io.apicurio.lifecycle.storage.dtos.ApiSearchResultsDto;
 import io.apicurio.lifecycle.storage.dtos.ToBean;
 import io.apicurio.lifecycle.storage.dtos.ToDto;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -77,8 +78,20 @@ public class ApisResourceImpl implements ApisResource {
     @Override
     public ApiSearchResults getAPIS(String name, BigInteger offset, BigInteger limit, SortOrder order,
             ApiSortBy orderby, List<String> labels, String description) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (orderby == null) {
+            orderby = ApiSortBy.name;
+        }
+        if (offset == null) {
+            offset = BigInteger.valueOf(0);
+        }
+        if (limit == null) {
+            limit = BigInteger.valueOf(20);
+        }
+        
+        // TODO add filtering
+        ApiSearchResultsDto resultsDto = storage.listApis(offset, limit);
+        return ToBean.apiSearchResults(resultsDto);
     }
 
     /**

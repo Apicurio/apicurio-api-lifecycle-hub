@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package io.apicurio.lifecycle.storage;
+package io.apicurio.lifecycle.storage.dtos;
 
-import io.apicurio.common.apps.storage.sql.BaseSqlStatements;
+import java.util.Date;
+
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-public interface AlhSqlStatements extends BaseSqlStatements {
+@Builder
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
+public class SearchedApiDto {
 
-    String selectApiById();
-
-    String selectApiLabelsById();
-
-    String insertApi();
-
-    String deleteApi();
-
-    String insertApiLabel();
-
-    String deleteApiLabels();
-
-    String updateApi();
-
-    String selectApis();
+    private String apiId;
+    private String type;
+    private String encoding;
+    private String owner;
+    private Date createdOn;
+    private String name;
+    private String description;
 
 }

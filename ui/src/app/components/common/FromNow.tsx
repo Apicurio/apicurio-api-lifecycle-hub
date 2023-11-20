@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 
 
 export type FromNowProps = {
-    date: string | undefined;
+    date: string | Date | undefined;
 };
 
 
@@ -12,8 +12,14 @@ export const FromNow: FunctionComponent<FromNowProps> = (props: FromNowProps) =>
 
     useEffect(() => {
         if (props.date) {
-            const luxonDT: DateTime = DateTime.fromISO(props.date);
-            setFormattedDate(luxonDT.toRelative());
+            if (typeof props.date === "string") {
+                const luxonDT: DateTime = DateTime.fromISO(props.date as string);
+                setFormattedDate(luxonDT.toRelative());
+            }
+            if (props.date instanceof Date) {
+                const luxonDT: DateTime = DateTime.fromJSDate(props.date as Date);
+                setFormattedDate(luxonDT.toRelative());
+            }
         } else {
             setFormattedDate(null);
         }

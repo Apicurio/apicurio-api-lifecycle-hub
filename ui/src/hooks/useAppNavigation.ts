@@ -19,10 +19,10 @@ export const useAppNavigation: () => AppNavigation = (): AppNavigation => {
     const navigate: NavigateFunction = useNavigate();
 
     return {
-        navigateTo: (path: string) => {
-            return navigateTo(path, navigate);
+        navigateTo: (path: string): void => {
+            navigateTo(path, navigate);
         },
-        createLink: (path: string) => {
+        createLink: (path: string): string => {
             const prefix: string = Services.getConfigService().uiNavPrefixPath() || "";
             return `${prefix}${path}`;
         },

@@ -111,4 +111,12 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
                 WHERE a.apiId = ? \
                 """;
     }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectApis()
+     */
+    @Override
+    public String selectApis() {
+        return "SELECT * FROM apis a";
+    }
 }
