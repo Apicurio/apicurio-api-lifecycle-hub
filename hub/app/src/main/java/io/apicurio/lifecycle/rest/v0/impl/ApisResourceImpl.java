@@ -25,13 +25,20 @@ import io.apicurio.lifecycle.rest.v0.ApisResource;
 import io.apicurio.lifecycle.rest.v0.beans.Api;
 import io.apicurio.lifecycle.rest.v0.beans.ApiSearchResults;
 import io.apicurio.lifecycle.rest.v0.beans.ApiSortBy;
+import io.apicurio.lifecycle.rest.v0.beans.Label;
 import io.apicurio.lifecycle.rest.v0.beans.NewApi;
+import io.apicurio.lifecycle.rest.v0.beans.NewVersion;
 import io.apicurio.lifecycle.rest.v0.beans.SortOrder;
 import io.apicurio.lifecycle.rest.v0.beans.UpdateApi;
+import io.apicurio.lifecycle.rest.v0.beans.UpdateVersion;
+import io.apicurio.lifecycle.rest.v0.beans.Version;
+import io.apicurio.lifecycle.rest.v0.beans.VersionSearchResults;
+import io.apicurio.lifecycle.rest.v0.beans.VersionSortBy;
 import io.apicurio.lifecycle.storage.AlhStorage;
 import io.apicurio.lifecycle.storage.dtos.ApiSearchResultsDto;
 import io.apicurio.lifecycle.storage.dtos.ToBean;
 import io.apicurio.lifecycle.storage.dtos.ToDto;
+import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
@@ -100,6 +107,77 @@ public class ApisResourceImpl implements ApisResource {
     @Override
     public void createAPI(@NotNull NewApi data) {
         storage.createAPI(ToDto.newApi(data));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#getApiLabels(java.lang.String)
+     */
+    @Override
+    public List<Label> getApiLabels(String apiId) {
+        return ToBean.labelList(storage.listApiLabels(apiId));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#createVersion(java.lang.String, io.apicurio.lifecycle.rest.v0.beans.NewVersion)
+     */
+    @Override
+    public void createVersion(String apiId, @NotNull NewVersion data) {
+        storage.createVersion(apiId, ToDto.newVersion(data));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#updateVersion(java.lang.String, java.lang.String, io.apicurio.lifecycle.rest.v0.beans.UpdateVersion)
+     */
+    @Override
+    public void updateVersion(String apiId, String version, @NotNull UpdateVersion data) {
+        storage.updateVersion(apiId, version, ToDto.updateVersion(data));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#deleteVersion(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void deleteVersion(String apiId, String version) {
+        storage.deleteVersion(apiId, version);
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#getVersion(java.lang.String, java.lang.String)
+     */
+    @Override
+    public Version getVersion(String apiId, String version) {
+        return ToBean.version(storage.getVersion(apiId, version));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#getVersions(java.lang.String, java.lang.String, java.math.BigInteger, java.math.BigInteger, io.apicurio.lifecycle.rest.v0.beans.SortOrder, io.apicurio.lifecycle.rest.v0.beans.VersionSortBy, java.util.List)
+     */
+    @Override
+    public VersionSearchResults getVersions(String apiId, String version, BigInteger offset, BigInteger limit,
+            SortOrder order, VersionSortBy orderby, List<String> labels) {
+
+        if (orderby == null) {
+            orderby = VersionSortBy.createdOn;
+        }
+        if (offset == null) {
+            offset = BigInteger.valueOf(0);
+        }
+        if (limit == null) {
+            limit = BigInteger.valueOf(20);
+        }
+        
+        // TODO add filtering
+        VersionSearchResultsDto resultsDto = storage.listVersions(apiId, offset, limit);
+        return ToBean.versionSearchResults(resultsDto);
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#getVersionLabels(java.lang.String, java.lang.String)
+     */
+    @Override
+    public List<Label> getVersionLabels(String apiId, String version) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

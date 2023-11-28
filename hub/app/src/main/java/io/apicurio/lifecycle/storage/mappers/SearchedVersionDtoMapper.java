@@ -20,25 +20,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
-import io.apicurio.lifecycle.storage.dtos.LabelDto;
+import io.apicurio.lifecycle.storage.dtos.SearchedVersionDto;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-public class LabelDtoMapper implements RowMapper<LabelDto> {
+public class SearchedVersionDtoMapper implements RowMapper<SearchedVersionDto> {
     
-    public static final LabelDtoMapper instance = new LabelDtoMapper();
+    public static final SearchedVersionDtoMapper instance = new SearchedVersionDtoMapper();
 
     @Override
     public boolean supports(Class<?> klass) {
-        return LabelDto.class.equals(klass);
+        return SearchedVersionDto.class.equals(klass);
     }
 
     @Override
-    public LabelDto map(ResultSet rs) throws SQLException {
-        return LabelDto.builder()
-                .key(rs.getString("labelKey"))
-                .value(rs.getString("labelValue"))
+    public SearchedVersionDto map(ResultSet rs) throws SQLException {
+        return SearchedVersionDto.builder()
+                .apiId(rs.getString("apiId"))
+                .version(rs.getString("version"))
+                .description(rs.getString("description"))
+                .createdOn(rs.getDate("createdOn"))
+                .modifiedOn(rs.getDate("modifiedOn"))
                 .build();
     }
 }

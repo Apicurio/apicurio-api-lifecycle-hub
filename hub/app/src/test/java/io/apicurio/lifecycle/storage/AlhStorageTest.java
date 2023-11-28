@@ -27,7 +27,10 @@ import org.slf4j.Logger;
 import io.apicurio.lifecycle.storage.dtos.ApiDto;
 import io.apicurio.lifecycle.storage.dtos.LabelDto;
 import io.apicurio.lifecycle.storage.dtos.NewApiDto;
+import io.apicurio.lifecycle.storage.dtos.NewVersionDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateApiDto;
+import io.apicurio.lifecycle.storage.dtos.UpdateVersionDto;
+import io.apicurio.lifecycle.storage.dtos.VersionDto;
 import io.apicurio.lifecycle.storage.exceptions.AlhAlreadyExistsException;
 import io.apicurio.lifecycle.storage.exceptions.AlhNotFoundException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -46,7 +49,7 @@ public class AlhStorageTest {
     AlhStorage storage;
 
     private static boolean containsLabel(List<LabelDto> labels, String name, String value) {
-        List<LabelDto> filtered = labels.stream().filter(label -> label.getName().equals(name) && label.getValue().equals(value)).collect(Collectors.toList());
+        List<LabelDto> filtered = labels.stream().filter(label -> label.getKey().equals(name) && label.getValue().equals(value)).collect(Collectors.toList());
         return !filtered.isEmpty();
     }
 
@@ -102,9 +105,9 @@ public class AlhStorageTest {
     @Test
     public void testGetApiByIdWithLabels() throws Exception {
         List<LabelDto> labels = new LinkedList<>();
-        labels.add(LabelDto.builder().name("label-1").value("value-1").build());
-        labels.add(LabelDto.builder().name("label-2").value("value-2").build());
-        labels.add(LabelDto.builder().name("label-3").value("value-3").build());
+        labels.add(LabelDto.builder().key("label-1").value("value-1").build());
+        labels.add(LabelDto.builder().key("label-2").value("value-2").build());
+        labels.add(LabelDto.builder().key("label-3").value("value-3").build());
         
         storage.createAPI(NewApiDto.builder()
                 .apiId("testGetApiByIdWithLabels")
@@ -120,6 +123,29 @@ public class AlhStorageTest {
         Assertions.assertTrue(containsLabel(api.getLabels(), "label-1", "value-1"));
         Assertions.assertTrue(containsLabel(api.getLabels(), "label-2", "value-2"));
         Assertions.assertTrue(containsLabel(api.getLabels(), "label-3", "value-3"));
+    }
+
+    @Test
+    public void testGetApiLabels() throws Exception {
+        String apiId = "testGetApiLabels";
+        
+        List<LabelDto> labels = new LinkedList<>();
+        labels.add(LabelDto.builder().key("label-1").value("value-1").build());
+        labels.add(LabelDto.builder().key("label-2").value("value-2").build());
+        labels.add(LabelDto.builder().key("label-3").value("value-3").build());
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .encoding("application/json")
+                .name("Test API")
+                .labels(labels)
+                .build());
+        
+        List<LabelDto> storedLabels = storage.listApiLabels(apiId);
+        Assertions.assertTrue(containsLabel(storedLabels, "label-1", "value-1"));
+        Assertions.assertTrue(containsLabel(storedLabels, "label-2", "value-2"));
+        Assertions.assertTrue(containsLabel(storedLabels, "label-3", "value-3"));
     }
 
     @Test
@@ -150,9 +176,9 @@ public class AlhStorageTest {
     @Test
     public void testDeleteApiWithLabels() throws Exception {
         List<LabelDto> labels = new LinkedList<>();
-        labels.add(LabelDto.builder().name("label-1").value("value-1").build());
-        labels.add(LabelDto.builder().name("label-2").value("value-2").build());
-        labels.add(LabelDto.builder().name("label-3").value("value-3").build());
+        labels.add(LabelDto.builder().key("label-1").value("value-1").build());
+        labels.add(LabelDto.builder().key("label-2").value("value-2").build());
+        labels.add(LabelDto.builder().key("label-3").value("value-3").build());
         
         storage.createAPI(NewApiDto.builder()
                 .apiId("testDeleteApiWithLabels")
@@ -203,6 +229,84 @@ public class AlhStorageTest {
         Assertions.assertEquals("New Name API", api.getName());
         Assertions.assertEquals("OPENAPI", api.getType());
         Assertions.assertEquals(0, api.getLabels().size());
+    }
+
+    @Test
+    public void testCreateVersion() throws Exception {
+        String apiId = "testCreateVersion";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .encoding("application/json")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .build());
+    }
+
+    @Test
+    public void testDeleteVersion() throws Exception {
+        String apiId = "testDeleteVersion";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .encoding("application/json")
+                .name("Test API")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .build());
+
+        storage.getApi(apiId);
+        storage.getVersion(apiId, "1.0");
+
+        storage.deleteVersion(apiId, "1.0");
+
+        Assertions.assertThrows(AlhNotFoundException.class, () -> {
+            storage.getVersion(apiId, "1.0");
+        });
+    }
+
+    @Test
+    public void testUpdateVersion() throws Exception {
+        String apiId = "testUpdateVersion";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .encoding("application/json")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .build());
+
+        VersionDto version = storage.getVersion(apiId, "1.0");
+        Assertions.assertEquals(apiId, version.getApiId());
+        Assertions.assertEquals("1.0", version.getVersion());
+        Assertions.assertEquals("Version 1.0", version.getDescription());
+        Assertions.assertEquals(0, version.getLabels().size());
+        
+        storage.updateVersion(apiId, "1.0", UpdateVersionDto.builder()
+                .description("Version 1.0 is the best!")
+                .build());
+        
+        version = storage.getVersion(apiId, "1.0");
+        Assertions.assertEquals(apiId, version.getApiId());
+        Assertions.assertEquals("1.0", version.getVersion());
+        Assertions.assertEquals("Version 1.0 is the best!", version.getDescription());
+        Assertions.assertEquals(0, version.getLabels().size());
     }
 
 }

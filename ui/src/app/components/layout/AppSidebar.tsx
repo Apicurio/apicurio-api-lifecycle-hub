@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import React, { FunctionComponent } from "react";
 import { Nav, NavItem, NavList, PageSidebar, PageSidebarBody } from "@patternfly/react-core";
 import { AppNavigation, useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { NavPage } from "@app/components";

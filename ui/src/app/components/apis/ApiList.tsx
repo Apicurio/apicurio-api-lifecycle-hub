@@ -1,11 +1,12 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { ApiDescription, NavLink, ObjectDropdown, ResponsiveTable } from "@app/components";
+import { ApiDescription, NavLink, ResponsiveTable } from "@app/components";
 import { ApiSearchResults, SearchedApi } from "@client/models";
-import { ApisSort, SortBy } from "@models/ApisSort.model.ts";
+import { ApiSortBy, ApisSort } from "@models/ApisSort.model.ts";
 import { Truncate } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { ThProps } from "@patternfly/react-table";
 import { FromNow } from "@app/components/common/FromNow.tsx";
+import { ObjectDropdown } from "@apicurio/common-ui-components";
 
 /**
  * Properties
@@ -74,12 +75,11 @@ export const ApiList: FunctionComponent<ApiListProps> = (props: ApiListProps) =>
     };
 
     const actionsFor = (api: SearchedApi): (ApiAction | ApiActionSeparator)[] => {
-        const actions: (ApiAction | ApiActionSeparator)[] = [
+        return [
             { label: "View API details", testId: `view-api-${api.apiId}`, onClick: () => props.onSelect(api.apiId as string) },
             { isSeparator: true, },
-            { label: "Delete design", testId: `delete-api-${api.apiId}`, onClick: () => props.onDelete(api.apiId as string) }
+            { label: "Delete api", testId: `delete-api-${api.apiId}`, onClick: () => props.onDelete(api.apiId as string) }
         ];
-        return actions;
     };
 
     const sortParams = (column: any): ThProps["sort"] | undefined => {
@@ -89,7 +89,7 @@ export const ApiList: FunctionComponent<ApiListProps> = (props: ApiListProps) =>
                 direction: props.sort.direction
             },
             onSort: (_event, index, direction) => {
-                const byn: SortBy[] = ["name", "type", "createdOn"];
+                const byn: ApiSortBy[] = ["name", "type", "createdOn"];
                 const sort: ApisSort = {
                     by: byn[index],
                     direction
@@ -105,22 +105,22 @@ export const ApiList: FunctionComponent<ApiListProps> = (props: ApiListProps) =>
     }, [props.sort]);
 
     return (
-        <div className="design-list">
+        <div className="api-list">
             <ResponsiveTable
-                ariaLabel="list of designs"
+                ariaLabel="list of apis"
                 columns={columns}
                 data={props.apis.apis}
                 expectedLength={props.apis.count}
                 minimumColumnWidth={350}
                 renderHeader={({ column, Th }) => (
                     <Th sort={sortParams(column)}
-                        className="design-list-header"
+                        className="api-list-header"
                         key={`header-${column.id}`}
                         width={column.width}
                         modifier="truncate">{column.label}</Th>
                 )}
                 renderCell={({ row, colIndex, Td }) => (
-                    <Td className="design-list-cell" key={`cell-${colIndex}-${row.apiId}`}
+                    <Td className="api-list-cell" key={`cell-${colIndex}-${row.apiId}`}
                         style={{ maxWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                         children={renderColumnData(row as SearchedApi, colIndex) as any} />
                 )}
@@ -128,6 +128,7 @@ export const ApiList: FunctionComponent<ApiListProps> = (props: ApiListProps) =>
                     <ObjectDropdown
                         items={actionsFor(row)}
                         isKebab={true}
+                        label="Actions"
                         itemToString={item => item.label}
                         itemToTestId={item => item.testId}
                         itemIsDivider={item => item.isSeparator}

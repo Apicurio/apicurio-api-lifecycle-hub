@@ -6,6 +6,7 @@ import { AddCircleOIcon } from "@patternfly/react-icons";
  * Properties
  */
 export type ApisEmptyStateProps = {
+    // No properties
 };
 
 export const ApisEmptyState: FunctionComponent<ApisEmptyStateProps> = () => {

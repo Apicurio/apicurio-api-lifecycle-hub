@@ -39,4 +39,20 @@ public interface AlhSqlStatements extends BaseSqlStatements {
 
     String selectApis();
 
+    String insertVersion();
+
+    String insertVersionLabel();
+
+    String selectVersionByApiIdAndVersion();
+
+    String selectVersionLabelsByApiIdAndVersion();
+
+    String updateVersion();
+
+    String deleteVersionLabels();
+
+    String selectVersions();
+
+    String deleteVersion();
+
 }

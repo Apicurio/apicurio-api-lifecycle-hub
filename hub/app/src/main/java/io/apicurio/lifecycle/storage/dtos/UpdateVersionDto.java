@@ -16,6 +16,8 @@
 
 package io.apicurio.lifecycle.storage.dtos;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,9 +32,9 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class LabelDto {
-
-    private String key;
-    private String value;
+public class UpdateVersionDto {
+    
+    private String description;
+    private List<LabelDto> labels;
 
 }

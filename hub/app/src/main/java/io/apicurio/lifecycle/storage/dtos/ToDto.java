@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.apicurio.lifecycle.rest.v0.beans.NewApi;
+import io.apicurio.lifecycle.rest.v0.beans.NewVersion;
 import io.apicurio.lifecycle.rest.v0.beans.UpdateApi;
+import io.apicurio.lifecycle.rest.v0.beans.UpdateVersion;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -47,7 +49,7 @@ public class ToDto {
         }
         List<LabelDto> dtos = new ArrayList<>(labels.size());
         labels.forEach((k,v) -> {
-            dtos.add(LabelDto.builder().name(k).value(v).build());
+            dtos.add(LabelDto.builder().key(k).value(v).build());
         });
         return dtos;
     }
@@ -56,6 +58,21 @@ public class ToDto {
         return UpdateApiDto.builder()
                 .description(bean.getDescription())
                 .name(bean.getName())
+                .labels(labels(bean.getLabels()))
+                .build();
+    }
+
+    public static NewVersionDto newVersion(@NotNull NewVersion bean) {
+        return NewVersionDto.builder()
+                .version(bean.getVersion())
+                .description(bean.getDescription())
+                .labels(labels(bean.getLabels()))
+                .build();
+    }
+
+    public static UpdateVersionDto updateVersion(@NotNull UpdateVersion bean) {
+        return UpdateVersionDto.builder()
+                .description(bean.getDescription())
                 .labels(labels(bean.getLabels()))
                 .build();
     }

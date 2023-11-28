@@ -55,7 +55,7 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     public String selectApiLabelsById() {
         return "SELECT * FROM apiLabels l WHERE l.apiId = ?";
     }
-    
+
     /**
      * @see io.apicurio.lifecycle.storage.AlhSqlStatements#insertApi()
      */
@@ -73,7 +73,7 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     @Override
     public String insertApiLabel() {
         return """
-                INSERT INTO apiLabels (apiId, name, lvalue) \
+                INSERT INTO apiLabels (apiId, labelKey, labelValue) \
                 VALUES (?, ?, ?)\
                 """;
         }
@@ -119,4 +119,85 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     public String selectApis() {
         return "SELECT * FROM apis a";
     }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#insertVersion()
+     */
+    @Override
+    public String insertVersion() {
+        return """
+                INSERT INTO versions (apiId, version, createdOn, modifiedOn, description) \
+                VALUES (?, ?, ?, ?, ?)\
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#insertVersionLabel()
+     */
+    @Override
+    public String insertVersionLabel() {
+        return """
+                INSERT INTO versionLabels (apiId, version, labelKey, labelValue) \
+                VALUES (?, ?, ?)\
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#deleteVersion()
+     */
+    @Override
+    public String deleteVersion() {
+        return """
+                DELETE FROM versions v \
+                WHERE v.apiId = ? AND v.version = ?\
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#deleteVersionLabels()
+     */
+    @Override
+    public String deleteVersionLabels() {
+        return """
+                DELETE FROM versionLabels l \
+                WHERE l.apiId = ? AND l.version = ? \
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectVersionByApiIdAndVersion()
+     */
+    @Override
+    public String selectVersionByApiIdAndVersion() {
+        return "SELECT * FROM versions v WHERE v.apiId = ? AND v.version = ?";
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectVersionLabelsByApiIdAndVersion()
+     */
+    @Override
+    public String selectVersionLabelsByApiIdAndVersion() {
+        return "SELECT * FROM versionLabels l WHERE l.apiId = ? AND l.version = ?";
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectVersions()
+     */
+    @Override
+    public String selectVersions() {
+        return "SELECT * FROM versions v WHERE v.apiId = ?";
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#updateVersion()
+     */
+    @Override
+    public String updateVersion() {
+        return """
+                UPDATE versions v \
+                SET description = ? \
+                WHERE v.apiId = ? AND v.version = ? \
+                """;
+    }
+
 }

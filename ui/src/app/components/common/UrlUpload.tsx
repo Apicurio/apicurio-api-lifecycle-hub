@@ -1,9 +1,8 @@
 import React, { FunctionComponent, useState } from "react";
 import "./UrlUpload.css";
 import { Button, Spinner, TextArea, TextInput } from "@patternfly/react-core";
-import { UrlService, useUrlService } from "../../../services";
-import { If } from "./If.tsx";
-import { IsLoading } from "./IsLoading.tsx";
+import { UrlService, useUrlService } from "@services/url.ts";
+import { If, IfNotLoading } from "@apicurio/common-ui-components";
 
 /**
  * Properties
@@ -80,7 +79,7 @@ export const UrlUpload: FunctionComponent<UrlUploadProps> = (props: UrlUploadPro
                 </div>
             </div>
             <div className="url-upload-preview">
-                <IsLoading condition={isLoading} loadingComponent={spinner}>
+                <IfNotLoading isLoading={isLoading} loadingComponent={spinner}>
                     <If condition={hasError}>
                         <div className="url-upload-error">
                             <div>
@@ -94,7 +93,7 @@ export const UrlUpload: FunctionComponent<UrlUploadProps> = (props: UrlUploadPro
                     <If condition={!hasError()}>
                         <TextArea data-testid={`${props.testId}-preview`} value={previewContent} readOnly={true} />
                     </If>
-                </IsLoading>
+                </IfNotLoading>
             </div>
         </div>
     );

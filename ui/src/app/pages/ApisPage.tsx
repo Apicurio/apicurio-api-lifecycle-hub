@@ -1,20 +1,18 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { PageSection, PageSectionVariants, Text, TextContent } from "@patternfly/react-core";
 import {
-    ApiList,
     ApisToolbar,
     ApisToolbarData,
     CreateApiModal,
-    IfNotEmpty,
-    IsLoading,
     NavPage,
-    PleaseWaitModal
+    ApiList
 } from "@app/components";
 import { ApiSearchResults, NewApi } from "@client/models";
 import { Services } from "@services/services.ts";
 import { ApisEmptyState } from "@app/components/apis/ApisEmptyState.tsx";
 import { ApisSort } from "@models/ApisSort.model.ts";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
+import { IfNotEmpty, IfNotLoading, PleaseWaitModal } from "@apicurio/common-ui-components";
 
 
 export type ApisPageProps = {
@@ -107,11 +105,12 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
                 </TextContent>
             </PageSection>
             <PageSection variant={PageSectionVariants.default} isFilled={true}>
-                <IsLoading condition={isLoading}>
+                <IfNotLoading isLoading={isLoading}>
                     <ApisToolbar data={apiSearchCriteria} apis={apiSearchResults} onCreateApi={onCreateApi} onChange={onSearchCriteriaChange} />
                     <div className="api-search-results-wrapper" style={{ backgroundColor: "white" }}>
                         <IfNotEmpty collection={apiSearchResults.apis} emptyState={ <ApisEmptyState /> }>
-                            <ApiList apis={apiSearchResults}
+                            <ApiList
+                                apis={apiSearchResults}
                                 sort={apisSort}
                                 onSort={setApisSort}
                                 onSelect={(apiId) => {
@@ -122,7 +121,7 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
                                 }} />
                         </IfNotEmpty>
                     </div>
-                </IsLoading>
+                </IfNotLoading>
             </PageSection>
             <CreateApiModal isOpen={isCreateModalOpen} onCancel={onCreateModalCancel} onCreate={onCreateModalCreate} />
             <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />

@@ -24,7 +24,11 @@ import java.util.stream.Collectors;
 import io.apicurio.lifecycle.rest.v0.beans.Api;
 import io.apicurio.lifecycle.rest.v0.beans.ApiSearchResults;
 import io.apicurio.lifecycle.rest.v0.beans.ApiType;
+import io.apicurio.lifecycle.rest.v0.beans.Label;
 import io.apicurio.lifecycle.rest.v0.beans.SearchedApi;
+import io.apicurio.lifecycle.rest.v0.beans.SearchedVersion;
+import io.apicurio.lifecycle.rest.v0.beans.Version;
+import io.apicurio.lifecycle.rest.v0.beans.VersionSearchResults;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -48,7 +52,7 @@ public class ToBean {
         final Map<String, String> rval = new HashMap<>();
         if (dtos != null) {
             dtos.forEach(label -> {
-                rval.put(label.getName(), label.getValue());
+                rval.put(label.getKey(), label.getValue());
             });
         }
         return rval;
@@ -70,6 +74,41 @@ public class ToBean {
         return ApiSearchResults.builder()
                 .count(dto.getCount())
                 .apis(dto.getApis().stream().map(api -> ToBean.searchedApi(api)).collect(Collectors.toList()))
+                .build();
+    }
+    
+    private static Label label(LabelDto dto) {
+        return Label.builder()
+                .key(dto.getKey())
+                .value(dto.getValue())
+                .build();
+    }
+
+    public static List<Label> labelList(List<LabelDto> dtos) {
+        return dtos.stream().map(dto -> label(dto)).collect(Collectors.toList());
+    }
+
+    public static Version version(VersionDto dto) {
+        return Version.builder()
+                .createdOn(dto.getCreatedOn())
+                .description(dto.getDescription())
+                .modifiedOn(dto.getModifiedOn())
+                .version(dto.getVersion())
+                .labels(labels(dto.getLabels()))
+                .build();
+    }
+
+    private static SearchedVersion searchedVersion(SearchedVersionDto dto) {
+        return SearchedVersion.builder()
+                .version(dto.getVersion())
+                .createdOn(dto.getCreatedOn())
+                .build();
+    }
+
+    public static VersionSearchResults versionSearchResults(VersionSearchResultsDto dto) {
+        return VersionSearchResults.builder()
+                .count(dto.getCount())
+                .versions(dto.getVersions().stream().map(version -> ToBean.searchedVersion(version)).collect(Collectors.toList()))
                 .build();
     }
 

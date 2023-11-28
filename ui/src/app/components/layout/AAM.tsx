@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { AboutModal, Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core";
 import { VersionType } from "@services/version";
 import { Services } from "@services/services.ts";
-import { If } from "@app/components";
+import { If } from "@apicurio/common-ui-components";
 import "./AppAboutModal.css";
 import { SystemInfo } from "@client/models";
 
@@ -27,7 +27,7 @@ export const AppAboutModal: FunctionComponent<AppAboutModalProps> = (props: AppA
             isOpen={props.isOpen}
             onClose={props.onClose}
             trademark="&copy; 2024 Red Hat"
-            brandImageSrc="/apicurio_primary_logo_reverse.svg"
+            brandImageSrc="/apicurio_apilifecyclehub_logo_reverse.svg"
             brandImageAlt={version.name}
             aria-label={version.name}
         >

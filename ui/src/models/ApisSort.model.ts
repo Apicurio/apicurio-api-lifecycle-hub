@@ -1,7 +1,7 @@
-export type SortDirection = "asc" | "desc";
-export type SortBy = "apiId" | "name" | "createdOn" | "type";
+export type ApiSortDirection = "asc" | "desc";
+export type ApiSortBy = "apiId" | "name" | "createdOn" | "type";
 
 export interface ApisSort {
-    by: SortBy;
-    direction: SortDirection;
+    by: ApiSortBy;
+    direction: ApiSortDirection;
 }

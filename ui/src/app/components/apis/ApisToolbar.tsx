@@ -9,13 +9,13 @@ import {
     ToolbarContent,
     ToolbarItem
 } from "@patternfly/react-core";
-import { PagingModel } from "@models/Paging.model.ts";
+import { Paging } from "@models/Paging.model.ts";
 import { ApiSearchResults } from "@client/models";
 
 
 export type ApisToolbarData = {
     filterValue: string;
-    paging: PagingModel;
+    paging: Paging;
 };
 
 

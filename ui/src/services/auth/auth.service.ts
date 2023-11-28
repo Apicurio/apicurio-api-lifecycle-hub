@@ -1,6 +1,5 @@
 import { ConfigService } from "../config";
 import { Service } from "../baseService";
-import { AxiosRequestConfig } from "axios";
 import { User, UserManager, UserManagerSettings } from "oidc-client-ts";
 
 /**
@@ -92,18 +91,18 @@ export class AuthService implements Service {
         }
     }
 
-    public getAuthInterceptor(): (config: AxiosRequestConfig) => Promise<any> {
-        /* eslint-disable @typescript-eslint/no-this-alias */
-        const self: AuthService = this;
-        return (config: AxiosRequestConfig) => {
-            if (self.config?.authType() === "oidc") {
-                if (config.headers) {
-                    config.headers.Authorization = `Bearer ${this.getOidcToken()}`;
-                }
-                return Promise.resolve(config);
-            } else {
-                return Promise.resolve(config);
-            }
-        };
-    }
+    // public getAuthInterceptor(): (config: AxiosRequestConfig) => Promise<any> {
+    //     /* eslint-disable @typescript-eslint/no-this-alias */
+    //     const self: AuthService = this;
+    //     return (config: AxiosRequestConfig) => {
+    //         if (self.config?.authType() === "oidc") {
+    //             if (config.headers) {
+    //                 config.headers.Authorization = `Bearer ${this.getOidcToken()}`;
+    //             }
+    //             return Promise.resolve(config);
+    //         } else {
+    //             return Promise.resolve(config);
+    //         }
+    //     };
+    // }
 }

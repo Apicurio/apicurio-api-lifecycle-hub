@@ -33,6 +33,9 @@
   "include": [
     "src"
   ],
+  "exclude": [
+    "generated-src"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

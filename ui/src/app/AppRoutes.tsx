@@ -1,8 +1,6 @@
 import { FunctionComponent } from "react";
 import { Route, Routes } from "react-router-dom";
-import { DashboardPage } from "@app/pages";
-import { ApisPage } from "@app/pages/ApisPage.tsx";
-import { ApiDetailsPage } from "@app/pages/ApiDetails.tsx";
+import { ApiDetailsPage, ApisPage, DashboardPage } from "@app/pages";
 
 export type AppRoutesProps = {
     // No props
