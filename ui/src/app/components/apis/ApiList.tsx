@@ -1,12 +1,11 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { ApiDescription, NavLink, ResponsiveTable } from "@app/components";
+import { ApiDescription, FromNow, NavLink } from "@app/components";
 import { ApiSearchResults, SearchedApi } from "@client/models";
 import { ApiSortBy, ApisSort } from "@models/ApisSort.model.ts";
 import { Truncate } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { ThProps } from "@patternfly/react-table";
-import { FromNow } from "@app/components/common/FromNow.tsx";
-import { ObjectDropdown } from "@apicurio/common-ui-components";
+import { ObjectDropdown, ResponsiveTable } from "@apicurio/common-ui-components";
 
 /**
  * Properties

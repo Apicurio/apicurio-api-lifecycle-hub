@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { NavLink, ResponsiveTable } from "@app/components";
+import { FromNow, NavLink } from "@app/components";
 import { Truncate } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { ThProps } from "@patternfly/react-table";
-import { FromNow } from "@app/components/common/FromNow.tsx";
 import { SearchedVersion, VersionSearchResults } from "@client/models";
 import { VersionSortBy, VersionsSort } from "@models/VersionsSort.model.ts";
+import { ResponsiveTable } from "@apicurio/common-ui-components";
 
 /**
  * Properties
