@@ -63,6 +63,7 @@ jobs:
           cd ui
           npm install
           npm run lint
+          npm run generate
           npm run build
 
       - name: Login to Quay.io Registry
