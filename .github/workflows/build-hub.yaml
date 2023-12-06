@@ -59,7 +59,9 @@ jobs:
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
 
       - name: Build Apicurio API Lifecycle Hub
-        run: mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
+        run: |
+          cd hub
+          mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
 
       - name: Login to Quay.io Registry
         if: github.event_name == 'push'
@@ -73,8 +75,8 @@ jobs:
         if: github.event_name == 'push'
         uses: docker/build-push-action@v2
         with:
-          context: ./dist/docker/target/docker
-          file: ./dist/docker/target/docker/Dockerfile
+          context: ./hub/dist/docker/target/docker
+          file: ./hub/dist/docker/target/docker/Dockerfile
           platforms: ${{env.PLATFORMS}}
           push: true
           tags: |
