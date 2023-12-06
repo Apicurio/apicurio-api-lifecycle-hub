@@ -55,8 +55,10 @@ public class AlhStorageTest {
 
     @Test
     public void testCreateApi() throws Exception {
+        String apiId = "AlhStorageTest_testCreateApi";
+        
         storage.createAPI(NewApiDto.builder()
-                .apiId("testCreateApi")
+                .apiId(apiId)
                 .type("OPENAPI")
                 .encoding("application/json")
                 .name("Test API")
@@ -66,8 +68,9 @@ public class AlhStorageTest {
 
     @Test
     public void testCreateApi_409() throws Exception {
+        String apiId = "AlhStorageTest_testCreateApi_409";
         storage.createAPI(NewApiDto.builder()
-                .apiId("testCreateApi_409")
+                .apiId(apiId)
                 .type("OPENAPI")
                 .encoding("application/json")
                 .name("Test API")
@@ -75,7 +78,7 @@ public class AlhStorageTest {
 
         Assertions.assertThrows(AlhAlreadyExistsException.class, () -> {
             storage.createAPI(NewApiDto.builder()
-                    .apiId("testCreateApi_409")
+                    .apiId(apiId)
                     .type("OPENAPI")
                     .encoding("application/json")
                     .name("Test API")
@@ -199,7 +202,7 @@ public class AlhStorageTest {
 
     @Test
     public void testUpdateApi() throws Exception {
-        String apiId = "testUpdateApi";
+        String apiId = "AlhStorageTest_testUpdateApi";
         
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
@@ -233,7 +236,7 @@ public class AlhStorageTest {
 
     @Test
     public void testCreateVersion() throws Exception {
-        String apiId = "testCreateVersion";
+        String apiId = "AlhStorageTest_testCreateVersion";
         
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
@@ -251,7 +254,7 @@ public class AlhStorageTest {
 
     @Test
     public void testDeleteVersion() throws Exception {
-        String apiId = "testDeleteVersion";
+        String apiId = "AlhStorageTest_testDeleteVersion";
         
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
@@ -277,7 +280,7 @@ public class AlhStorageTest {
 
     @Test
     public void testUpdateVersion() throws Exception {
-        String apiId = "testUpdateVersion";
+        String apiId = "AlhStorageTest_testUpdateVersion";
         
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
