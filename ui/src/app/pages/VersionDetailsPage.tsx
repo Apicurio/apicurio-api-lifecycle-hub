@@ -42,9 +42,6 @@ export type VersionDetailsPageProps = {
 
 export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = () => {
     const [isLoading, setLoading] = useState(true);
-    const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false);
-    const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
-    const [isCreateVersionModalOpen, setIsCreateVersionModalOpen] = useState(false);
     const [api, setApi] = useState<Api>();
     const [version, setVersion] = useState<Version>();
 
@@ -60,6 +57,7 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
 
         Promise.all([
             Services.getApisService().getApi(apiIdParam).then(setApi),
+            Services.getApisService().getVersion(apiIdParam, versionParam).then(setVersion),
         ]).then(() => {
             setLoading(false);
         }).catch(error => {
@@ -67,15 +65,6 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
             console.error(`[VersionDetailsPage] Failed to get API with id ${apiIdParam}: `, error);
         });
     }, [params]);
-
-    const pleaseWait = (message: string): void => {
-        setIsPleaseWaitModalOpen(true);
-        setPleaseWaitModalMessage(message);
-    };
-
-    const closePleaseWaitModal = (): void => {
-        setIsPleaseWaitModalOpen(false);
-    };
 
     const breadcrumb = (
         <Breadcrumb>
@@ -155,7 +144,6 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                     </Gallery>
                 </PageSection>
             </IfNotLoading>
-            <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />
         </AppPage>
     );
 };
