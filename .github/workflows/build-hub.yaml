@@ -81,7 +81,7 @@ jobs:
           push: true
           tags: |
             docker.io/${{env.IMAGE_ORG}}/apicurio-api-lifecycle-hub:${{env.IMAGE_TAG}}
-            quay.io/${{env.IMAGE_ORG}}/apicurio-api-lifecycler-hub:${{env.IMAGE_TAG}}
+            quay.io/${{env.IMAGE_ORG}}/apicurio-api-lifecycle-hub:${{env.IMAGE_TAG}}
 
       - name: Google Chat Notification (Always)
         if: github.event_name == 'push' && always()
