@@ -37,5 +37,7 @@ public class NewVersionDto {
     private String version;
     private String description;
     private List<LabelDto> labels;
+    private String contentType;
+    private String content;
 
 }

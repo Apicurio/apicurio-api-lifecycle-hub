@@ -6,21 +6,23 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/Apicurio/apicurio-api-lifecycle-hub.git",
   "scripts": {
-    "clean": "rimraf dist",
-    "generate": "kiota generate -l typescript -d ../hub/app/src/main/resources/META-INF/openapi.json -c LifecycleHubClient -o ./generated-src",
+    "clean": "rimraf dist generated-src .kiota",
+    "generate": "cross-env KIOTA_VERSION=v1.8.1 kiota generate -l typescript -d ../hub/app/src/main/resources/META-INF/openapi.json -c LifecycleHubClient -o ./generated-src",
+    "kiota-info": "cross-env KIOTA_VERSION=v1.8.1 kiota info -l typescript",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint --ext ts,tsx src"
   },
   "devDependencies": {
     "@apicurio/eslint-config": "0.2.0",
-    "@redhat-developer/kiota-gen": "0.1.0",
+    "@kiota-community/kiota-gen": "1.0.0",
     "@types/luxon": "3.3.7",
     "@types/react": "18.2.42",
     "@types/react-dom": "18.2.17",
     "@typescript-eslint/eslint-plugin": "6.13.2",
     "@typescript-eslint/parser": "6.13.2",
     "@vitejs/plugin-react-swc": "3.5.0",
+    "cross-env": "7.0.3",
     "eslint": "8.55.0",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.5",
@@ -31,12 +33,14 @@
     "vite-tsconfig-paths": "4.2.1"
   },
   "dependencies": {
-    "@microsoft/kiota-abstractions": "1.0.0-preview.34",
-    "@microsoft/kiota-serialization-json": "1.0.0-preview.34",
-    "@microsoft/kiota-serialization-text": "1.0.0-preview.31",
-    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.13",
-    "@microsoft/kiota-serialization-form": "1.0.0-preview.23",
-    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.33",
+    "@microsoft/kiota-abstractions": "1.0.0-preview.30",
+    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.29",
+    "@microsoft/kiota-serialization-form": "1.0.0-preview.19",
+    "@microsoft/kiota-serialization-json": "1.0.0-preview.30",
+    "@microsoft/kiota-authentication-azure": "1.0.0-preview.25",
+    "@microsoft/kiota-serialization-text": "1.0.0-preview.27",
+    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.9",
+
 
     "@patternfly/patternfly": "5.1.0",
     "@patternfly/react-core": "5.1.1",

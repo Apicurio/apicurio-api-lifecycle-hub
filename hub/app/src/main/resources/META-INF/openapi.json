@@ -564,6 +564,72 @@
                 }
             ]
         },
+        "/apis/{apiId}/versions/{version}/content": {
+            "summary": "Path used to manage the content of a single version of an API.",
+            "description": "The REST endpoint/path used to get and update the content of a single API version.  This path contains `GET` and `PUT` operations used to perform the get and update tasks, respectively.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/RawContent"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getVersionContent",
+                "summary": "Get the API version content",
+                "description": "Gets the content of an API version.  The content itself is returned raw as the body\nof the response.  The content-type of the response will correspond to the type of \nthe content.  This might be `application/json` or `application/yaml`, for example."
+            },
+            "put": {
+                "requestBody": {
+                    "description": "The new API version content.",
+                    "content": {
+                        "*/*": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FileContent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The content was successfully updated."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "summary": "Update the content of an API version",
+                "description": "Updates the content of an API version.  The new content should be sent as the raw\nbody of the request, with appropriate content-type set.\n"
+            },
+            "parameters": [
+                {
+                    "name": "apiId",
+                    "description": "A unique identifier for an API.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "version",
+                    "description": "A version of an API.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
         "x-codegen-contextRoot": "/apis/hub/v0"
     },
     "components": {
@@ -677,7 +743,6 @@
                     "type",
                     "owner",
                     "name",
-                    "encoding",
                     "createdOn",
                     "apiId"
                 ],
@@ -685,9 +750,6 @@
                 "properties": {
                     "type": {
                         "$ref": "#/components/schemas/ApiType"
-                    },
-                    "encoding": {
-                        "type": "string"
                     },
                     "owner": {
                         "type": "string"
@@ -721,7 +783,6 @@
                 "example": {
                     "apiId": "my-first-api",
                     "type": "OPENAPI",
-                    "encoding": "application/json",
                     "owner": "user1",
                     "createdOn": "2022-01-01T12:33:00Z",
                     "name": "My First API",
@@ -809,7 +870,6 @@
                 "title": "Root Type for NewAPI",
                 "description": "",
                 "required": [
-                    "encoding",
                     "name",
                     "type",
                     "apiId"
@@ -817,9 +877,6 @@
                 "type": "object",
                 "properties": {
                     "type": {
-                        "type": "string"
-                    },
-                    "encoding": {
                         "type": "string"
                     },
                     "name": {
@@ -847,7 +904,6 @@
                 "example": {
                     "apiId": "my-best-api",
                     "type": "OPENAPI",
-                    "encoding": "application/json",
                     "name": "My Best API",
                     "description": "A really great new API.",
                     "labels": {
@@ -862,7 +918,6 @@
                     "type",
                     "owner",
                     "name",
-                    "encoding",
                     "createdOn",
                     "apiId"
                 ],
@@ -870,9 +925,6 @@
                 "properties": {
                     "type": {
                         "$ref": "#/components/schemas/ApiType"
-                    },
-                    "encoding": {
-                        "type": "string"
                     },
                     "owner": {
                         "type": "string"
@@ -895,7 +947,6 @@
                 "example": {
                     "apiId": "my-first-api",
                     "type": "OPENAPI",
-                    "encoding": "application/json",
                     "owner": "user1",
                     "createdOn": "2022-01-01T12:33:00Z",
                     "name": "My First API",
@@ -975,7 +1026,8 @@
                 "required": [
                     "createdOn",
                     "modifiedOn",
-                    "version"
+                    "version",
+                    "contentType"
                 ],
                 "type": "object",
                 "properties": {
@@ -989,12 +1041,22 @@
                     "modifiedOn": {
                         "format": "date-time",
                         "type": "string"
+                    },
+                    "description": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "description": "",
+                        "type": "string"
                     }
                 },
                 "example": {
                     "version": "1.0",
+                    "description": "The first version of the API",
                     "createdOn": "2024-01-01T15:22:00Z",
-                    "modifiedOn": "2024-01-01T15:25:00Z"
+                    "modifiedOn": "2024-01-01T15:25:00Z",
+                    "contentType": "application/json"
                 }
             },
             "VersionSearchResults": {
@@ -1030,7 +1092,8 @@
                 "title": "Root Type for NewAPI",
                 "description": "",
                 "required": [
-                    "version"
+                    "version",
+                    "content"
                 ],
                 "type": "object",
                 "properties": {
@@ -1051,6 +1114,10 @@
                     "version": {
                         "description": "",
                         "type": "string"
+                    },
+                    "content": {
+                        "$ref": "#/components/schemas/NewContent",
+                        "description": ""
                     }
                 },
                 "example": {
@@ -1087,6 +1154,38 @@
                     "labels": {
                         "foo": "bar",
                         "baz": "jam"
+                    }
+                }
+            },
+            "FileContent": {
+                "format": "binary",
+                "type": "string",
+                "x-codegen-inline": true
+            },
+            "NewContent": {
+                "description": "",
+                "required": [
+                    "source",
+                    "content",
+                    "contentType"
+                ],
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "description": "",
+                        "enum": [
+                            "INLINE",
+                            "FORK"
+                        ],
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "description": "",
+                        "type": "string"
                     }
                 }
             }
@@ -1173,6 +1272,28 @@
                     }
                 },
                 "description": "Common response used when an input conflicts with existing data."
+            },
+            "RawContent": {
+                "content": {
+                    "*/*": {
+                        "schema": {
+                            "$ref": "#/components/schemas/FileContent"
+                        },
+                        "examples": {
+                            "OpenAPI": {
+                                "value": {
+                                    "openapi": "3.0.3",
+                                    "info": {
+                                        "title": "Empty API",
+                                        "version": "1.0.0",
+                                        "description": "An example API design using OpenAPI."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "The content of an API version."
             }
         }
     },

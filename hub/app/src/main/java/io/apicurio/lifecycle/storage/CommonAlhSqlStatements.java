@@ -62,8 +62,8 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     @Override
     public String insertApi() {
         return """
-                INSERT INTO apis (apiId, type, encoding, owner, createdOn, name, description) \
-                VALUES (?, ?, ?, ?, ?, ?, ?)\
+                INSERT INTO apis (apiId, type, owner, createdOn, name, description) \
+                VALUES (?, ?, ?, ?, ?, ?)\
                 """;
     }
     
@@ -165,6 +165,17 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     }
     
     /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#deleteVersionContent()
+     */
+    @Override
+    public String deleteVersionContent() {
+        return """
+                DELETE FROM content c \
+                WHERE c.apiId = ? AND c.version = ? \
+                """;
+    }
+    
+    /**
      * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectVersionByApiIdAndVersion()
      */
     @Override
@@ -185,7 +196,15 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
      */
     @Override
     public String selectVersions() {
-        return "SELECT * FROM versions v WHERE v.apiId = ?";
+//        return "SELECT * FROM versions v WHERE v.apiId = ? ORDER BY v.createdOn DESC";
+        return """
+                SELECT v.*, c.contentType
+                FROM versions v
+                JOIN content c ON c.apiId = v.apiId AND c.version = v.version
+                WHERE v.apiId = ?
+                ORDER BY v.createdOn DESC
+                """;
+
     }
     
     /**
@@ -197,6 +216,37 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
                 UPDATE versions v \
                 SET description = ? \
                 WHERE v.apiId = ? AND v.version = ? \
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#insertVersionContent()
+     */
+    @Override
+    public String insertVersionContent() {
+        return """
+                INSERT INTO content (apiId, version, contentType, content) \
+                VALUES (?, ?, ?, ?)\
+                """;
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#selectVersionContentByApiIdAndVersion()
+     */
+    @Override
+    public String selectVersionContentByApiIdAndVersion() {
+        return "SELECT * FROM content c WHERE c.apiId = ? AND c.version = ?";
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.storage.AlhSqlStatements#updateVersionContent()
+     */
+    @Override
+    public String updateVersionContent() {
+        return """
+                UPDATE content c \
+                SET contentType = ?, content = ? \
+                WHERE c.apiId = ? AND c.version = ? \
                 """;
     }
 

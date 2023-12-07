@@ -60,8 +60,7 @@ export const CreateApiModal: FunctionComponent<CreateApiModalProps> = (props: Cr
             name,
             description,
             type,
-            apiId,
-            encoding: "application/json"
+            apiId
         };
         props.onCreate(data);
     };

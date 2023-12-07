@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
 import { Route, Routes } from "react-router-dom";
-import { ApiDetailsPage, ApisPage, DashboardPage } from "@app/pages";
+import { ApiDetailsPage, ApisPage, DashboardPage, VersionDetailsPage, VersionsPage } from "@app/pages";
 
 export type AppRoutesProps = {
     // No props
@@ -17,6 +17,8 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = () => {
             <Route path="/dashboard" element={ <DashboardPage /> } />
             <Route path="/apis" element={ <ApisPage /> } />
             <Route path="/apis/:apiId" element={ <ApiDetailsPage /> } />
+            <Route path="/apis/:apiId/versions" element={ <VersionsPage /> } />
+            <Route path="/apis/:apiId/versions/:version" element={ <VersionDetailsPage /> } />
         </Routes>
     );
 };

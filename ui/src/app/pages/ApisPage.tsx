@@ -13,6 +13,7 @@ import { ApisEmptyState } from "@app/components/apis/ApisEmptyState.tsx";
 import { ApisSort } from "@models/ApisSort.model.ts";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { IfNotEmpty, IfNotLoading, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { AppNavigation, useAppNavigation } from "@hooks/useAppNavigation.ts";
 
 
 export type ApisPageProps = {
@@ -42,6 +43,8 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
     });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+    const appNav: AppNavigation = useAppNavigation();
+
     const pleaseWait = (message: string): void => {
         setIsPleaseWaitModalOpen(true);
         setPleaseWaitModalMessage(message);
@@ -69,7 +72,7 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
         pleaseWait("Creating API, please wait.");
         Services.getApisService().createApi(data).then(() => {
             closePleaseWaitModal();
-            // TODO redirect to API detail page
+            appNav.navigateTo(`/apis/${data.apiId}`);
         }).catch(error => {
             // TODO proper error handling
             Services.getLoggerService().error("[ApisPage] Error creating an API: ", error);

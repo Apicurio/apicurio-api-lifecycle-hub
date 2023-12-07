@@ -37,7 +37,6 @@ public class ApiDto {
 
     private String apiId;
     private String type;
-    private String encoding;
     private String name;
     private String description;
     private String owner;

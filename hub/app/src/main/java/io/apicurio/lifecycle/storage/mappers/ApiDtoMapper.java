@@ -39,7 +39,6 @@ public class ApiDtoMapper implements RowMapper<ApiDto> {
         return ApiDto.builder()
                 .apiId(rs.getString("apiId"))
                 .type(rs.getString("type"))
-                .encoding(rs.getString("encoding"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .owner(rs.getString("owner"))

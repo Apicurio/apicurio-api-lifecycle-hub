@@ -21,15 +21,13 @@ import {
     TextVariants
 } from "@patternfly/react-core";
 import { Link, useParams } from "react-router-dom";
-import { Api, NewVersion, VersionSearchResults } from "@client/models";
+import { Api, Version } from "@client/models";
 import { Services } from "@services/services.ts";
-import { CreateVersionModal, NavPage, LatestVersionsList } from "@app/components";
+import { NavPage } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { FromNow } from "@app/components/common/FromNow.tsx";
-import { VersionsSort } from "@models/VersionsSort.model.ts";
-import { Paging } from "@models/Paging.model.ts";
-import { IfNotLoading, ObjectDropdown, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { IfNotLoading, PleaseWaitModal } from "@apicurio/common-ui-components";
 
 const splitGalleryWidths = {
     sm: "100%",
@@ -38,47 +36,35 @@ const splitGalleryWidths = {
     xl: "50%"
 };
 
-export type ApiDetailsPageProps = {
+export type VersionDetailsPageProps = {
     // No properties.
 }
 
-export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
+export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = () => {
     const [isLoading, setLoading] = useState(true);
     const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false);
     const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
     const [isCreateVersionModalOpen, setIsCreateVersionModalOpen] = useState(false);
     const [api, setApi] = useState<Api>();
-
-    const [versionSearchResults, setVersionSearchResults] = useState<VersionSearchResults>({
-        count: 0,
-        versions: []
-    });
-    const [versionsSort] = useState<VersionsSort>({
-        by: "createdOn",
-        direction: "asc"
-    });
-    const [versionPaging] = useState<Paging>({
-        page: 1,
-        pageSize: 50
-    });
+    const [version, setVersion] = useState<Version>();
 
     const params = useParams();
     const appNav = useAppNavigation();
 
-    const apiId: string = params["apiId"] as string;
+    const apiIdParam: string = params["apiId"] as string;
+    const versionParam: string = params["version"] as string;
 
     // Load the api based on the api ID (from the path param).
     useEffect(() => {
         setLoading(true);
 
         Promise.all([
-            Services.getApisService().getApi(apiId).then(setApi),
-            Services.getApisService().searchVersions(apiId, undefined, versionPaging).then(results => setVersionSearchResults(results as VersionSearchResults))
+            Services.getApisService().getApi(apiIdParam).then(setApi),
         ]).then(() => {
             setLoading(false);
         }).catch(error => {
             // TODO better error handling needed!
-            console.error(`[ApiDetailsPage] Failed to get API with id ${apiId}: `, error);
+            console.error(`[VersionDetailsPage] Failed to get API with id ${apiIdParam}: `, error);
         });
     }, [params]);
 
@@ -91,52 +77,22 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
         setIsPleaseWaitModalOpen(false);
     };
 
-    const onCreateVersion = (data: NewVersion): void => {
-        setIsCreateVersionModalOpen(false);
-        pleaseWait("Create version, please wait.");
-        Services.getApisService().createVersion(apiId, data).then(() => {
-            closePleaseWaitModal();
-            appNav.navigateTo(`/apis/${apiId}/versions/${data.version}`);
-        }).catch(error => {
-            // TODO handle errors better than this
-            Services.getLoggerService().error("Error creating version: ", error);
-            closePleaseWaitModal();
-        });
-    };
-
-
     const breadcrumb = (
         <Breadcrumb>
             <BreadcrumbItem><Link to={appNav.createLink("/apis")}>APIs</Link></BreadcrumbItem>
-            <BreadcrumbItem to="#" isActive>{apiId}</BreadcrumbItem>
+            <BreadcrumbItem><Link to={appNav.createLink(`/apis/${apiIdParam}`)}>{apiIdParam}</Link></BreadcrumbItem>
+            <BreadcrumbItem><Link to={appNav.createLink(`/apis/${apiIdParam}/versions`)}>Versions</Link></BreadcrumbItem>
+            <BreadcrumbItem to="#" isActive>{versionParam}</BreadcrumbItem>
         </Breadcrumb>
-    );
-
-    const versionActions = (
-        <ObjectDropdown
-            label="Version actions"
-            isKebab={true}
-            items={[
-                { label: "New version", onClick: () => setIsCreateVersionModalOpen(true) },
-                { divider: true },
-                { label: "View all versions", onClick: () => appNav.navigateTo(`/apis/${apiId}/versions`) },
-            ]}
-            onSelect={item => item.onClick()}
-            itemToString={item => item.label}
-            itemIsDivider={item => item.divider}
-            popperProps={{
-                position: "right"
-            }}
-        />
     );
 
     return (
         <AppPage page={NavPage.APIS} breadcrumb={breadcrumb}>
             <PageSection variant={PageSectionVariants.light} isWidthLimited>
                 <TextContent>
-                    <Text component="h1">API Details</Text>
+                    <Text component="h1">Version Details</Text>
                     <Text component="p" className="description">
-                        Manage the details of this API by updating its metadata and creating or editing versions.
+                        Manage the details of this API Version by updating its metadata and content.
                     </Text>
                 </TextContent>
             </PageSection>
@@ -156,23 +112,25 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
                                             <TextContent>
                                                 <TextList component={TextListVariants.dl}>
                                                     <TextListItem component={TextListItemVariants.dt}>API Id:</TextListItem>
-                                                    <TextListItem component={TextListItemVariants.dd}>{api?.apiId}</TextListItem>
+                                                    <TextListItem component={TextListItemVariants.dd}>{apiIdParam}</TextListItem>
 
-                                                    <TextListItem component={TextListItemVariants.dt}>Name:</TextListItem>
+                                                    <TextListItem component={TextListItemVariants.dt}>API Name:</TextListItem>
                                                     <TextListItem component={TextListItemVariants.dd}>{api?.name}</TextListItem>
 
+                                                    <TextListItem component={TextListItemVariants.dt}>Version:</TextListItem>
+                                                    <TextListItem component={TextListItemVariants.dd}>{version?.version}</TextListItem>
+
                                                     <TextListItem component={TextListItemVariants.dt}>Description:</TextListItem>
-                                                    <TextListItem component={TextListItemVariants.dd}>{api?.description || "No description."}</TextListItem>
-
-                                                    <TextListItem component={TextListItemVariants.dt}>Type:</TextListItem>
-                                                    <TextListItem component={TextListItemVariants.dd}>{api?.type}</TextListItem>
-
-                                                    <TextListItem component={TextListItemVariants.dt}>Owner:</TextListItem>
-                                                    <TextListItem component={TextListItemVariants.dd}>{api?.owner}</TextListItem>
+                                                    <TextListItem component={TextListItemVariants.dd}>{version?.description || "No description."}</TextListItem>
 
                                                     <TextListItem component={TextListItemVariants.dt}>Created:</TextListItem>
                                                     <TextListItem component={TextListItemVariants.dd}>
-                                                        <FromNow date={api?.createdOn} />
+                                                        <FromNow date={version?.createdOn} />
+                                                    </TextListItem>
+
+                                                    <TextListItem component={TextListItemVariants.dt}>Modified:</TextListItem>
+                                                    <TextListItem component={TextListItemVariants.dd}>
+                                                        <FromNow date={version?.modifiedOn} />
                                                     </TextListItem>
                                                 </TextList>
                                             </TextContent>
@@ -192,33 +150,12 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
                             </Flex>
                         </GalleryItem>
                         <GalleryItem className="right-panel" style={{ padding: "20px" }}>
-                            <Card>
-                                <CardHeader actions={{ actions: versionActions }}>
-                                    <TextContent>
-                                        <Text component={TextVariants.h3}>Latest versions</Text>
-                                    </TextContent>
-                                </CardHeader>
-                                <CardBody>
-                                    <LatestVersionsList
-                                        apiId={apiId}
-                                        versions={versionSearchResults}
-                                        onSelect={() => {}}
-                                        onDelete={() => {}}
-                                        onSort={() => {}}
-                                        onCreate={() => setIsCreateVersionModalOpen(true)}
-                                        sort={versionsSort}
-                                    />
-                                </CardBody>
-                            </Card>
+                            Something else here?
                         </GalleryItem>
                     </Gallery>
                 </PageSection>
             </IfNotLoading>
             <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />
-            <CreateVersionModal
-                isOpen={isCreateVersionModalOpen}
-                onCreate={data => onCreateVersion(data)}
-                onCancel={() => setIsCreateVersionModalOpen(false)} />
         </AppPage>
     );
 };

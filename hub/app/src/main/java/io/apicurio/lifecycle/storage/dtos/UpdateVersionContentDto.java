@@ -16,8 +16,6 @@
 
 package io.apicurio.lifecycle.storage.dtos;
 
-import java.util.Date;
-
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,13 +30,9 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class SearchedApiDto {
-
-    private String apiId;
-    private String type;
-    private String owner;
-    private Date createdOn;
-    private String name;
-    private String description;
+public class UpdateVersionContentDto {
+    
+    private String contentType;
+    private String content;
 
 }

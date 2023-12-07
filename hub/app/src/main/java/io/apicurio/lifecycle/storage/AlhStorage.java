@@ -38,13 +38,16 @@ import io.apicurio.lifecycle.storage.dtos.NewVersionDto;
 import io.apicurio.lifecycle.storage.dtos.SearchedApiDto;
 import io.apicurio.lifecycle.storage.dtos.SearchedVersionDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateApiDto;
+import io.apicurio.lifecycle.storage.dtos.UpdateVersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateVersionDto;
+import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionDto;
 import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
 import io.apicurio.lifecycle.storage.mappers.ApiDtoMapper;
 import io.apicurio.lifecycle.storage.mappers.LabelDtoMapper;
 import io.apicurio.lifecycle.storage.mappers.SearchedApiDtoMapper;
 import io.apicurio.lifecycle.storage.mappers.SearchedVersionDtoMapper;
+import io.apicurio.lifecycle.storage.mappers.VersionContentDtoMapper;
 import io.apicurio.lifecycle.storage.mappers.VersionDtoMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -120,11 +123,10 @@ public class AlhStorage {
             handle.createUpdate(sqlStatements.insertApi())
                     .bind(0, newApi.getApiId())
                     .bind(1, newApi.getType())
-                    .bind(2, newApi.getEncoding())
-                    .bind(3, "user")
-                    .bind(4, new Date())
-                    .bind(5, newApi.getName())
-                    .bind(6, newApi.getDescription())
+                    .bind(2, "user")
+                    .bind(3, new Date())
+                    .bind(4, newApi.getName())
+                    .bind(5, newApi.getDescription())
                     .execute();
 
             // Now insert a row for each label
@@ -229,7 +231,7 @@ public class AlhStorage {
     public void createVersion(String apiId, NewVersionDto newVersion) {
         log.debug("Inserting an API Version row for: {}@{}", apiId, newVersion.getVersion());
         handles.withHandleNoExceptionMapped(handle -> {
-            // Insert the API row
+            // Insert the version row
             handle.createUpdate(sqlStatements.insertVersion())
                     .bind(0, apiId)
                     .bind(1, newVersion.getVersion())
@@ -249,6 +251,15 @@ public class AlhStorage {
                             .execute();
                 }
             }
+            
+            // And insert the content
+            handle.createUpdate(sqlStatements.insertVersionContent())
+                    .bind(0, apiId)
+                    .bind(1, newVersion.getVersion())
+                    .bind(2, newVersion.getContentType())
+                    .bind(3, newVersion.getContent())
+                    .execute();
+
             
             return null;
         });
@@ -289,6 +300,12 @@ public class AlhStorage {
                 .bind(1, version)
                 .execute();
             
+            // Then delete the content
+            handle.createUpdate(sqlStatements.deleteVersionContent())
+                .bind(0, apiId)
+                .bind(1, version)
+                .execute();
+            
             // Then delete the Version
             int rowCount = handle.createUpdate(sqlStatements.deleteVersion())
                     .bind(0, apiId)
@@ -304,6 +321,8 @@ public class AlhStorage {
 
     @Transactional
     public void updateVersion(String apiId, String version, UpdateVersionDto updateVersion) {
+        // TODO also update the last modified time of the version
+       
         handles.withHandleNoExceptionMapped(handle -> {
             // Update the description
             int changed = handle.createUpdate(sqlStatements.updateVersion())
@@ -371,5 +390,43 @@ public class AlhStorage {
         });
     }
 
-    
+    @Transactional
+    public VersionContentDto getVersionContent(String apiId, String version) {
+        log.debug("Selecting a single API version: {}@{}", apiId, version);
+        return handles.withHandleNoExceptionMapped(handle -> {
+            // Read the VersionContent from the content table
+            Optional<VersionContentDto> res = handle.createQuery(sqlStatements.selectVersionContentByApiIdAndVersion())
+                    .bind(0, apiId)
+                    .bind(1, version)
+                    .map(VersionContentDtoMapper.instance)
+                    .findOne();
+            return res.orElseThrow(() -> {
+                return new NotFoundException("No Version found: " + apiId + "@" + version, 
+                        Map.of("apiId", apiId, "version", version));
+            });
+        });
+    }
+
+    @Transactional
+    public void updateVersionContent(String apiId, String version, UpdateVersionContentDto update) {
+        // TODO also update the last modified time of the version
+        
+        handles.withHandleNoExceptionMapped(handle -> {
+            // Update the content and contentType
+            int changed = handle.createUpdate(sqlStatements.updateVersionContent())
+                    .setContext(API_ID_KEY, apiId)
+                    .setContext(VERSION_KEY, version)
+                    .bind(0, update.getContentType())
+                    .bind(1, update.getContent())
+                    .bind(2, apiId)
+                    .bind(3, version)
+                    .execute();
+            if (changed == 0) {
+                throw new NotFoundException("No Version found: " + apiId + "@" + version, 
+                        Map.of(API_ID_KEY, apiId, VERSION_KEY, version));
+            }
+            return null;
+        });        
+    }
+
 }

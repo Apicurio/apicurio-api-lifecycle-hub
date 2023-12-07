@@ -35,7 +35,6 @@ import lombok.ToString;
 public class NewApiDto {
 
     private String type;
-    private String encoding;
     private String name;
     private String description;
     private String apiId;

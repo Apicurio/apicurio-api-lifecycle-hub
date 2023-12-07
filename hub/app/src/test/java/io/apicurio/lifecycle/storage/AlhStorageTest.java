@@ -16,6 +16,7 @@
 
 package io.apicurio.lifecycle.storage;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +30,11 @@ import io.apicurio.lifecycle.storage.dtos.LabelDto;
 import io.apicurio.lifecycle.storage.dtos.NewApiDto;
 import io.apicurio.lifecycle.storage.dtos.NewVersionDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateApiDto;
+import io.apicurio.lifecycle.storage.dtos.UpdateVersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateVersionDto;
+import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionDto;
+import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
 import io.apicurio.lifecycle.storage.exceptions.AlhAlreadyExistsException;
 import io.apicurio.lifecycle.storage.exceptions.AlhNotFoundException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -41,6 +45,24 @@ import jakarta.inject.Inject;
  */
 @QuarkusTest
 public class AlhStorageTest {
+
+    private static final String EMPTY_OPENAPI_CONTENT = "{\n"
+            + "    \"openapi\": \"3.0.2\",\n"
+            + "    \"info\": {\n"
+            + "        \"title\": \"Empty API\",\n"
+            + "        \"version\": \"1.0.0\",\n"
+            + "        \"description\": \"Just an empty API.\"\n"
+            + "    }\n"
+            + "}";
+
+    private static final String EMPTY_OPENAPI_CONTENT_UPDATED = "{\n"
+            + "    \"openapi\": \"3.0.2\",\n"
+            + "    \"info\": {\n"
+            + "        \"title\": \"Empty API (updated)\",\n"
+            + "        \"version\": \"1.0.1\",\n"
+            + "        \"description\": \"Just an empty, but updated API.\"\n"
+            + "    }\n"
+            + "}";
 
     @Inject
     Logger log;
@@ -60,7 +82,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .description("My test API is here.")
                 .build());
@@ -72,7 +93,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .build());
 
@@ -80,7 +100,6 @@ public class AlhStorageTest {
             storage.createAPI(NewApiDto.builder()
                     .apiId(apiId)
                     .type("OPENAPI")
-                    .encoding("application/json")
                     .name("Test API")
                     .build());
         });
@@ -91,7 +110,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId("testGetApiById")
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .description("My test API is here.")
                 .build());
@@ -99,7 +117,6 @@ public class AlhStorageTest {
         ApiDto api = storage.getApi("testGetApiById");
         Assertions.assertEquals("testGetApiById", api.getApiId());
         Assertions.assertEquals("My test API is here.", api.getDescription());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("Test API", api.getName());
         Assertions.assertEquals("OPENAPI", api.getType());
         Assertions.assertEquals(0, api.getLabels().size());
@@ -115,7 +132,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId("testGetApiByIdWithLabels")
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .labels(labels)
                 .build());
@@ -140,7 +156,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .labels(labels)
                 .build());
@@ -163,7 +178,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId("testDeleteApi")
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .build());
 
@@ -186,7 +200,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId("testDeleteApiWithLabels")
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .labels(labels)
                 .build());
@@ -207,7 +220,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .description("My test API is here.")
                 .build());
@@ -215,7 +227,6 @@ public class AlhStorageTest {
         ApiDto api = storage.getApi(apiId);
         Assertions.assertEquals(apiId, api.getApiId());
         Assertions.assertEquals("My test API is here.", api.getDescription());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("Test API", api.getName());
         Assertions.assertEquals("OPENAPI", api.getType());
         Assertions.assertEquals(0, api.getLabels().size());
@@ -228,7 +239,6 @@ public class AlhStorageTest {
         api = storage.getApi(apiId);
         Assertions.assertEquals(apiId, api.getApiId());
         Assertions.assertEquals("This is a new description.", api.getDescription());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("New Name API", api.getName());
         Assertions.assertEquals("OPENAPI", api.getType());
         Assertions.assertEquals(0, api.getLabels().size());
@@ -241,7 +251,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .description("My test API is here.")
                 .build());
@@ -249,7 +258,33 @@ public class AlhStorageTest {
         storage.createVersion(apiId, NewVersionDto.builder()
                 .version("1.0")
                 .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
                 .build());
+    }
+
+    @Test
+    public void testGetVersion() throws Exception {
+        String apiId = "AlhStorageTest_testGetVersion";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
+                .build());
+        
+        VersionDto version = storage.getVersion(apiId, "1.0");
+        Assertions.assertEquals(apiId, version.getApiId());
+        Assertions.assertEquals("1.0", version.getVersion());
+        Assertions.assertEquals("Version 1.0", version.getDescription());
     }
 
     @Test
@@ -259,13 +294,14 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .build());
         
         storage.createVersion(apiId, NewVersionDto.builder()
                 .version("1.0")
                 .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
                 .build());
 
         storage.getApi(apiId);
@@ -285,7 +321,6 @@ public class AlhStorageTest {
         storage.createAPI(NewApiDto.builder()
                 .apiId(apiId)
                 .type("OPENAPI")
-                .encoding("application/json")
                 .name("Test API")
                 .description("My test API is here.")
                 .build());
@@ -293,6 +328,8 @@ public class AlhStorageTest {
         storage.createVersion(apiId, NewVersionDto.builder()
                 .version("1.0")
                 .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
                 .build());
 
         VersionDto version = storage.getVersion(apiId, "1.0");
@@ -310,6 +347,99 @@ public class AlhStorageTest {
         Assertions.assertEquals("1.0", version.getVersion());
         Assertions.assertEquals("Version 1.0 is the best!", version.getDescription());
         Assertions.assertEquals(0, version.getLabels().size());
+    }
+
+    @Test
+    public void testGetVersionContent() throws Exception {
+        String apiId = "AlhStorageTest_testGetVersionContent";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
+                .build());
+        
+        VersionContentDto dto = storage.getVersionContent(apiId, "1.0");
+        Assertions.assertEquals(apiId, dto.getApiId());
+        Assertions.assertEquals("1.0", dto.getVersion());
+        Assertions.assertEquals("application/json", dto.getContentType());
+        Assertions.assertEquals(EMPTY_OPENAPI_CONTENT, dto.getContent());
+    }
+
+    @Test
+    public void testUpdateVersionContent() throws Exception {
+        String apiId = "AlhStorageTest_testUpdateVersionContent";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
+                .build());
+        
+        VersionContentDto dto = storage.getVersionContent(apiId, "1.0");
+        Assertions.assertEquals(apiId, dto.getApiId());
+        Assertions.assertEquals("1.0", dto.getVersion());
+        Assertions.assertEquals("application/json", dto.getContentType());
+        Assertions.assertEquals(EMPTY_OPENAPI_CONTENT, dto.getContent());
+
+        storage.updateVersionContent(apiId, "1.0", UpdateVersionContentDto.builder()
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT_UPDATED)
+                .build());
+
+        dto = storage.getVersionContent(apiId, "1.0");
+        Assertions.assertEquals(apiId, dto.getApiId());
+        Assertions.assertEquals("1.0", dto.getVersion());
+        Assertions.assertEquals("application/json", dto.getContentType());
+        Assertions.assertEquals(EMPTY_OPENAPI_CONTENT_UPDATED, dto.getContent());
+    }
+
+    @Test
+    public void testSearchVersions() throws Exception {
+        String apiId = "AlhStorageTest_testSearchVersions";
+        
+        storage.createAPI(NewApiDto.builder()
+                .apiId(apiId)
+                .type("OPENAPI")
+                .name("Test API")
+                .description("My test API is here.")
+                .build());
+        
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("1.0")
+                .description("Version 1.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT)
+                .build());
+        Thread.sleep(10); // Note: if we don't wait a little bit, the sorting might not work because the createdOn might be the same time 
+        storage.createVersion(apiId, NewVersionDto.builder()
+                .version("2.0")
+                .description("Version 2.0")
+                .contentType("application/json")
+                .content(EMPTY_OPENAPI_CONTENT_UPDATED)
+                .build());
+        
+        VersionSearchResultsDto versions = storage.listVersions(apiId, new BigInteger("0"), new BigInteger("20"));
+        Assertions.assertEquals(2, versions.getCount());
+        Assertions.assertEquals("2.0", versions.getVersions().get(0).getVersion());
+        Assertions.assertEquals("Version 2.0", versions.getVersions().get(0).getDescription());
+        Assertions.assertEquals("application/json", versions.getVersions().get(0).getContentType());
     }
 
 }

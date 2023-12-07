@@ -36,7 +36,6 @@ public class ToDto {
         return NewApiDto.builder()
                 .apiId(bean.getApiId())
                 .description(bean.getDescription())
-                .encoding(bean.getEncoding())
                 .name(bean.getName())
                 .type(bean.getType())
                 .labels(labels(bean.getLabels()))
@@ -66,6 +65,8 @@ public class ToDto {
         return NewVersionDto.builder()
                 .version(bean.getVersion())
                 .description(bean.getDescription())
+                .content(bean.getContent().getContent())
+                .contentType(bean.getContent().getContentType())
                 .labels(labels(bean.getLabels()))
                 .build();
     }

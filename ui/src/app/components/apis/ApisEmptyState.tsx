@@ -14,7 +14,7 @@ export const ApisEmptyState: FunctionComponent<ApisEmptyStateProps> = () => {
         <EmptyState>
             <EmptyStateHeader titleText="No APIs" headingLevel="h4" icon={<EmptyStateIcon icon={AddCircleOIcon} />} />
             <EmptyStateBody>
-                To get started, create or import a API.
+                To get started, create a new API.
             </EmptyStateBody>
         </EmptyState>
     );

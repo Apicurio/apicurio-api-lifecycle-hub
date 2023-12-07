@@ -16,11 +16,13 @@
 
 package io.apicurio.lifecycle.rest.v0.impl;
 
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.List;
 
 import org.slf4j.Logger;
 
+import io.apicurio.common.apps.content.IoUtil;
 import io.apicurio.lifecycle.rest.v0.ApisResource;
 import io.apicurio.lifecycle.rest.v0.beans.Api;
 import io.apicurio.lifecycle.rest.v0.beans.ApiSearchResults;
@@ -38,10 +40,15 @@ import io.apicurio.lifecycle.storage.AlhStorage;
 import io.apicurio.lifecycle.storage.dtos.ApiSearchResultsDto;
 import io.apicurio.lifecycle.storage.dtos.ToBean;
 import io.apicurio.lifecycle.storage.dtos.ToDto;
+import io.apicurio.lifecycle.storage.dtos.UpdateVersionContentDto;
+import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Context;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -54,6 +61,10 @@ public class ApisResourceImpl implements ApisResource {
     
     @Inject
     AlhStorage storage;
+
+    @Inject
+    @Context
+    HttpServletRequest request;
 
     /**
      * @see io.apicurio.lifecycle.rest.v0.ApisResource#getAPI(java.lang.String)
@@ -170,14 +181,34 @@ public class ApisResourceImpl implements ApisResource {
         VersionSearchResultsDto resultsDto = storage.listVersions(apiId, offset, limit);
         return ToBean.versionSearchResults(resultsDto);
     }
-    
+
     /**
      * @see io.apicurio.lifecycle.rest.v0.ApisResource#getVersionLabels(java.lang.String, java.lang.String)
      */
     @Override
     public List<Label> getVersionLabels(String apiId, String version) {
-        // TODO Auto-generated method stub
-        return null;
+        return ToBean.labelList(storage.listVersionLabels(apiId, version));
+    }
+    
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#getVersionContent(java.lang.String, java.lang.String)
+     */
+    @Override
+    public Response getVersionContent(String apiId, String version) {
+        VersionContentDto dto = storage.getVersionContent(apiId, version);
+        return Response.ok(dto.getContent(), dto.getContentType()).build();
+    }
+
+    /**
+     * @see io.apicurio.lifecycle.rest.v0.ApisResource#updateTheContentOfAnAPIVersion(java.lang.String, java.lang.String, java.io.InputStream)
+     */
+    @Override
+    public void updateTheContentOfAnAPIVersion(String apiId, String version, @NotNull InputStream data) {
+        String content = IoUtil.toString(data);
+        storage.updateVersionContent(apiId, version, UpdateVersionContentDto.builder()
+                .content(content)
+                .contentType(request.getContentType())
+                .build());
     }
 
 }

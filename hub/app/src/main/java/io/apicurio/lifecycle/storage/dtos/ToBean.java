@@ -40,7 +40,6 @@ public class ToBean {
                 .apiId(dto.getApiId())
                 .createdOn(dto.getCreatedOn())
                 .description(dto.getDescription())
-                .encoding(dto.getEncoding())
                 .name(dto.getName())
                 .owner(dto.getOwner())
                 .type(ApiType.fromValue(dto.getType()))
@@ -63,7 +62,6 @@ public class ToBean {
                 .apiId(dto.getApiId())
                 .createdOn(dto.getCreatedOn())
                 .description(dto.getDescription())
-                .encoding(dto.getEncoding())
                 .name(dto.getName())
                 .owner(dto.getOwner())
                 .type(ApiType.fromValue(dto.getType()))
@@ -102,6 +100,9 @@ public class ToBean {
         return SearchedVersion.builder()
                 .version(dto.getVersion())
                 .createdOn(dto.getCreatedOn())
+                .modifiedOn(dto.getModifiedOn())
+                .description(dto.getDescription())
+                .contentType(dto.getContentType())
                 .build();
     }
 

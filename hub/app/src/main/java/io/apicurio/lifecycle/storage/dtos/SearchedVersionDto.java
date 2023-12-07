@@ -39,5 +39,6 @@ public class SearchedVersionDto {
     private Date createdOn;
     private Date modifiedOn;
     private String description;
+    private String contentType;
 
 }

@@ -1,11 +1,19 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { FromNow, NavLink } from "@app/components";
-import { Truncate } from "@patternfly/react-core";
+import {
+    Button,
+    EmptyState,
+    EmptyStateActions,
+    EmptyStateBody,
+    EmptyStateFooter,
+    EmptyStateHeader,
+    Truncate
+} from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
-import { ThProps } from "@patternfly/react-table";
+import { TableVariant, ThProps } from "@patternfly/react-table";
 import { SearchedVersion, VersionSearchResults } from "@client/models";
 import { VersionSortBy, VersionsSort } from "@models/VersionsSort.model.ts";
-import { ResponsiveTable } from "@apicurio/common-ui-components";
+import { IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-components";
 
 /**
  * Properties
@@ -17,17 +25,18 @@ export type VersionListProps = {
     onSort: (sort: VersionsSort) => void;
     onSelect: (version: string) => void;
     onDelete: (version: string) => void;
+    onCreate: () => void;
 };
 
-export const VersionList: FunctionComponent<VersionListProps> = (props: VersionListProps) => {
+export const LatestVersionsList: FunctionComponent<VersionListProps> = (props: VersionListProps) => {
     const [sortByIndex, setSortByIndex] = useState<number>();
+
     const appNav = useAppNavigation();
 
     const columns: any[] = [
         { index: 0, id: "version", label: "Version", width: 50, sortable: true },
         { index: 1, id: "createdOn", label: "Created", width: 50, sortable: true }
     ];
-
 
     const renderColumnData = (column: SearchedVersion, colIndex: number): React.ReactNode => {
         // Name.
@@ -74,27 +83,44 @@ export const VersionList: FunctionComponent<VersionListProps> = (props: VersionL
         setSortByIndex(props.sort.by === "version" ? 0 : 1);
     }, [props.sort]);
 
+    const emptyVersions = (
+        <EmptyState>
+            <EmptyStateHeader titleText="No versions found" headingLevel="h4" />
+            <EmptyStateBody>
+                No versions were found for this API.  Most likely it's a new API and requires an initial version.
+            </EmptyStateBody>
+            <EmptyStateFooter>
+                <EmptyStateActions>
+                    <Button variant="primary" onClick={props.onCreate}>Create new version</Button>
+                </EmptyStateActions>
+            </EmptyStateFooter>
+        </EmptyState>
+    );
+
     return (
         <div className="version-list">
-            <ResponsiveTable
-                ariaLabel="list of versions"
-                columns={columns}
-                data={props.versions.versions}
-                expectedLength={props.versions.count}
-                minimumColumnWidth={150}
-                renderHeader={({ column, Th }) => (
-                    <Th sort={sortParams(column)}
-                        className="version-list-header"
-                        key={`header-${column.id}`}
-                        width={column.width}
-                        modifier="truncate">{column.label}</Th>
-                )}
-                renderCell={({ row, colIndex, Td }) => (
-                    <Td className="version-list-cell" key={`cell-${colIndex}-${row.version}`}
-                        style={{ maxWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                        children={renderColumnData(row as SearchedVersion, colIndex) as any} />
-                )}
-            />
+            <IfNotEmpty collection={props.versions.versions} emptyState={emptyVersions}>
+                <ResponsiveTable
+                    ariaLabel="list of versions"
+                    variant={TableVariant.compact}
+                    columns={columns}
+                    data={props.versions.versions}
+                    expectedLength={props.versions.count}
+                    minimumColumnWidth={150}
+                    renderHeader={({ column, Th }) => (
+                        <Th sort={sortParams(column)}
+                            className="version-list-header"
+                            key={`header-${column.id}`}
+                            width={column.width}
+                            modifier="truncate">{column.label}</Th>
+                    )}
+                    renderCell={({ row, colIndex, Td }) => (
+                        <Td className="version-list-cell" key={`cell-${colIndex}-${row.version}`}
+                            style={{ maxWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            children={renderColumnData(row as SearchedVersion, colIndex) as any} />
+                    )}
+                />
+            </IfNotEmpty>
         </div>
     );
 };

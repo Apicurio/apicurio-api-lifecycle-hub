@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 import io.apicurio.lifecycle.rest.client.models.Api;
 import io.apicurio.lifecycle.rest.client.models.ApiType;
 import io.apicurio.lifecycle.rest.client.models.NewApi;
+import io.apicurio.lifecycle.rest.client.models.NewContent;
+import io.apicurio.lifecycle.rest.client.models.NewVersion;
 import io.apicurio.lifecycle.rest.client.models.UpdateApi;
+import io.apicurio.lifecycle.rest.client.models.VersionSearchResults;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -33,12 +36,31 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class ApisResourceTest extends AbstractResourceTest {
 
+    private static final String EMPTY_OPENAPI_CONTENT = "{\n"
+            + "    \"openapi\": \"3.0.2\",\n"
+            + "    \"info\": {\n"
+            + "        \"title\": \"Empty API\",\n"
+            + "        \"version\": \"1.0.0\",\n"
+            + "        \"description\": \"Just an empty API.\"\n"
+            + "    }\n"
+            + "}";
+
+    private static final String EMPTY_OPENAPI_CONTENT_UPDATED = "{\n"
+            + "    \"openapi\": \"3.0.2\",\n"
+            + "    \"info\": {\n"
+            + "        \"title\": \"Empty API (updated)\",\n"
+            + "        \"version\": \"1.0.1\",\n"
+            + "        \"description\": \"Just an empty, but updated API.\"\n"
+            + "    }\n"
+            + "}";
+
     @Test
     public void testCreateApi() throws Exception {
+        String apiId = "testCreateApi";
+
         NewApi newApi = new NewApi();
-        newApi.setApiId("testCreateApi");
+        newApi.setApiId(apiId);
         newApi.setType("OPENAPI");
-        newApi.setEncoding("application/json");
         newApi.setName("Test API");
         newApi.setDescription("My test API is here.");
 
@@ -47,19 +69,19 @@ public class ApisResourceTest extends AbstractResourceTest {
 
     @Test
     public void testGetApi() throws Exception {
+        String apiId = "testGetApi";
+
         NewApi newApi = new NewApi();
-        newApi.setApiId("testGetApi");
+        newApi.setApiId(apiId);
         newApi.setType("OPENAPI");
-        newApi.setEncoding("application/json");
         newApi.setName("Test API");
         newApi.setDescription("My test API is here.");
 
         client().apis().post(newApi).get();
         
-        Api api = client().apis().byApiId("testGetApi").get().get();
-        Assertions.assertEquals("testGetApi", api.getApiId());
+        Api api = client().apis().byApiId(apiId).get().get();
+        Assertions.assertEquals(apiId, api.getApiId());
         Assertions.assertEquals(ApiType.OPENAPI, api.getType());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("Test API", api.getName());
         Assertions.assertEquals("My test API is here.", api.getDescription());
     }
@@ -71,7 +93,6 @@ public class ApisResourceTest extends AbstractResourceTest {
         NewApi newApi = new NewApi();
         newApi.setApiId(apiId);
         newApi.setType("OPENAPI");
-        newApi.setEncoding("application/json");
         newApi.setName("Test API");
         newApi.setDescription("My test API is here.");
 
@@ -97,7 +118,6 @@ public class ApisResourceTest extends AbstractResourceTest {
         NewApi newApi = new NewApi();
         newApi.setApiId(apiId);
         newApi.setType("OPENAPI");
-        newApi.setEncoding("application/json");
         newApi.setName("Test API");
         newApi.setDescription("My test API is here.");
         client().apis().post(newApi).get();
@@ -105,7 +125,6 @@ public class ApisResourceTest extends AbstractResourceTest {
         Api api = client().apis().byApiId(apiId).get().get();
         Assertions.assertEquals(apiId, api.getApiId());
         Assertions.assertEquals("My test API is here.", api.getDescription());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("Test API", api.getName());
         Assertions.assertEquals(ApiType.OPENAPI, api.getType());
         
@@ -117,9 +136,68 @@ public class ApisResourceTest extends AbstractResourceTest {
         api = client().apis().byApiId(apiId).get().get();
         Assertions.assertEquals(apiId, api.getApiId());
         Assertions.assertEquals("This is a new description.", api.getDescription());
-        Assertions.assertEquals("application/json", api.getEncoding());
         Assertions.assertEquals("New Name API", api.getName());
         Assertions.assertEquals(ApiType.OPENAPI, api.getType());
     }
+    
+    @Test
+    public void testCreateVersion() throws Exception {
+        String apiId = "testCreateVersion";
 
+        NewApi newApi = new NewApi();
+        newApi.setApiId(apiId);
+        newApi.setType("OPENAPI");
+        newApi.setName("Test API");
+        newApi.setDescription("My test API is here.");
+        client().apis().post(newApi).get();
+
+        NewContent newContent = new NewContent();
+        newContent.setContentType("application/json");
+        newContent.setContent(EMPTY_OPENAPI_CONTENT);
+        NewVersion newVersion = new NewVersion();
+        newVersion.setVersion("1.0");
+        newVersion.setDescription("Version one.");
+        newVersion.setContent(newContent);
+        client().apis().byApiId(apiId).versions().post(newVersion).get();
+    }
+    
+    @Test
+    public void testSearchVersions() throws Exception {
+        String apiId = "testSearchVersions";
+
+        // Create API
+        NewApi newApi = new NewApi();
+        newApi.setApiId(apiId);
+        newApi.setType("OPENAPI");
+        newApi.setName("Test API");
+        newApi.setDescription("My test API is here.");
+        client().apis().post(newApi).get();
+
+        // Create two versions
+        NewContent newContent = new NewContent();
+        newContent.setContentType("application/json");
+        newContent.setContent(EMPTY_OPENAPI_CONTENT);
+        NewVersion newVersion = new NewVersion();
+        newVersion.setVersion("1.0");
+        newVersion.setDescription("Version one.");
+        newVersion.setContent(newContent);
+        client().apis().byApiId(apiId).versions().post(newVersion).get();
+        
+        Thread.sleep(10);
+
+        newContent = new NewContent();
+        newContent.setContentType("application/json");
+        newContent.setContent(EMPTY_OPENAPI_CONTENT_UPDATED);
+        newVersion = new NewVersion();
+        newVersion.setVersion("2.0");
+        newVersion.setDescription("Version two.");
+        newVersion.setContent(newContent);
+        client().apis().byApiId(apiId).versions().post(newVersion).get();
+        
+        VersionSearchResults results = client().apis().byApiId(apiId).versions().get().get();
+        Assertions.assertEquals(2, results.getCount());
+        Assertions.assertEquals("2.0", results.getVersions().get(0).getVersion());
+        Assertions.assertEquals("application/json", results.getVersions().get(0).getContentType());
+        Assertions.assertEquals("Version two.", results.getVersions().get(0).getDescription());
+    }
 }

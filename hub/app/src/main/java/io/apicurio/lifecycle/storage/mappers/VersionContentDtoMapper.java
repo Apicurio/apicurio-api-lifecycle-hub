@@ -20,29 +20,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
-import io.apicurio.lifecycle.storage.dtos.SearchedVersionDto;
+import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-public class SearchedVersionDtoMapper implements RowMapper<SearchedVersionDto> {
+public class VersionContentDtoMapper implements RowMapper<VersionContentDto> {
     
-    public static final SearchedVersionDtoMapper instance = new SearchedVersionDtoMapper();
+    public static final VersionContentDtoMapper instance = new VersionContentDtoMapper();
 
     @Override
     public boolean supports(Class<?> klass) {
-        return SearchedVersionDto.class.equals(klass);
+        return VersionContentDto.class.equals(klass);
     }
 
     @Override
-    public SearchedVersionDto map(ResultSet rs) throws SQLException {
-        return SearchedVersionDto.builder()
+    public VersionContentDto map(ResultSet rs) throws SQLException {
+        return VersionContentDto.builder()
                 .apiId(rs.getString("apiId"))
                 .version(rs.getString("version"))
-                .description(rs.getString("description"))
-                .createdOn(rs.getDate("createdOn"))
-                .modifiedOn(rs.getDate("modifiedOn"))
                 .contentType(rs.getString("contentType"))
+                .content(rs.getString("content"))
                 .build();
     }
 }

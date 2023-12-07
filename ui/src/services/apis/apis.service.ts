@@ -1,5 +1,5 @@
 import { BaseService } from "../baseService";
-import { Api, ApiSearchResults, NewApi, VersionSearchResults } from "@client/models";
+import { Api, ApiSearchResults, NewApi, NewVersion, VersionSearchResults } from "@client/models";
 import { Paging } from "@models/Paging.model.ts";
 import { ApisRequestBuilderGetRequestConfiguration } from "@client/apis";
 import { VersionsRequestBuilderGetRequestConfiguration } from "@client/apis/item/versions";
@@ -54,4 +54,8 @@ export class ApisService extends BaseService {
         return this.client().apis.byApiId(apiId).versions.get(params);
     }
 
+    public createVersion(apiId: string, data: NewVersion): Promise<void> {
+        this.logger?.debug("[ApisService] Creating a new Version: ", apiId, data.version);
+        return this.client().apis.byApiId(apiId).versions.post(data);
+    }
 }
