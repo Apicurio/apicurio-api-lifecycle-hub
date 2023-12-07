@@ -14,8 +14,8 @@ export type VersionListProps = {
     versions: VersionSearchResults;
     sort: VersionsSort;
     onSort: (sort: VersionsSort) => void;
-    onSelect: (apiId: string) => void;
-    onDelete: (apiId: string) => void;
+    onSelect: (version: SearchedVersion) => void;
+    onDelete: (version: SearchedVersion) => void;
 };
 
 type VersionAction = {
@@ -81,9 +81,9 @@ export const VersionList: FunctionComponent<VersionListProps> = (props: VersionL
 
     const actionsFor = (version: SearchedVersion): (VersionAction | VersionActionSeparator)[] => {
         return [
-            { label: "View version details", testId: `view-version-${version.version}`, onClick: () => props.onSelect(version.version as string) },
+            { label: "View version details", testId: `view-version-${version.version}`, onClick: () => props.onSelect(version) },
             { isSeparator: true, },
-            { label: "Delete version", testId: `delete-version-${version.version}`, onClick: () => props.onDelete(version.version as string) }
+            { label: "Delete version", testId: `delete-version-${version.version}`, onClick: () => props.onDelete(version) }
         ];
     };
 

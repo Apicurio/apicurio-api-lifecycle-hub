@@ -54,20 +54,12 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
         setIsPleaseWaitModalOpen(false);
     };
 
-    const onCreateApi = (): void => {
-        setIsCreateModalOpen(true);
-    };
-
     const onSearchCriteriaChange = (data: ApisToolbarData): void => {
         Services.getLoggerService().info("[ApisPage] API search criteria changed: ", data);
         setApiSearchCriteria(data);
     };
 
-    const onCreateModalCancel = (): void => {
-        setIsCreateModalOpen(false);
-    };
-
-    const onCreateModalCreate = (data: NewApi): void => {
+    const onCreateApi = (data: NewApi): void => {
         setIsCreateModalOpen(false);
         pleaseWait("Creating API, please wait.");
         Services.getApisService().createApi(data).then(() => {
@@ -109,7 +101,11 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
             </PageSection>
             <PageSection variant={PageSectionVariants.default} isFilled={true}>
                 <IfNotLoading isLoading={isLoading}>
-                    <ApisToolbar data={apiSearchCriteria} apis={apiSearchResults} onCreateApi={onCreateApi} onChange={onSearchCriteriaChange} />
+                    <ApisToolbar
+                        data={apiSearchCriteria}
+                        apis={apiSearchResults}
+                        onCreate={() => setIsCreateModalOpen(true)}
+                        onChange={onSearchCriteriaChange} />
                     <div className="api-search-results-wrapper" style={{ backgroundColor: "white" }}>
                         <IfNotEmpty collection={apiSearchResults.apis} emptyState={ <ApisEmptyState /> }>
                             <ApiList
@@ -126,7 +122,7 @@ export const ApisPage: FunctionComponent<ApisPageProps> = () => {
                     </div>
                 </IfNotLoading>
             </PageSection>
-            <CreateApiModal isOpen={isCreateModalOpen} onCancel={onCreateModalCancel} onCreate={onCreateModalCreate} />
+            <CreateApiModal isOpen={isCreateModalOpen} onCancel={() => setIsCreateModalOpen(false)} onCreate={onCreateApi} />
             <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />
         </AppPage>
     );

@@ -10,23 +10,23 @@ import {
     ToolbarItem
 } from "@patternfly/react-core";
 import { Paging } from "@models/Paging.model.ts";
-import { ApiSearchResults } from "@client/models";
+import { VersionSearchResults } from "@client/models";
 
 
-export type ApisToolbarData = {
+export type VersionsToolbarData = {
     filterValue: string;
     paging: Paging;
 };
 
 
-export type ApisToolbarProps = {
-    data: ApisToolbarData;
-    apis: ApiSearchResults | undefined;
+export type VersionsToolbarProps = {
+    data: VersionsToolbarData;
+    versions: VersionSearchResults | undefined;
     onCreate: () => void;
-    onChange: (data: ApisToolbarData) => void;
+    onChange: (data: VersionsToolbarData) => void;
 };
 
-const cloneData = (data: ApisToolbarData): ApisToolbarData => {
+const cloneData = (data: VersionsToolbarData): VersionsToolbarData => {
     return {
         filterValue: data.filterValue,
         paging: {
@@ -35,18 +35,18 @@ const cloneData = (data: ApisToolbarData): ApisToolbarData => {
     };
 };
 
-export const ApisToolbar: FunctionComponent<ApisToolbarProps> = (props: ApisToolbarProps) => {
+export const VersionsToolbar: FunctionComponent<VersionsToolbarProps> = (props: VersionsToolbarProps) => {
     const [currentFilterValue, setCurrentFilterValue] = useState<string>(props.data.filterValue);
 
     const onSetPage: OnSetPage = (_event: any, newPage: number, perPage?: number): void => {
-        const newData: ApisToolbarData = cloneData(props.data);
+        const newData: VersionsToolbarData = cloneData(props.data);
         newData.paging.page = newPage;
         newData.paging.pageSize = perPage ? perPage : props.data.paging.pageSize;
         props.onChange(newData);
     };
 
     const onPerPageSelect: OnPerPageSelect = (_event: any, newPerPage: number): void => {
-        const newData: ApisToolbarData = cloneData(props.data);
+        const newData: VersionsToolbarData = cloneData(props.data);
         newData.paging.pageSize = newPerPage;
         props.onChange(newData);
     };
@@ -56,38 +56,38 @@ export const ApisToolbar: FunctionComponent<ApisToolbarProps> = (props: ApisTool
     };
 
     const onSearch = (): void => {
-        const newData: ApisToolbarData = cloneData(props.data);
+        const newData: VersionsToolbarData = cloneData(props.data);
         newData.filterValue = currentFilterValue;
         props.onChange(newData);
     };
 
     const onClear = (): void => {
         setCurrentFilterValue("");
-        const newData: ApisToolbarData = cloneData(props.data);
+        const newData: VersionsToolbarData = cloneData(props.data);
         newData.filterValue = "";
         props.onChange(newData);
     };
 
     const totalCount = (): number => {
-        return props.apis?.count || 0;
+        return props.versions?.count || 0;
     };
 
     return (
-        <Toolbar id="apis-toolbar" className="apis-toolbar" style={{ paddingLeft: "8px", paddingRight: "24px" }}>
+        <Toolbar id="versions-toolbar" className="versions-toolbar" style={{ paddingLeft: "8px", paddingRight: "24px" }}>
             <ToolbarContent style={{ width: "100%" }}>
                 <ToolbarItem variant="search-filter">
                     <SearchInput
-                        aria-label="Filter apis"
-                        data-testid="search-api-filter"
+                        aria-label="Filter versions"
+                        data-testid="search-version-filter"
                         value={props.data.filterValue}
                         onChange={onFilterChange}
                         onSearch={onSearch}
                         onClear={onClear} />
                 </ToolbarItem>
                 <ToolbarItem>
-                    <Button variant="primary" data-testid="btn-create-api" onClick={props.onCreate}>Create API</Button>
+                    <Button variant="primary" data-testid="btn-create-version" onClick={props.onCreate}>Create version</Button>
                 </ToolbarItem>
-                <ToolbarItem className="api-paging-item" align={{ default: "alignRight" }}>
+                <ToolbarItem className="version-paging-item" align={{ default: "alignRight" }}>
                     <Pagination
                         style={{ padding: "0" }}
                         variant="bottom"
@@ -98,8 +98,8 @@ export const ApisToolbar: FunctionComponent<ApisToolbarProps> = (props: ApisTool
                         page={props.data.paging.page}
                         onSetPage={onSetPage}
                         onPerPageSelect={onPerPageSelect}
-                        widgetId="api-list-pagination"
-                        className="api-list-pagination"
+                        widgetId="version-list-pagination"
+                        className="version-list-pagination"
                     />
                 </ToolbarItem>
             </ToolbarContent>
