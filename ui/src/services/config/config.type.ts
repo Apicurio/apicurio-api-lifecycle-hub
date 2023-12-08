@@ -34,4 +34,5 @@ export interface ConfigType {
     apis: ApisConfig;
     auth: OidcAuthConfig | NoneAuthConfig;
     ui: UiConfig;
+    integrations?: any;
 }

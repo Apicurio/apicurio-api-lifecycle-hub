@@ -74,4 +74,8 @@ export class ConfigService implements Service {
         return {} as any;
     }
 
+    public integrations(): any {
+        return this.config.integrations || {};
+    }
+
 }

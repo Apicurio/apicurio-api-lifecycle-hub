@@ -16,17 +16,23 @@
 
 package io.apicurio.lifecycle.rest;
 
+import java.io.InputStream;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import io.apicurio.common.apps.content.IoUtil;
 import io.apicurio.lifecycle.rest.client.models.Api;
 import io.apicurio.lifecycle.rest.client.models.ApiType;
+import io.apicurio.lifecycle.rest.client.models.Labels;
 import io.apicurio.lifecycle.rest.client.models.NewApi;
 import io.apicurio.lifecycle.rest.client.models.NewContent;
 import io.apicurio.lifecycle.rest.client.models.NewVersion;
 import io.apicurio.lifecycle.rest.client.models.UpdateApi;
+import io.apicurio.lifecycle.rest.client.models.UpdateVersion;
+import io.apicurio.lifecycle.rest.client.models.Version;
 import io.apicurio.lifecycle.rest.client.models.VersionSearchResults;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -139,6 +145,40 @@ public class ApisResourceTest extends AbstractResourceTest {
         Assertions.assertEquals("New Name API", api.getName());
         Assertions.assertEquals(ApiType.OPENAPI, api.getType());
     }
+
+    @Test
+    public void testApiLabels() throws Exception {
+        String apiId = "testApiLabels";
+        
+        Labels labels = new Labels();
+        labels.setAdditionalData(Map.of("foo", "bar"));
+        
+        NewApi newApi = new NewApi();
+        newApi.setApiId(apiId);
+        newApi.setType("OPENAPI");
+        newApi.setName("Test API");
+        newApi.setLabels(labels);
+        client().apis().post(newApi).get();
+        
+        Api api = client().apis().byApiId(apiId).get().get();
+        Assertions.assertEquals(apiId, api.getApiId());
+        Assertions.assertEquals("Test API", api.getName());
+        Assertions.assertEquals(ApiType.OPENAPI, api.getType());
+        Assertions.assertEquals(1, api.getLabels().getAdditionalData().size());
+        
+        labels.setAdditionalData(Map.of("one", "1", "two", "2", "three", "3"));
+        
+        UpdateApi update = new UpdateApi();
+        update.setName("New Name API");
+        update.setLabels(labels);
+        client().apis().byApiId(apiId).put(update).get();
+        
+        api = client().apis().byApiId(apiId).get().get();
+        Assertions.assertEquals(apiId, api.getApiId());
+        Assertions.assertEquals("New Name API", api.getName());
+        Assertions.assertEquals(ApiType.OPENAPI, api.getType());
+        Assertions.assertEquals(3, api.getLabels().getAdditionalData().size());
+    }
     
     @Test
     public void testCreateVersion() throws Exception {
@@ -200,4 +240,69 @@ public class ApisResourceTest extends AbstractResourceTest {
         Assertions.assertEquals("application/json", results.getVersions().get(0).getContentType());
         Assertions.assertEquals("Version two.", results.getVersions().get(0).getDescription());
     }
+
+    @Test
+    public void testVersionLabels() throws Exception {
+        String apiId = "testVersionLabels";
+
+        Labels labels = new Labels();
+        labels.setAdditionalData(Map.of("foo", "bar"));
+        
+        NewApi newApi = new NewApi();
+        newApi.setApiId(apiId);
+        newApi.setType("OPENAPI");
+        newApi.setName("Test API");
+        newApi.setLabels(labels);
+        client().apis().post(newApi).get();
+       
+        NewContent newContent = new NewContent();
+        newContent.setContentType("application/json");
+        newContent.setContent(EMPTY_OPENAPI_CONTENT);
+        NewVersion newVersion = new NewVersion();
+        newVersion.setVersion("1.0");
+        newVersion.setLabels(labels);
+        newVersion.setContent(newContent);
+        client().apis().byApiId(apiId).versions().post(newVersion).get();
+
+        
+        Version version = client().apis().byApiId(apiId).versions().byVersion("1.0").get().get();
+        Assertions.assertEquals("1.0", version.getVersion());
+        Assertions.assertEquals(1, version.getLabels().getAdditionalData().size());
+        
+        labels.setAdditionalData(Map.of("one", "1", "two", "2", "three", "3"));
+        
+        UpdateVersion update = new UpdateVersion();
+        update.setLabels(labels);
+        client().apis().byApiId(apiId).versions().byVersion("1.0").put(update).get();
+        
+        version = client().apis().byApiId(apiId).versions().byVersion("1.0").get().get();
+        Assertions.assertEquals("1.0", version.getVersion());
+        Assertions.assertEquals(3, version.getLabels().getAdditionalData().size());
+    }
+
+    
+    @Test
+    public void testGetVersionContent() throws Exception {
+        String apiId = "testGetVersionContent";
+
+        NewApi newApi = new NewApi();
+        newApi.setApiId(apiId);
+        newApi.setType("OPENAPI");
+        newApi.setName("Test API");
+        client().apis().post(newApi).get();
+
+        NewContent newContent = new NewContent();
+        newContent.setContentType("application/json");
+        newContent.setContent(EMPTY_OPENAPI_CONTENT);
+        NewVersion newVersion = new NewVersion();
+        newVersion.setVersion("1.0");
+        newVersion.setDescription("Version one.");
+        newVersion.setContent(newContent);
+        client().apis().byApiId(apiId).versions().post(newVersion).get();
+        
+        InputStream inputStream = client().apis().byApiId(apiId).versions().byVersion("1.0").content().get().get();
+        String content = IoUtil.toString(inputStream);
+        Assertions.assertTrue(content.contains("Empty API"));
+    }
+
 }

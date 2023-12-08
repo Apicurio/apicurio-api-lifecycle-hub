@@ -1,4 +1,4 @@
 
 export enum NavPage {
-    DASHBOARD, APIS
+    DASHBOARD, APIS, DESIGNER, REGISTRY
 }

@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
-import { FromNow, NavLink } from "@app/components";
+import React, { FunctionComponent } from "react";
+import { NavLink } from "@app/components";
 import {
     Button,
     EmptyState,
@@ -10,10 +10,9 @@ import {
     Truncate
 } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
-import { TableVariant, ThProps } from "@patternfly/react-table";
+import { TableVariant } from "@patternfly/react-table";
 import { SearchedVersion, VersionSearchResults } from "@client/models";
-import { VersionSortBy, VersionsSort } from "@models/VersionsSort.model.ts";
-import { IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-components";
+import { FromNow, IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-components";
 
 /**
  * Properties
@@ -21,21 +20,17 @@ import { IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-components";
 export type VersionListProps = {
     apiId: string;
     versions: VersionSearchResults;
-    sort: VersionsSort;
-    onSort: (sort: VersionsSort) => void;
     onSelect: (version: string) => void;
     onDelete: (version: string) => void;
     onCreate: () => void;
 };
 
 export const LatestVersionsList: FunctionComponent<VersionListProps> = (props: VersionListProps) => {
-    const [sortByIndex, setSortByIndex] = useState<number>();
-
     const appNav = useAppNavigation();
 
     const columns: any[] = [
-        { index: 0, id: "version", label: "Version", width: 50, sortable: true },
-        { index: 1, id: "createdOn", label: "Created", width: 50, sortable: true }
+        { index: 0, id: "version", label: "Version", width: 50, sortable: false },
+        { index: 1, id: "createdOn", label: "Created", width: 50, sortable: false }
     ];
 
     const renderColumnData = (column: SearchedVersion, colIndex: number): React.ReactNode => {
@@ -60,28 +55,6 @@ export const LatestVersionsList: FunctionComponent<VersionListProps> = (props: V
             <span />
         );
     };
-
-    const sortParams = (column: any): ThProps["sort"] | undefined => {
-        return column.sortable ? {
-            sortBy: {
-                index: sortByIndex,
-                direction: props.sort.direction
-            },
-            onSort: (_event, index, direction) => {
-                const byn: VersionSortBy[] = ["version", "createdOn"];
-                const sort: VersionsSort = {
-                    by: byn[index],
-                    direction
-                };
-                props.onSort(sort);
-            },
-            columnIndex: column.index
-        } : undefined;
-    };
-
-    useEffect(() => {
-        setSortByIndex(props.sort.by === "version" ? 0 : 1);
-    }, [props.sort]);
 
     const emptyVersions = (
         <EmptyState>
@@ -108,8 +81,7 @@ export const LatestVersionsList: FunctionComponent<VersionListProps> = (props: V
                     expectedLength={props.versions.count}
                     minimumColumnWidth={150}
                     renderHeader={({ column, Th }) => (
-                        <Th sort={sortParams(column)}
-                            className="version-list-header"
+                        <Th className="version-list-header"
                             key={`header-${column.id}`}
                             width={column.width}
                             modifier="truncate">{column.label}</Th>

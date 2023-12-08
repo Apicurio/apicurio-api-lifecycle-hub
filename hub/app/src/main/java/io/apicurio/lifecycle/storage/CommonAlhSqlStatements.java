@@ -138,7 +138,7 @@ public abstract class CommonAlhSqlStatements implements AlhSqlStatements {
     public String insertVersionLabel() {
         return """
                 INSERT INTO versionLabels (apiId, version, labelKey, labelValue) \
-                VALUES (?, ?, ?)\
+                VALUES (?, ?, ?, ?)\
                 """;
     }
     

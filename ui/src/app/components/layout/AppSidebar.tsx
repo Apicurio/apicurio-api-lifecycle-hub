@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { Nav, NavItem, NavList, PageSidebar, PageSidebarBody } from "@patternfly/react-core";
+import { Nav, NavGroup, NavItem, NavList, PageSidebar, PageSidebarBody } from "@patternfly/react-core";
 import { AppNavigation, useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { NavPage } from "@app/components";
 
@@ -23,12 +23,22 @@ export const AppSidebar: FunctionComponent<AppSidebarProps> = (props: AppSidebar
             <PageSidebarBody>
                 <Nav onSelect={onNavSelect}>
                     <NavList>
-                        <NavItem itemId={NavPage.DASHBOARD} isActive={props.page === NavPage.DASHBOARD} to="/dashboard">
-                            Dashboard
-                        </NavItem>
-                        <NavItem itemId={NavPage.APIS} isActive={props.page === NavPage.APIS} to="/apis">
-                            APIs
-                        </NavItem>
+                        <NavGroup title="Lifecycle Hub">
+                            <NavItem itemId={NavPage.DASHBOARD} isActive={props.page === NavPage.DASHBOARD} to="/dashboard">
+                                Dashboard
+                            </NavItem>
+                            <NavItem itemId={NavPage.APIS} isActive={props.page === NavPage.APIS} to="/apis">
+                                APIs
+                            </NavItem>
+                        </NavGroup>
+                        <NavGroup title="Integrations">
+                            <NavItem itemId={NavPage.DESIGNER} isActive={props.page === NavPage.DESIGNER} to="/designer">
+                                API Designer
+                            </NavItem>
+                            <NavItem itemId={NavPage.REGISTRY} isActive={props.page === NavPage.REGISTRY} to="/registry">
+                                Registry
+                            </NavItem>
+                        </NavGroup>
                     </NavList>
                 </Nav>
             </PageSidebarBody>

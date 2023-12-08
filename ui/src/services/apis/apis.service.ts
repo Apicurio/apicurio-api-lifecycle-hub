@@ -1,5 +1,13 @@
 import { BaseService } from "../baseService";
-import { Api, ApiSearchResults, NewApi, NewVersion, Version, VersionSearchResults } from "@client/models";
+import {
+    Api,
+    ApiSearchResults,
+    NewApi,
+    NewVersion,
+    UpdateApi, UpdateVersion,
+    Version,
+    VersionSearchResults
+} from "@client/models";
 import { Paging } from "@models/Paging.model.ts";
 import { ApisRequestBuilderGetRequestConfiguration } from "@client/apis";
 import { VersionsRequestBuilderGetRequestConfiguration } from "@client/apis/item/versions";
@@ -64,4 +72,30 @@ export class ApisService extends BaseService {
         return this.client().apis.byApiId(apiId).versions.byVersion(version).get();
     }
 
+    public updateApiMetaData(apiId: string, data: UpdateApi): Promise<void> {
+        this.logger?.debug("[ApisService] Updating API labels for: ", apiId);
+        if (data.labels) {
+            data.labels = {
+                additionalData: data.labels as any
+            };
+        }
+        return this.client().apis.byApiId(apiId).put(data);
+    }
+
+    public updateVersionMetaData(apiId: string, version: string, data: UpdateVersion): Promise<void> {
+        this.logger?.debug("[ApisService] Updating version: ", apiId, version);
+        if (data.labels) {
+            data.labels = {
+                additionalData: data.labels as any
+            };
+        }
+        return this.client().apis.byApiId(apiId).versions.byVersion(version).put(data);
+    }
+
+    public getVersionContent(apiId: string, version: string): Promise<string> {
+        return this.client().apis.byApiId(apiId).versions.byVersion(version).content.get().then(ab => {
+            const decoder: TextDecoder = new TextDecoder("utf-8");
+            return decoder.decode(ab);
+        });
+    }
 }

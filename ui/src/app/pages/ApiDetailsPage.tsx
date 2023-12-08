@@ -21,15 +21,13 @@ import {
     TextVariants
 } from "@patternfly/react-core";
 import { Link, useParams } from "react-router-dom";
-import { Api, NewVersion, VersionSearchResults } from "@client/models";
+import { Api, Labels, NewVersion, UpdateApi, VersionSearchResults } from "@client/models";
 import { Services } from "@services/services.ts";
-import { CreateVersionModal, NavPage, LatestVersionsList } from "@app/components";
+import { CreateVersionModal, NavPage, LatestVersionsList, ShowLabels, EditLabelsModal } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
-import { FromNow } from "@app/components/common/FromNow.tsx";
-import { VersionsSort } from "@models/VersionsSort.model.ts";
 import { Paging } from "@models/Paging.model.ts";
-import { IfNotLoading, ObjectDropdown, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { FromNow, IfNotLoading, ObjectDropdown, PleaseWaitModal } from "@apicurio/common-ui-components";
 
 const splitGalleryWidths = {
     sm: "100%",
@@ -47,19 +45,16 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
     const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false);
     const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
     const [isCreateVersionModalOpen, setIsCreateVersionModalOpen] = useState(false);
+    const [isEditLabelsModalOpen, setIsEditLabelsModalOpen] = useState(false);
     const [api, setApi] = useState<Api>();
 
     const [versionSearchResults, setVersionSearchResults] = useState<VersionSearchResults>({
         count: 0,
         versions: []
     });
-    const [versionsSort] = useState<VersionsSort>({
-        by: "createdOn",
-        direction: "asc"
-    });
     const [versionPaging] = useState<Paging>({
         page: 1,
-        pageSize: 50
+        pageSize: 8
     });
 
     const params = useParams();
@@ -104,6 +99,26 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
         });
     };
 
+    const onEditLabels = (newLabels: Labels): void => {
+        setIsEditLabelsModalOpen(false);
+        pleaseWait("Updating labels...");
+        const update: UpdateApi = {
+            name: api?.name,
+            description: api?.description,
+            labels: newLabels
+        };
+        Services.getApisService().updateApiMetaData(apiId, update).then(() => {
+            closePleaseWaitModal();
+            setApi({
+                ...api,
+                labels: newLabels
+            });
+        }).catch(error => {
+            // TODO handle errors better than this
+            Services.getLoggerService().error("Error updating labels: ", error);
+            closePleaseWaitModal();
+        });
+    };
 
     const breadcrumb = (
         <Breadcrumb>
@@ -181,12 +196,14 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
                                 </FlexItem>
                                 <FlexItem>
                                     <Card>
-                                        <CardHeader actions={{ actions: <Button variant="secondary">Edit</Button> }}>
+                                        <CardHeader actions={{ actions: <Button variant="secondary" onClick={() => setIsEditLabelsModalOpen(true)}>Edit</Button> }}>
                                             <TextContent>
                                                 <Text component={TextVariants.h3}>Labels</Text>
                                             </TextContent>
                                         </CardHeader>
-                                        <CardBody>Body</CardBody>
+                                        <CardBody>
+                                            <ShowLabels labels={api?.labels} />
+                                        </CardBody>
                                     </Card>
                                 </FlexItem>
                             </Flex>
@@ -204,9 +221,7 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
                                         versions={versionSearchResults}
                                         onSelect={() => {}}
                                         onDelete={() => {}}
-                                        onSort={() => {}}
                                         onCreate={() => setIsCreateVersionModalOpen(true)}
-                                        sort={versionsSort}
                                     />
                                 </CardBody>
                             </Card>
@@ -219,6 +234,11 @@ export const ApiDetailsPage: FunctionComponent<ApiDetailsPageProps> = () => {
                 isOpen={isCreateVersionModalOpen}
                 onCreate={data => onCreateVersion(data)}
                 onCancel={() => setIsCreateVersionModalOpen(false)} />
+            <EditLabelsModal
+                isOpen={isEditLabelsModalOpen}
+                labels={api?.labels}
+                onEdit={onEditLabels}
+                onCancel={() => setIsEditLabelsModalOpen(false)} />
         </AppPage>
     );
 };
