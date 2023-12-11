@@ -28,6 +28,7 @@ import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { IfNotLoading, FromNow, PleaseWaitModal } from "@apicurio/common-ui-components";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
+import { DownloadIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 
 const splitGalleryWidths = {
     sm: "100%",
@@ -206,14 +207,13 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                             </TextContent>
                                         </CardHeader>
                                         <CardBody>
-                                            <Button variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit</Button>
+                                            <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
                                             <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
                                             <List variant={ListVariant.inline}>
-                                                <ListItem><Button variant="secondary">Compare</Button></ListItem>
-                                                <ListItem><Button variant="secondary">Download</Button></ListItem>
+                                                <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
                                             </List>
                                             <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
-                                            <Button variant="danger">Delete</Button>
+                                            <Button icon={<TrashIcon />} variant="danger">Delete</Button>
                                         </CardBody>
                                     </Card>
                                 </GalleryItem>

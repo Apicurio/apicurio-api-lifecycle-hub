@@ -1,7 +1,7 @@
 import React, { FunctionComponent, RefObject, useEffect, useState } from "react";
 import {
     Breadcrumb,
-    BreadcrumbItem,
+    BreadcrumbItem, Divider,
     PageSection,
     PageSectionVariants,
     Text,
@@ -130,13 +130,9 @@ export const VersionEditorPage: FunctionComponent<VersionEditorPageProps> = () =
 
     return (
         <AppPage page={NavPage.APIS} breadcrumb={breadcrumb}>
-            <PageSection variant={PageSectionVariants.light} isWidthLimited>
+            <PageSection variant={PageSectionVariants.light} isWidthLimited style={{ borderBottom: "1px solid #ccc" }}>
                 <TextContent>
-                    <Text component="h1">Edit Version</Text>
-                    <Text component="p" className="description">
-                        Edit the content of the version - make whatever changes you need and then save them back to
-                        the hub.
-                    </Text>
+                    <Text component="h1">Edit Version {version?.version} of {api?.name}</Text>
                 </TextContent>
             </PageSection>
             <IfNotLoading isLoading={isLoading}>
