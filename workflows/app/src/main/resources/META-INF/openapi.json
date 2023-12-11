@@ -1,0 +1,214 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Apicurio API Lifecycle Workflows API [v0]",
+        "version": "0.1.x",
+        "description": ""
+    },
+    "paths": {
+        "/events": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "If the event was successfully received."
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "publishEvent",
+                "summary": "Create a new Event",
+                "description": "Creates/publishes a new event to the workflows components."
+            }
+        },
+        "/system/info": {
+            "summary": "Retrieve system information",
+            "get": {
+                "tags": [
+                    "System"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SystemInfo"
+                                }
+                            }
+                        },
+                        "description": "On success, returns the system information."
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "operationId": "getSystemInfo",
+                "summary": "Get system information",
+                "description": "This operation retrieves information about the running system, such as the version\nof the software and when it was built."
+            }
+        },
+        "x-codegen-contextRoot": "/apis/workflows/v0"
+    },
+    "components": {
+        "schemas": {
+            "Event": {
+                "title": "Root Type for Event",
+                "description": "",
+                "required": [
+                    "context",
+                    "id",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/EventContext"
+                    }
+                },
+                "example": {
+                    "id": "12345",
+                    "type": "version:create",
+                    "context": {
+                        "apiId": "test-api",
+                        "version": "1.0"
+                    }
+                }
+            },
+            "EventContext": {
+                "description": "",
+                "type": "object",
+                "additionalProperties": true
+            },
+            "SystemInfo": {
+                "title": "Root Type for SystemInfo",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "builtOn": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "name": "Apicurio API Lifecycle Hub (SQL)",
+                    "description": "The Apicurio API Lifecycle Hub application.",
+                    "version": "1.0.0.Final",
+                    "builtOn": "2024-03-19T12:55:00Z"
+                }
+            },
+            "Error": {
+                "title": "Error",
+                "description": "",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ObjectReference"
+                    },
+                    {
+                        "required": [
+                            "code",
+                            "reason"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "reason": {
+                                "type": "string"
+                            },
+                            "code": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ObjectReference": {
+                "required": [
+                    "id",
+                    "kind"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "href": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "ServerError": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        "examples": {
+                            "ErrorExample": {
+                                "value": {
+                                    "error_code": 500,
+                                    "message": "Lost connection to the database."
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Common response for all operations that can fail with an unexpected server error."
+            }
+        }
+    },
+    "x-codegen": {
+        "suppress-date-time-formatting": true,
+        "bean-annotations": [
+            "io.quarkus.runtime.annotations.RegisterForReflection",
+            {
+                "annotation": "lombok.experimental.SuperBuilder",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.AllArgsConstructor",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.NoArgsConstructor",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.EqualsAndHashCode",
+                "excludeEnums": true
+            },
+            {
+                "annotation": "lombok.ToString(callSuper = true)",
+                "excludeEnums": true
+            }
+        ]
+    }
+}
