@@ -1,7 +1,7 @@
 import React, { FunctionComponent, RefObject, useEffect, useState } from "react";
 import {
     Breadcrumb,
-    BreadcrumbItem, Divider,
+    BreadcrumbItem,
     PageSection,
     PageSectionVariants,
     Text,
