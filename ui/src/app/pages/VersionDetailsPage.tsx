@@ -206,7 +206,7 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                             </TextContent>
                                         </CardHeader>
                                         <CardBody>
-                                            <Button variant="primary">Edit</Button>
+                                            <Button variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit</Button>
                                             <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
                                             <List variant={ListVariant.inline}>
                                                 <ListItem><Button variant="secondary">Compare</Button></ListItem>

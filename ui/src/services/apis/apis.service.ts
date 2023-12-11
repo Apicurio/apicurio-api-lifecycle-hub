@@ -98,4 +98,10 @@ export class ApisService extends BaseService {
             return decoder.decode(ab);
         });
     }
+
+    public updateVersionContent(apiId: string, version: string, newContent: string, newContentType: string): Promise<void> {
+        const encoder: TextEncoder = new TextEncoder();
+        const buffer = encoder.encode(newContent);
+        return this.client().apis.byApiId(apiId).versions.byVersion(version).content.put(buffer, newContentType);
+    }
 }
