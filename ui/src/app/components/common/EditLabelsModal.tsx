@@ -11,7 +11,7 @@ import {
     ModalVariant,
     TextInput
 } from "@patternfly/react-core";
-import { Label, Labels } from "@client/models";
+import { Label, Labels } from "@client/hub/models";
 import { MinusCircleIcon, PlusCircleIcon } from "@patternfly/react-icons";
 
 /**

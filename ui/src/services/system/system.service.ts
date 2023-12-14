@@ -1,5 +1,5 @@
 import { BaseService } from "../baseService";
-import { SystemInfo } from "@client/models";
+import { SystemInfo } from "@client/hub/models";
 
 /**
  * The System service.

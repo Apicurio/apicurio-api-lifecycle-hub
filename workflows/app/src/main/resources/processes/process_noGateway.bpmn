@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+        xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+        xmlns:activiti="http://activiti.org/bpmn"
+        id="process_noGateway_definitions"
+        targetNamespace="http://bpmn.io/schema/bpmn" 
+        exporter="bpmn-js (https://demo.bpmn.io)" 
+        exporterVersion="15.1.3">
+  <bpmn:process id="process_noGateway" isExecutable="true">
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:outgoing>toLogVariables1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Action1" name="Action 1" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.TestAction1">
+      <bpmn:incoming>toAction1</bpmn:incoming>
+      <bpmn:outgoing>toLogVariables2a</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Action2" name="Action 2" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.TestAction2">
+      <bpmn:incoming>toAction2</bpmn:incoming>
+      <bpmn:outgoing>toLogVariables2b</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="LogVariables1" name="Log Variables" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.LogVariablesTask">
+      <bpmn:incoming>toLogVariables1</bpmn:incoming>
+      <bpmn:outgoing>toAction1</bpmn:outgoing>
+      <bpmn:outgoing>toAction2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="LogVariables2" name="Log Variables" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.LogVariablesTask">
+      <bpmn:incoming>toLogVariables2a</bpmn:incoming>
+      <bpmn:incoming>toLogVariables2b</bpmn:incoming>
+      <bpmn:outgoing>toEndEvent</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent">
+      <bpmn:incoming>toEndEvent</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="toAction1" sourceRef="LogVariables1" targetRef="Action1" />
+    <bpmn:sequenceFlow id="toAction2" sourceRef="LogVariables1" targetRef="Action2" />
+    <bpmn:sequenceFlow id="toLogVariables1" sourceRef="StartEvent" targetRef="LogVariables1" />
+    <bpmn:sequenceFlow id="toLogVariables2a" sourceRef="Action1" targetRef="LogVariables2" />
+    <bpmn:sequenceFlow id="toLogVariables2b" sourceRef="Action2" targetRef="LogVariables2" />
+    <bpmn:sequenceFlow id="toEndEvent" sourceRef="LogVariables2" targetRef="EndEvent" />
+  </bpmn:process>
+</bpmn:definitions>

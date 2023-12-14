@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+        xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+        xmlns:activiti="http://activiti.org/bpmn"
+        id="process_humanTask_definitions"
+        targetNamespace="http://bpmn.io/schema/bpmn" 
+        exporter="bpmn-js (https://demo.bpmn.io)" 
+        exporterVersion="15.1.3">
+  <bpmn:process id="process_humanTask" isExecutable="true">
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:extensionElements>
+        <activiti:formProperty id="message" name="Message" type="string"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>toHumanTask</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="HumanTask" name="Approval">
+      <bpmn:documentation>
+        HELLO WORLD: ${message}
+      </bpmn:documentation>
+      <!-- User task form properties -->
+      <bpmn2:extensionElements>
+        <activiti:formProperty id="approval" name="Approval" type="boolean"/>
+      </bpmn2:extensionElements>
+      <bpmn:incoming>toHumanTask</bpmn:incoming>
+      <bpmn:outgoing>toLogVariables</bpmn:outgoing>
+      <bpmn:humanPerformer id="humanPerformer1">
+        <bpmn:resourceAssignmentExpression id="expression1">
+          <bpmn:formalExpression>user</bpmn:formalExpression>
+        </bpmn:resourceAssignmentExpression>
+      </bpmn:humanPerformer>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="LogVariables" name="Log Variables" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.LogVariablesTask">
+      <bpmn:incoming>toLogVariables</bpmn:incoming>
+      <bpmn:outgoing>toEndEvent</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent">
+      <bpmn:incoming>toEndEvent</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="toLogVariables" sourceRef="HumanTask" targetRef="LogVariables" />
+    <bpmn:sequenceFlow id="toHumanTask" sourceRef="StartEvent" targetRef="HumanTask" />
+    <bpmn:sequenceFlow id="toEndEvent" sourceRef="LogVariables" targetRef="EndEvent" />
+  </bpmn:process>
+</bpmn:definitions>

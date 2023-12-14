@@ -11,7 +11,7 @@ import {
 } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { TableVariant } from "@patternfly/react-table";
-import { SearchedVersion, VersionSearchResults } from "@client/models";
+import { SearchedVersion, VersionSearchResults } from "@client/hub/models";
 import { FromNow, IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-components";
 
 /**

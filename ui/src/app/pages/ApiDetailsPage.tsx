@@ -21,7 +21,7 @@ import {
     TextVariants
 } from "@patternfly/react-core";
 import { Link, useParams } from "react-router-dom";
-import { Api, Labels, NewVersion, UpdateApi, VersionSearchResults } from "@client/models";
+import { Api, Labels, NewVersion, UpdateApi, VersionSearchResults } from "@client/hub/models";
 import { Services } from "@services/services.ts";
 import { CreateVersionModal, NavPage, LatestVersionsList, ShowLabels, EditLabelsModal } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";

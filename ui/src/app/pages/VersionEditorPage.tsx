@@ -8,7 +8,7 @@ import {
     TextContent
 } from "@patternfly/react-core";
 import { Link, useParams } from "react-router-dom";
-import { Api, Version } from "@client/models";
+import { Api, Version } from "@client/hub/models";
 import { Services } from "@services/services.ts";
 import { NavPage } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";

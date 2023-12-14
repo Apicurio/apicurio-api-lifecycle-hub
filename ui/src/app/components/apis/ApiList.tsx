@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { ApiDescription, NavLink } from "@app/components";
-import { ApiSearchResults, SearchedApi } from "@client/models";
+import { ApiSearchResults, SearchedApi } from "@client/hub/models";
 import { ApiSortBy, ApisSort } from "@models/ApisSort.model.ts";
 import { Truncate } from "@patternfly/react-core";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";

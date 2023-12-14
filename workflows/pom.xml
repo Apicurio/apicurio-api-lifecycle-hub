@@ -63,6 +63,9 @@
         <!-- Quarkus Version -->
         <quarkus.version>3.0.4.Final</quarkus.version>
 
+        <!-- Activiti Version -->
+        <activiti.version>7.6.1</activiti.version>
+
         <!-- Jandex -->
         <jandex.version>1.2.1</jandex.version>
 
@@ -99,6 +102,7 @@
 
     <modules>
         <module>app</module>
+        <module>client</module>
     </modules>
 
     <dependencyManagement>
@@ -110,6 +114,15 @@
                 <version>${quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Activiti Dependencies -->
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-dependencies</artifactId>
+                <version>${activiti.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
 
             <!-- Third Party Dependencies -->
@@ -276,6 +289,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
                     <additionalDependencies>
                         <additionalDependency>
                             <groupId>jakarta.annotation</groupId>

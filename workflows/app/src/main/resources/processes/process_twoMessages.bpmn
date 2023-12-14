@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+        xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+        xmlns:activiti="http://activiti.org/bpmn"
+        id="process_twoMessages_definitions"
+        targetNamespace="http://bpmn.io/schema/bpmn" 
+        exporter="bpmn-js (https://demo.bpmn.io)" 
+        exporterVersion="15.1.3">
+
+  <!-- Message Definitions -->
+  <bpmn2:message id="Message1" name="Message1"/>
+  <bpmn2:message id="Message2" name="Message2"/>
+
+  <bpmn:process id="process_twoMessages" isExecutable="true">
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:outgoing>toLogVariables</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="LogVariables" name="Log Variables" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.LogVariablesTask">
+      <bpmn:incoming>toLogVariables</bpmn:incoming>
+      <bpmn:outgoing>toCatch1</bpmn:outgoing>
+      <bpmn:outgoing>toCatch2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="CatchMessage1">
+      <bpmn:incoming>toCatch1</bpmn:incoming>
+      <bpmn:outgoing>toAction1</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message1"/>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Action1" name="Action 1" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.TestAction1">
+      <bpmn:incoming>toAction1</bpmn:incoming>
+      <bpmn:outgoing>toEndEvent1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="CatchMessage2">
+      <bpmn:incoming>toCatch2</bpmn:incoming>
+      <bpmn:outgoing>toAction2</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message2"/>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Action2" name="Action 2" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.TestAction2">
+      <bpmn:incoming>toAction2</bpmn:incoming>
+      <bpmn:outgoing>toEndEvent2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent1">
+      <bpmn:incoming>toEndEvent1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent2">
+      <bpmn:incoming>toEndEvent2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="toLogVariables" sourceRef="StartEvent" targetRef="LogVariables" />
+    <bpmn:sequenceFlow id="toAction1" sourceRef="CatchMessage1" targetRef="Action1" />
+    <bpmn:sequenceFlow id="toAction2" sourceRef="CatchMessage2" targetRef="Action2" />
+    <bpmn:sequenceFlow id="toCatch1" sourceRef="LogVariables" targetRef="CatchMessage1" />
+    <bpmn:sequenceFlow id="toCatch2" sourceRef="LogVariables" targetRef="CatchMessage2" />
+    <bpmn:sequenceFlow id="toEndEvent1" sourceRef="Action1" targetRef="EndEvent1" />
+    <bpmn:sequenceFlow id="toEndEvent2" sourceRef="Action2" targetRef="EndEvent2" />
+  </bpmn:process>
+</bpmn:definitions>

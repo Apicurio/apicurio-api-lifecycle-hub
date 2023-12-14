@@ -10,7 +10,7 @@ import {
     ToolbarItem
 } from "@patternfly/react-core";
 import { Paging } from "@models/Paging.model.ts";
-import { VersionSearchResults } from "@client/models";
+import { VersionSearchResults } from "@client/hub/models";
 
 
 export type VersionsToolbarData = {

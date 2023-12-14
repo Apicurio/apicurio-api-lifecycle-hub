@@ -10,7 +10,7 @@ import {
     ToolbarItem
 } from "@patternfly/react-core";
 import { Paging } from "@models/Paging.model.ts";
-import { ApiSearchResults } from "@client/models";
+import { ApiSearchResults } from "@client/hub/models";
 
 
 export type ApisToolbarData = {

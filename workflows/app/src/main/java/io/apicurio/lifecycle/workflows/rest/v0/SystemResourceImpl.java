@@ -16,6 +16,9 @@
 
 package io.apicurio.lifecycle.workflows.rest.v0;
 
+import org.activiti.engine.ProcessEngine;
+import org.slf4j.Logger;
+
 import io.apicurio.lifecycle.workflows.rest.v0.beans.SystemInfo;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,12 +31,25 @@ public class SystemResourceImpl implements SystemResource {
     
     @Inject
     io.apicurio.common.apps.core.System system;
+    
+    @Inject
+    Logger logger;
+    
+    @Inject
+    ProcessEngine engine;
+    
+    private void showProcessEngineInfo() {
+        logger.info("[ProcessEngine] :: Name: " + engine.getName());
+        logger.info("[ProcessEngine] :: Runtime Service: " + engine.getRuntimeService());
+        logger.info("[ProcessEngine] :: Task Service: " + engine.getTaskService());
+    }
 
     /**
-     * @see io.apicurio.lifecycle.rest.v1.SystemResource#getSystemInfo()
+     * @see io.apicurio.lifecycle.workflows.rest.v0.SystemResource#getSystemInfo()
      */
     @Override
     public SystemInfo getSystemInfo() {
+        showProcessEngineInfo();
         return SystemInfo.builder()
                 .name(this.system.getName())
                 .description(this.system.getDescription())

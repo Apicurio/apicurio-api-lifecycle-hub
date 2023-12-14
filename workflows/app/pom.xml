@@ -8,11 +8,9 @@
         <version>0.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>apicurio-api-lifecycle-workflows-app</artifactId>
     <packaging>jar</packaging>
     <name>apicurio-api-lifecycle-workflows-app</name>
-
     <dependencies>
         <!-- Common App Components -->
         <dependency>
@@ -20,25 +18,22 @@
             <artifactId>apicurio-common-app-components-core</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-logging</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-storage</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-web</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
+        
         <!-- Quarkus Dependencies -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -52,7 +47,7 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-jackson</artifactId>
         </dependency>
-
+        
         <!-- Persistence -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -62,14 +57,32 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-agroal</artifactId>
         </dependency>
-
+        
+        <!-- Activiti -->
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        
         <!-- Third Party Libraries -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>compile</scope>
         </dependency>
-
+        
         <!-- Test Only -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -92,7 +105,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -193,7 +205,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>sub</id>

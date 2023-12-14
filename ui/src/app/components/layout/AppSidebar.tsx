@@ -28,7 +28,10 @@ export const AppSidebar: FunctionComponent<AppSidebarProps> = (props: AppSidebar
                                 Dashboard
                             </NavItem>
                             <NavItem itemId={NavPage.APIS} isActive={props.page === NavPage.APIS} to="/apis">
-                                APIs
+                                My APIs
+                            </NavItem>
+                            <NavItem itemId={NavPage.TASKS} isActive={props.page === NavPage.TASKS} to="/tasks">
+                                My Tasks
                             </NavItem>
                         </NavGroup>
                         <NavGroup title="Integrations">

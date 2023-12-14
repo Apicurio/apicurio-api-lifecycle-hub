@@ -19,6 +19,8 @@ package io.apicurio.lifecycle.rest.v0.impl;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 
@@ -43,6 +45,9 @@ import io.apicurio.lifecycle.storage.dtos.ToDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateVersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
+import io.apicurio.lifecycle.workflows.rest.client.LifecycleWorkflowsClient;
+import io.apicurio.lifecycle.workflows.rest.client.models.Event;
+import io.apicurio.lifecycle.workflows.rest.client.models.EventContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
@@ -61,6 +66,9 @@ public class ApisResourceImpl implements ApisResource {
     
     @Inject
     AlhStorage storage;
+    
+    @Inject
+    LifecycleWorkflowsClient workflowsClient;
 
     @Inject
     @Context
@@ -133,7 +141,15 @@ public class ApisResourceImpl implements ApisResource {
      */
     @Override
     public void createVersion(String apiId, @NotNull NewVersion data) {
+        // Create the new version in storage
         storage.createVersion(apiId, ToDto.newVersion(data));
+        // Fire event (trigger workflow)
+        Event event = new Event();
+        event.setType("version:create");
+        event.setId(UUID.randomUUID().toString());
+        event.setContext(new EventContext());
+        event.getContext().setAdditionalData(Map.of("apiId", apiId, "version", data.getVersion()));
+        workflowsClient.events().post(event);
     }
     
     /**

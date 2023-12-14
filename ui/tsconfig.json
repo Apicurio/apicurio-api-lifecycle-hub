@@ -26,7 +26,8 @@
       "@components/*": [ "./src/components/*" ],
       "@models/*": [ "./src/models/*" ],
       "@hooks/*": [ "./src/hooks/*" ],
-      "@client/*": [ "./generated-src/*" ],
+      "@client/hub/*": [ "./generated-src/hub-client/*" ],
+      "@client/workflows/*": [ "./generated-src/workflows-client/*" ],
       "@services/*": [ "./src/services/*" ]
     }
   },

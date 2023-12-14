@@ -7,7 +7,8 @@
   "repository": "https://github.com/Apicurio/apicurio-api-lifecycle-hub.git",
   "scripts": {
     "clean": "rimraf dist generated-src .kiota",
-    "generate": "cross-env KIOTA_VERSION=v1.8.1 kiota generate -l typescript -d ../hub/app/src/main/resources/META-INF/openapi.json -c LifecycleHubClient -o ./generated-src",
+    "generate-hub-client": "cross-env KIOTA_VERSION=v1.8.1 kiota generate -l typescript -d ../hub/app/src/main/resources/META-INF/openapi.json -c LifecycleHubClient -o ./generated-src/hub-client",
+    "generate-workflows-client": "cross-env KIOTA_VERSION=v1.8.1 kiota generate -l typescript -d ../workflows/app/src/main/resources/META-INF/openapi.json -c LifecycleWorkflowsClient -o ./generated-src/workflows-client",
     "kiota-info": "cross-env KIOTA_VERSION=v1.8.1 kiota info -l typescript",
     "dev": "vite",
     "build": "vite build",

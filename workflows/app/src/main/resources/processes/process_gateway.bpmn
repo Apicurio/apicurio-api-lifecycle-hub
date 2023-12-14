@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+        xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+        xmlns:activiti="http://activiti.org/bpmn"
+        id="process_gateway_definitions"
+        targetNamespace="http://bpmn.io/schema/bpmn" 
+        exporter="bpmn-js (https://demo.bpmn.io)" 
+        exporterVersion="15.1.3">
+  <bpmn:process id="process_gateway" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:extensionElements>
+        <activiti:formProperty id="count" name="Count" type="long"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>toIncrementCount</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="IncrementCountTask" name="Increment Count" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.IncrementCountTask">
+      <bpmn:incoming>toIncrementCount</bpmn:incoming>
+      <bpmn:incoming>toIncrementCountLoop</bpmn:incoming>
+      <bpmn:outgoing>toCountGateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="CountGateway">
+      <bpmn:incoming>toCountGateway</bpmn:incoming>
+      <bpmn:outgoing>toEndEvent</bpmn:outgoing>
+      <bpmn:outgoing>toLogVariables</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="LogVariablesTask" name="Log Variables" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.LogVariablesTask">
+      <bpmn:incoming>toLogVariables</bpmn:incoming>
+      <bpmn:outgoing>toIncrementCountLoop</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent">
+      <bpmn:incoming>toEndEvent</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="toCountGateway" sourceRef="IncrementCountTask" targetRef="CountGateway" />
+    <bpmn:sequenceFlow id="toIncrementCount" sourceRef="StartEvent" targetRef="IncrementCountTask" />
+    <bpmn:sequenceFlow id="toLogVariables" sourceRef="CountGateway" targetRef="LogVariablesTask">
+        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${count &lt; 10}</bpmn2:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="toIncrementCountLoop" sourceRef="LogVariablesTask" targetRef="IncrementCountTask" />
+    <bpmn:sequenceFlow id="toEndEvent" sourceRef="CountGateway" targetRef="EndEvent">
+        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${count &gt;= 10}</bpmn2:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:textAnnotation id="TextAnnotation_0xjugu5">
+      <bpmn:text>count &lt; 10</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_10x0poi" sourceRef="toLogVariables" targetRef="TextAnnotation_0xjugu5" />
+    <bpmn:textAnnotation id="TextAnnotation_13l7r2i">
+      <bpmn:text>count &gt;= 10</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_04jvv8x" sourceRef="toEndEvent" targetRef="TextAnnotation_13l7r2i" />
+  </bpmn:process>
+</bpmn:definitions>

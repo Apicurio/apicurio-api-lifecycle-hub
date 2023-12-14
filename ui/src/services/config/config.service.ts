@@ -3,7 +3,8 @@ import { Service } from "../baseService";
 
 const DEFAULT_CONFIG: ConfigType = {
     apis: {
-        hub: "http://localhost:8080/apis/hub/v0"
+        hub: "http://localhost:8080/apis/hub/v0",
+        workflows: "http://localhost:9002/apis/workflows/v0"
     },
     auth: {
         type: "none"
@@ -46,6 +47,10 @@ export class ConfigService implements Service {
 
     public hubUrl(): string {
         return this.config.apis.hub || "";
+    }
+
+    public workflowsUrl(): string {
+        return this.config.apis.workflows || "";
     }
 
     public uiContextPath(): string {

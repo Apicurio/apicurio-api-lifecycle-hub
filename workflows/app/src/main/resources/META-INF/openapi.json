@@ -57,6 +57,83 @@
                 "description": "This operation retrieves information about the running system, such as the version\nof the software and when it was built."
             }
         },
+        "/tasks": {
+            "summary": "Path used to manage the list of tasks.",
+            "description": "The REST endpoint/path used to list and create zero or more `Task` entities.  This path contains a `GET` and `POST` operation to perform the list and create tasks, respectively.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Task"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful response - returns an array of `Task` entities."
+                    }
+                },
+                "operationId": "getTasks",
+                "summary": "List All Tasks",
+                "description": "Gets a list of all `Task` entities."
+            }
+        },
+        "/tasks/{taskId}": {
+            "summary": "Path used to manage a single Task.",
+            "description": "The REST endpoint/path used to get, update, and delete single instances of an `Task`.  This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and delete tasks, respectively.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        },
+                        "description": "Successful response - returns a single `Task`."
+                    }
+                },
+                "operationId": "getTask",
+                "summary": "Get a Task",
+                "description": "Gets the details of a single instance of a `Task`."
+            },
+            "put": {
+                "requestBody": {
+                    "description": "Updated `Task` information.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteTask"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "202": {
+                        "description": "Successful response."
+                    }
+                },
+                "operationId": "completeTask",
+                "summary": "Complete a Task",
+                "description": "Updates an existing `Task`."
+            },
+            "parameters": [
+                {
+                    "name": "taskId",
+                    "description": "A unique identifier for a `Task`.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
         "x-codegen-contextRoot": "/apis/workflows/v0"
     },
     "components": {
@@ -162,6 +239,36 @@
                         "type": "string"
                     }
                 }
+            },
+            "Task": {
+                "title": "Root Type for Task",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "assignee": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "123",
+                    "name": "Do Something",
+                    "description": "This is the description of a task.",
+                    "assignee": "user1"
+                }
+            },
+            "CompleteTask": {
+                "description": "",
+                "type": "object",
+                "additionalProperties": true
             }
         },
         "responses": {

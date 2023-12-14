@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import { Labels } from "@client/models";
+import { Labels } from "@client/hub/models";
 import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateVariant, Label } from "@patternfly/react-core";
 
 export type ShowLabelsProps = {

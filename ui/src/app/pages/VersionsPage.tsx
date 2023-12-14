@@ -18,7 +18,7 @@ import { CreateVersionModal, NavPage } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { IfNotLoading, ListWithToolbar, PleaseWaitModal } from "@apicurio/common-ui-components";
 import { Services } from "@services/services.ts";
-import { Api, NewVersion, VersionSearchResults } from "@client/models";
+import { Api, NewVersion, VersionSearchResults } from "@client/hub/models";
 import { Link, useParams } from "react-router-dom";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { VersionsSort } from "@models/VersionsSort.model.ts";

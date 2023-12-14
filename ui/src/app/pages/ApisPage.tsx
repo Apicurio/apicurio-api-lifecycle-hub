@@ -1,13 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { PageSection, PageSectionVariants, Text, TextContent } from "@patternfly/react-core";
-import {
-    ApisToolbar,
-    ApisToolbarData,
-    CreateApiModal,
-    NavPage,
-    ApiList
-} from "@app/components";
-import { ApiSearchResults, NewApi } from "@client/models";
+import { ApiList, ApisToolbar, ApisToolbarData, CreateApiModal, NavPage } from "@app/components";
+import { ApiSearchResults, NewApi } from "@client/hub/models";
 import { Services } from "@services/services.ts";
 import { ApisEmptyState } from "@app/components/apis/ApisEmptyState.tsx";
 import { ApisSort } from "@models/ApisSort.model.ts";

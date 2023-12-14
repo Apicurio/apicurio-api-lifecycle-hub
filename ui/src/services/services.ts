@@ -6,6 +6,7 @@ import { AuthService } from "./auth";
 import { VersionService } from "@services/version";
 import { SystemService } from "@services/system";
 import { ApisService } from "@services/apis";
+import { TasksService } from "@services/tasks";
 
 /**
  * Class that provides access to all the services in the application.
@@ -38,6 +39,10 @@ export class Services {
         return Services.all.apis;
     }
 
+    public static getTasksService(): TasksService {
+        return Services.all.tasks;
+    }
+
     public static getAuthService(): AuthService {
         return Services.all.auth;
     }
@@ -50,6 +55,7 @@ export class Services {
         logger: new LoggerService(),
         auth: new AuthService(),
         apis: new ApisService(),
+        tasks: new TasksService(),
     };
 
     // tslint:disable-next-line:member-ordering member-access

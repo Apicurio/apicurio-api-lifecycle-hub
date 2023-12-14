@@ -1,6 +1,7 @@
 
 export interface ApisConfig {
     hub: string;
+    workflows: string;
 }
 
 export interface UiConfig {

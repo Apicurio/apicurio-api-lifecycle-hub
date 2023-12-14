@@ -1,7 +1,6 @@
 import { LoggerService } from "./logger";
 import { ConfigService } from "./config";
 import { AuthService } from "./auth";
-import { LifecycleHubClient } from "@client/lifecycleHubClient.ts";
 import { RequestAdapter } from "@microsoft/kiota-abstractions";
 import { FetchRequestAdapter } from "@microsoft/kiota-http-fetchlibrary/dist/cjs/src/fetchRequestAdapter";
 import {
@@ -10,6 +9,8 @@ import {
 import {
     AuthenticationProvider
 } from "@microsoft/kiota-abstractions/dist/cjs/src/authentication/authenticationProvider";
+import { LifecycleWorkflowsClient } from "@client/workflows/lifecycleWorkflowsClient.ts";
+import { LifecycleHubClient } from "@client/hub/lifecycleHubClient.ts";
 
 /**
  * Interface implemented by all services.
@@ -27,61 +28,61 @@ export abstract class BaseService implements Service {
     protected config: ConfigService | undefined;
     protected auth: AuthService | undefined;
 
-    protected _client: LifecycleHubClient | undefined;
+    protected _hubClient: LifecycleHubClient | undefined;
+    protected _workflowsClient: LifecycleWorkflowsClient | undefined;
 
     public init(): void {
-        this.initClient();
+        this.initClients();
         this.initAuthInterceptor();
     }
 
-    private initClient(): void {
-        const authProvider: AuthenticationProvider = new AnonymousAuthenticationProvider();
-        const requestAdapter: RequestAdapter = new FetchRequestAdapter(authProvider);
-        requestAdapter.baseUrl = this.apiBaseHref();
-        this._client = new LifecycleHubClient(requestAdapter);
+    private initClients(): void {
+        this.initHubClient();
+        this.initWorkflowsClient();
     }
 
-    public client(): LifecycleHubClient {
-        return this._client as LifecycleHubClient;
+    private initHubClient(): void {
+        const authProvider: AuthenticationProvider = new AnonymousAuthenticationProvider();
+        const requestAdapter: RequestAdapter = new FetchRequestAdapter(authProvider);
+        requestAdapter.baseUrl = this.hubBaseHref();
+        this._hubClient = new LifecycleHubClient(requestAdapter);
+    }
+
+    private initWorkflowsClient(): void {
+        const authProvider: AuthenticationProvider = new AnonymousAuthenticationProvider();
+        const requestAdapter: RequestAdapter = new FetchRequestAdapter(authProvider);
+        requestAdapter.baseUrl = this.workflowsBaseHref();
+        this._workflowsClient = new LifecycleWorkflowsClient(requestAdapter);
+    }
+
+    public hubClient(): LifecycleHubClient {
+        return this._hubClient as LifecycleHubClient;
+    }
+
+    public workflowsClient(): LifecycleWorkflowsClient {
+        return this._workflowsClient as LifecycleWorkflowsClient;
     }
 
     public initAuthInterceptor() {
         // AXIOS.interceptors.request.use(this.auth?.getAuthInterceptor());
     }
 
-    protected apiBaseHref(): string {
+    protected hubBaseHref(): string {
         let apiUrl: string = this.config?.hubUrl() || "";
         if (apiUrl.endsWith("/")) {
             apiUrl = apiUrl.substring(0, apiUrl.length - 1);
         }
-        this.logger?.debug("[BaseService] Base HREF of REST API: ", apiUrl);
+        this.logger?.debug("[BaseService] Base HREF of Hub REST API: ", apiUrl);
         return apiUrl;
     }
-    //
-    // private unwrapErrorData(error: any): any {
-    //     if (error && error.response && error.response.data) {
-    //         return {
-    //             message: error.message,
-    //             ...error.response.data,
-    //             status: error.response.status
-    //         };
-    //     } else if (error && error.response) {
-    //         return {
-    //             message: error.message,
-    //             status: error.response.status
-    //         };
-    //     } else if (error) {
-    //         console.error("Unknown error detected: ", error);
-    //         return {
-    //             message: error.message,
-    //             status: 500
-    //         };
-    //     } else {
-    //         console.error("Unknown error detected: ", error);
-    //         return {
-    //             message: "Unknown error",
-    //             status: 500
-    //         };
-    //     }
-    // }
+
+    protected workflowsBaseHref(): string {
+        let apiUrl: string = this.config?.workflowsUrl() || "";
+        if (apiUrl.endsWith("/")) {
+            apiUrl = apiUrl.substring(0, apiUrl.length - 1);
+        }
+        this.logger?.debug("[BaseService] Base HREF of Workflows REST API: ", apiUrl);
+        return apiUrl;
+    }
+
 }

@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { ApiDescription, NavLink } from "@app/components";
-import { VersionSearchResults, SearchedVersion } from "@client/models";
+import { VersionSearchResults, SearchedVersion } from "@client/hub/models";
 import { VersionSortBy, VersionsSort } from "@models/VersionsSort.model.ts";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { ThProps } from "@patternfly/react-table";

@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { Button, Form, FormGroup, Modal, ModalVariant, TextArea, TextInput } from "@patternfly/react-core";
-import { NewApi } from "@client/models";
+import { NewApi } from "@client/hub/models";
 import { ObjectSelect } from "@apicurio/common-ui-components";
 
 type TypeSelectionItem = {

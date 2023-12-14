@@ -20,23 +20,27 @@
             <artifactId>apicurio-common-app-components-core</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-logging</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-storage</artifactId>
             <version>${apicurio-common-app-components.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-web</artifactId>
             <version>${apicurio-common-app-components.version}</version>
+        </dependency>
+
+        <!-- Workflows Components -->
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-api-lifecycle-workflows-client</artifactId>
+            <version>${apicurio-api-lifecycle-workflows.version}</version>
         </dependency>
 
         <!-- Quarkus Dependencies -->
