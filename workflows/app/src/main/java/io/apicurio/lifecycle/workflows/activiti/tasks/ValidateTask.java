@@ -10,7 +10,7 @@ public class ValidateTask implements JavaDelegate {
      */
     @Override
     public void execute(DelegateExecution execution) {
-        System.out.println("[ValidateTask] Executing for: " + execution.getVariable("apiId") + "@" + execution.getVariable("version"));
+        System.out.println("[ValidateTask] Executing for: " + execution.getVariable("apiId") + "@" + execution.getVariable("apiVersion"));
     }
 
 }

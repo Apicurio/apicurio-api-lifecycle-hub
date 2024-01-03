@@ -12,7 +12,7 @@ public class AddWorkflowLabelTask extends AbstractTask {
     @Override
     public void execute(DelegateExecution execution) {
         String apiId = execution.getVariable("apiId").toString();
-        String version = execution.getVariable("version").toString();
+        String version = execution.getVariable("apiVersion").toString();
         
         addLabels(apiId, version, Map.of(
                 "workflow:definitionId", execution.getProcessDefinitionId(), 

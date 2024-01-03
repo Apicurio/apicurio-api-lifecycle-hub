@@ -37,7 +37,7 @@ public class EventsResourceImpl implements EventsResource {
             logger.info("Detected a version:create event.  Starting workflow: " + workflow + " for: " + apiId + "@" + version);
             
             // Start a workflow process instance for this API version.
-            final Map<String, Object> variables = Map.of("apiId", apiId, "version", version);
+            final Map<String, Object> variables = Map.of("apiId", apiId, "apiVersion", version);
             final RuntimeService runtimeService = engine.getRuntimeService();
             ProcessInstance id = runtimeService.startProcessInstanceByKey("workflow_" + workflow, variables);
             logger.info("Started a workflow process with id=" + id.getId());
@@ -54,7 +54,7 @@ public class EventsResourceImpl implements EventsResource {
             Execution execution = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("ApiChangeMessage")
                 .processVariableValueEquals("apiId", apiId)
-                .processVariableValueEquals("version", version)
+                .processVariableValueEquals("apiVersion", version)
                 .singleResult();
 
             // Dispatch message to the right process execution
@@ -72,7 +72,7 @@ public class EventsResourceImpl implements EventsResource {
             Execution execution = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("ApiChangeMessage")
                 .processVariableValueEquals("apiId", apiId)
-                .processVariableValueEquals("version", version)
+                .processVariableValueEquals("apiVersion", version)
                 .singleResult();
 
             // Dispatch message to the right process execution

@@ -27,7 +27,7 @@ public class RegistryTask extends AbstractTask {
     @Override
     public void execute(DelegateExecution execution) {
         String apiId = execution.getVariable("apiId").toString();
-        String version = execution.getVariable("version").toString();
+        String version = execution.getVariable("apiVersion").toString();
 
         try {
             System.out.println("[RegistryTask] Executing for: " + apiId + "@" + version);

@@ -12,7 +12,7 @@
         exporterVersion="15.1.3">
 
   <!-- Message Definitions -->
-  <bpmn2:message id="ApiChangeMessage" name="ApiChangeMessage"/>
+  <bpmn:message id="ApiChangeMessage" name="ApiChangeMessage"/>
 
   <!-- Process -->
   <bpmn:process id="workflow_default" isExecutable="true">
@@ -21,7 +21,7 @@
     <bpmn:startEvent id="StartEvent">
       <bpmn:extensionElements>
         <activiti:formProperty id="apiId" name="API Id" type="string"/>
-        <activiti:formProperty id="version" name="Version" type="string"/>
+        <activiti:formProperty id="apiVersion" name="Version" type="string"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>fromStartToAddWorkflowLabelTask</bpmn:outgoing>
     </bpmn:startEvent>
@@ -48,24 +48,38 @@
       <bpmn:outgoing>fromCatchToGateway</bpmn:outgoing>
       <bpmn:messageEventDefinition messageRef="ApiChangeMessage"/>
     </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="SetReadOnlyTrue" name="Set Read Only (true)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
+      <bpmn:extensionElements>
+        <activiti:field name="isReadOnly" stringValue="true"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>fromEventTypeGatewayToSetReadOnlyTrue</bpmn:incoming>
+      <bpmn:outgoing>fromSetReadOnlyTrueToApproval</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="SetReadOnlyFalse" name="Set Read Only (false)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
+      <bpmn:extensionElements>
+        <activiti:field name="isReadOnly" stringValue="false"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>fromApprovalGatewayToSetReadOnlyFalse</bpmn:incoming>
+      <bpmn:outgoing>fromSetReadOnlyFalseToCatch</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:userTask id="ApprovalTask" name="Approval">
       <bpmn:documentation>
-          API ${apiId} (version ${version}) is ready to register.  Do you approve?
+          API ${apiId} (version ${apiVersion}) is ready to register.  Do you approve?
       </bpmn:documentation>
-      <bpmn2:extensionElements>
+      <bpmn:extensionElements>
         <activiti:formProperty id="approval" name="Approval" type="boolean"/>
-      </bpmn2:extensionElements>
-      <bpmn:incoming>fromEventTypeGatewayToApproval</bpmn:incoming>
+      </bpmn:extensionElements>
+      <bpmn:incoming>fromSetReadOnlyTrueToApproval</bpmn:incoming>
       <bpmn:outgoing>fromApprovalToGateway</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="EventTypeGateway">
       <bpmn:incoming>fromCatchToGateway</bpmn:incoming>
       <bpmn:outgoing>fromEventTypeGatewayToValidate</bpmn:outgoing>
-      <bpmn:outgoing>fromEventTypeGatewayToApproval</bpmn:outgoing>
+      <bpmn:outgoing>fromEventTypeGatewayToSetReadOnlyTrue</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:exclusiveGateway id="ApprovalGateway">
       <bpmn:incoming>fromApprovalToGateway</bpmn:incoming>
-      <bpmn:outgoing>fromApprovalGatewayToCatch</bpmn:outgoing>
+      <bpmn:outgoing>fromApprovalGatewayToSetReadOnlyFalse</bpmn:outgoing>
       <bpmn:outgoing>fromApprovalGatewayToRegistry</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="EndEvent">
@@ -80,17 +94,19 @@
     <bpmn:sequenceFlow id="fromMicrocksToCatchEvent" sourceRef="MicrocksTask" targetRef="CatchEvent" />
     <bpmn:sequenceFlow id="fromCatchToGateway" sourceRef="CatchEvent" targetRef="EventTypeGateway" />
     <bpmn:sequenceFlow id="fromEventTypeGatewayToValidate" sourceRef="EventTypeGateway" targetRef="ValidateTask">
-        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'change'}</bpmn2:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${eventType == 'change'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="fromEventTypeGatewayToApproval" sourceRef="EventTypeGateway" targetRef="ApprovalTask">
-        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'done'}</bpmn2:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${eventType == 'done'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="fromSetReadOnlyFalseToCatch" sourceRef="SetReadOnlyFalse" targetRef="CatchEvent" />
+    <bpmn:sequenceFlow id="fromSetReadOnlyTrueToApproval" sourceRef="SetReadOnlyTrue" targetRef="ApprovalTask" />
     <bpmn:sequenceFlow id="fromApprovalToGateway" sourceRef="ApprovalTask" targetRef="ApprovalGateway" />
-    <bpmn:sequenceFlow id="fromApprovalGatewayToCatch" sourceRef="ApprovalGateway" targetRef="CatchEvent">
-        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == false}</bpmn2:conditionExpression>
+    <bpmn:sequenceFlow id="fromApprovalGatewayToSetReadOnlyFalse" sourceRef="ApprovalGateway" targetRef="SetReadOnlyFalse">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="fromApprovalGatewayToRegistry" sourceRef="ApprovalGateway" targetRef="RegistryTask">
-        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == true}</bpmn2:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <!-- Annotations -->
@@ -117,9 +133,9 @@
     <bpmn:textAnnotation id="TextAnnotation_0vdsyn0">
       <bpmn:text>Not Approved</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:association id="Association_14kaykj" sourceRef="fromApprovalGatewayToCatch" targetRef="TextAnnotation_0vdsyn0" />
+    <bpmn:association id="Association_14kaykj" sourceRef="fromApprovalGatewayToCatch" targetRef="TextAnnotation_0vdsyn0" />    
   </bpmn:process>
-  
+
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1giaibf">
       <bpmndi:BPMNShape id="TextAnnotation_1idhfmq_di" bpmnElement="TextAnnotation_1idhfmq">
@@ -250,4 +266,5 @@
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
+
 </bpmn:definitions>

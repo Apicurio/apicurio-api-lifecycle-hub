@@ -24,7 +24,7 @@ public class MicrocksTask extends AbstractTask {
     @Override
     public void execute(DelegateExecution execution) {
         String apiId = execution.getVariable("apiId").toString();
-        String version = execution.getVariable("version").toString();
+        String version = execution.getVariable("apiVersion").toString();
 
         try {
             System.out.println("[MicrocksTask] Executing for: " + apiId + "@" + version);
