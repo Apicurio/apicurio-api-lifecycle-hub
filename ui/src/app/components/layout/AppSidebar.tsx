@@ -41,6 +41,9 @@ export const AppSidebar: FunctionComponent<AppSidebarProps> = (props: AppSidebar
                             <NavItem itemId={NavPage.REGISTRY} isActive={props.page === NavPage.REGISTRY} to="/registry">
                                 Registry
                             </NavItem>
+                            <NavItem itemId={NavPage.MICROCKS} isActive={props.page === NavPage.MICROCKS} to="/microcks">
+                                Microcks
+                            </NavItem>
                         </NavGroup>
                     </NavList>
                 </Nav>

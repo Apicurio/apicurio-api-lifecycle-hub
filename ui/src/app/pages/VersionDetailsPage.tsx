@@ -23,12 +23,12 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { Api, Labels, UpdateVersion, Version } from "@client/hub/models";
 import { Services } from "@services/services.ts";
-import { EditLabelsModal, NavPage, ShowLabels } from "@app/components";
+import { BpmnDiagram, EditLabelsModal, NavPage, ShowLabels } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
 import { IfNotLoading, FromNow, PleaseWaitModal } from "@apicurio/common-ui-components";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import { DownloadIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
+import { CloseIcon, DownloadIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 
 const splitGalleryWidths = {
     sm: "100%",
@@ -87,6 +87,16 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
         });
     };
 
+    const onFinalize = (): void => {
+        pleaseWait("Finalizing API version, please wait...");
+        Services.getTasksService().finalizeApiVersion(apiIdParam, versionParam).then(() => {
+            closePleaseWaitModal();
+        }).catch(error => {
+            console.error("[VersionDetailsPage] Failed to finalize API version: ", error);
+            closePleaseWaitModal();
+        });
+    };
+
     // Load the api based on the api ID (from the path param).
     useEffect(() => {
         setLoading(true);
@@ -103,7 +113,18 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
     }, [params]);
 
     useEffect(() => {
+        // Update the version every couple of seconds - will show labels automatically as the
+        // workflow progresses.
+        const interval = setInterval(() => {
+            Services.getApisService().getVersion(apiIdParam, versionParam).then(setVersion);
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         if (tabKey === 1) {
+            // Load content when switching to the content tab
             setIsLoadingContent(true);
             Services.getApisService().getVersionContent(apiIdParam, versionParam).then(content => {
                 setContent(content);
@@ -207,7 +228,14 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                             </TextContent>
                                         </CardHeader>
                                         <CardBody>
-                                            <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
+                                            <List variant={ListVariant.inline}>
+                                                <ListItem>
+                                                    <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
+                                                </ListItem>
+                                                <ListItem>
+                                                    <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
+                                                </ListItem>
+                                            </List>
                                             <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
                                             <List variant={ListVariant.inline}>
                                                 <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
@@ -233,6 +261,9 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                     height="sizeToFit"
                                 />
                             </IfNotLoading>
+                        </Tab>
+                        <Tab eventKey={2} title={<TabTitleText>Lifecycle</TabTitleText>} aria-label="Lifecycle">
+                            <BpmnDiagram diagramUrl="/workflow_default.bpmn" />
                         </Tab>
                     </Tabs>
                 </PageSection>

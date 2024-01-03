@@ -17,7 +17,7 @@ import { FromNow, IfNotEmpty, ResponsiveTable } from "@apicurio/common-ui-compon
 /**
  * Properties
  */
-export type VersionListProps = {
+export type LatestVersionsListProps = {
     apiId: string;
     versions: VersionSearchResults;
     onSelect: (version: string) => void;
@@ -25,7 +25,7 @@ export type VersionListProps = {
     onCreate: () => void;
 };
 
-export const LatestVersionsList: FunctionComponent<VersionListProps> = (props: VersionListProps) => {
+export const LatestVersionsList: FunctionComponent<LatestVersionsListProps> = (props: LatestVersionsListProps) => {
     const appNav = useAppNavigation();
 
     const columns: any[] = [

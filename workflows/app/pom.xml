@@ -12,6 +12,13 @@
     <packaging>jar</packaging>
     <name>apicurio-api-lifecycle-workflows-app</name>
     <dependencies>
+        <!-- Project Dependencies -->
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>apicurio-api-lifecycle-workflows-microcks-client</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+        
         <!-- Common App Components -->
         <dependency>
             <groupId>io.apicurio</groupId>
@@ -32,6 +39,20 @@
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-web</artifactId>
             <version>${apicurio-common-app-components.version}</version>
+        </dependency>
+
+        <!-- Lifecycle Hub Dependencies -->
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-api-lifecycle-hub-client</artifactId>
+            <version>${apicurio-api-lifecycle-hub.version}</version>
+        </dependency>
+
+        <!-- Apicurio Registry Dependencies -->
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-client</artifactId>
+            <version>${apicurio-registry.version}</version>
         </dependency>
         
         <!-- Quarkus Dependencies -->
@@ -142,6 +163,24 @@
                                 <javaPackage>io.apicurio.lifecycle.workflows.rest.v0</javaPackage>
                             </projectSettings>
                             <inputSpec>${project.basedir}/src/main/resources/META-INF/openapi.json</inputSpec>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/jaxrs/</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>

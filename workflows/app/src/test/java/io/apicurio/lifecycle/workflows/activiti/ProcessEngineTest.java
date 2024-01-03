@@ -71,6 +71,7 @@ public class ProcessEngineTest {
         Execution execution = runtimeService.createExecutionQuery()
             .messageEventSubscriptionName("MyMessage")
             .singleResult();
+        
         logger.info("Sending message to: " + id.getId());
         runtimeService.messageEventReceived("MyMessage", execution.getId());
         Thread.sleep(500);

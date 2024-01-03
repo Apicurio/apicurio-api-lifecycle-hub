@@ -24,9 +24,9 @@ export const ShowLabels: FunctionComponent<ShowLabelsProps> = (props: ShowLabels
     return (
         <div className="all-labels">
             {
-                Object.getOwnPropertyNames(theLabels).map((key, idx) => {
+                Object.getOwnPropertyNames(theLabels).sort().map((key, idx) => {
                     return (
-                        <Label key={idx} color="blue" style={{ marginRight: "5px" }}>{key}<b>=</b>{theLabels[key]}</Label>
+                        <Label key={idx} color="blue" style={{ marginRight: "5px", marginBottom: "5px" }}>{key}<b>=</b>{theLabels[key]}</Label>
                     );
                 })
             }

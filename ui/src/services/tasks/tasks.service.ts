@@ -1,5 +1,5 @@
 import { BaseService } from "../baseService";
-import { CompleteTask, Task } from "@client/workflows/models";
+import { CompleteTask, Task, Event } from "@client/workflows/models";
 
 /**
  * The System service.
@@ -32,5 +32,21 @@ export class TasksService extends BaseService {
             }
         };
         return this.workflowsClient().tasks.byTaskId(taskId).put(approval);
+    }
+
+    public finalizeApiVersion(apiId: string, version: string): Promise<void> {
+        this.logger?.debug("[TasksService] Finalizing version: ", apiId, version);
+
+        const event: Event = {
+            id: "12345",
+            type: "version:done",
+            context: {
+                additionalData: {
+                    apiId,
+                    version
+                }
+            }
+        };
+        return this.workflowsClient().events.post(event);
     }
 }

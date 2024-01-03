@@ -5,8 +5,11 @@ import {
     ApicurioRegistryPage,
     ApiDetailsPage,
     ApisPage,
-    DashboardPage, TasksPage,
-    VersionDetailsPage, VersionEditorPage,
+    DashboardPage,
+    MicrocksPage,
+    TasksPage,
+    VersionDetailsPage,
+    VersionEditorPage,
     VersionsPage
 } from "@app/pages";
 
@@ -31,6 +34,7 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = () => {
             <Route path="/tasks" element={ <TasksPage /> } />
             <Route path="/designer" element={ <ApicurioApiDesignerPage /> } />
             <Route path="/registry" element={ <ApicurioRegistryPage /> } />
+            <Route path="/microcks" element={ <MicrocksPage /> } />
         </Routes>
     );
 };

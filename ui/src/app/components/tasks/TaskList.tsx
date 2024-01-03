@@ -26,7 +26,7 @@ type TaskActionSeparator = {
 export const TaskList: FunctionComponent<TaskListProps> = (props: TaskListProps) => {
     const columns: any[] = [
         { index: 0, id: "name", label: "Name", width: 25, sortable: false },
-        { index: 1, id: "description", label: "Type", width: 50, sortable: false },
+        { index: 1, id: "description", label: "Description", width: 50, sortable: false },
         { index: 2, id: "assignee", label: "Assignee", width: 25, sortable: false }
     ];
 

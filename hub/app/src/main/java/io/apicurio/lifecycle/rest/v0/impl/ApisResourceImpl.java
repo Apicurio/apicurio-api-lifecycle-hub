@@ -143,6 +143,7 @@ public class ApisResourceImpl implements ApisResource {
     public void createVersion(String apiId, @NotNull NewVersion data) {
         // Create the new version in storage
         storage.createVersion(apiId, ToDto.newVersion(data));
+        
         // Fire event (trigger workflow)
         Event event = new Event();
         event.setType("version:create");
@@ -225,6 +226,14 @@ public class ApisResourceImpl implements ApisResource {
                 .content(content)
                 .contentType(request.getContentType())
                 .build());
+
+        // Fire event (send message to workflow)
+        Event event = new Event();
+        event.setType("version:change");
+        event.setId(UUID.randomUUID().toString());
+        event.setContext(new EventContext());
+        event.getContext().setAdditionalData(Map.of("apiId", apiId, "version", version));
+        workflowsClient.events().post(event);
     }
 
 }

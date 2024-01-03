@@ -1,16 +1,22 @@
 package io.apicurio.lifecycle.workflows.activiti.tasks;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
+import java.util.Map;
 
-public class AddWorkflowLabelTask implements JavaDelegate {
-    
+import org.activiti.engine.delegate.DelegateExecution;
+
+public class AddWorkflowLabelTask extends AbstractTask {
+
     /**
      * @see org.activiti.engine.delegate.JavaDelegate#execute(org.activiti.engine.delegate.DelegateExecution)
      */
     @Override
     public void execute(DelegateExecution execution) {
-        System.out.println("[AddWorkflowLabelTask] Executing for: " + execution.getVariable("apiId") + "@" + execution.getVariable("version"));
+        String apiId = execution.getVariable("apiId").toString();
+        String version = execution.getVariable("version").toString();
+        
+        addLabels(apiId, version, Map.of(
+                "workflow:definitionId", execution.getProcessDefinitionId(), 
+                "workflow:instanceId", execution.getProcessInstanceId()));
     }
 
 }

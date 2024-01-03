@@ -58,7 +58,7 @@ export const CreateVersionModal: FunctionComponent<CreateVersionModalProps> = (p
 
     return (
         <Modal
-            variant={ModalVariant.medium}
+            variant={ModalVariant.large}
             title="Create a Version"
             isOpen={props.isOpen}
             onClose={props.onCancel}
@@ -71,13 +71,13 @@ export const CreateVersionModal: FunctionComponent<CreateVersionModalProps> = (p
                 </Button>
             ]}
         >
-            <Form>
+            <Form isHorizontal={true}>
                 <FormGroup label="Version" isRequired={true} fieldId="create-version-version">
                     <TextInput
                         isRequired
                         type="text"
                         id="create-version-version"
-                        data-testid="text-api-version"
+                        data-testid="text-version"
                         name="create-version-version"
                         aria-describedby="create-version-version-helper"
                         value={version}
@@ -88,10 +88,11 @@ export const CreateVersionModal: FunctionComponent<CreateVersionModalProps> = (p
                     <TextArea
                         type="text"
                         id="create-version-description"
-                        data-testid="textarea-api-description"
+                        data-testid="textarea-version-description"
                         name="create-version-description"
                         aria-describedby="create-version-description-helper"
                         value={description}
+                        resizeOrientation="vertical"
                         onChange={(_event, value) => {setDescription(value);}}
                     />
                 </FormGroup>
@@ -101,18 +102,28 @@ export const CreateVersionModal: FunctionComponent<CreateVersionModalProps> = (p
                         testId="select-version-contentType"
                         items={["application/json", "application/yaml"]}
                         onSelect={setContentType}
-                        itemToTestId={item => `select-api-type-item-${item.split("/")[1]}`}
+                        itemToTestId={item => `select-version-ct-item-${item.split("/")[1]}`}
+                        itemToString={item => item} />
+                </FormGroup>
+                <FormGroup label="Workflow" isRequired={true} fieldId="create-version-workflow">
+                    <ObjectSelect
+                        value="Default"
+                        testId="select-version-workflow"
+                        items={["Default", "Enhanced", "Full"]}
+                        onSelect={() => {}}
+                        itemToTestId={item => `select-version-workflow-item-${item}`}
                         itemToString={item => item} />
                 </FormGroup>
                 <FormGroup label="Content" fieldId="create-version-content">
                     <TextArea
                         type="text"
                         id="create-version-content"
-                        data-testid="textarea-api-content"
+                        data-testid="textarea-version-content"
                         name="create-version-content"
                         aria-describedby="create-version-content-helper"
                         value={content}
-                        height="100"
+                        style={{ minHeight: "200px" }}
+                        resizeOrientation="vertical"
                         onChange={(_event, value) => {setContent(value);}}
                     />
                 </FormGroup>
