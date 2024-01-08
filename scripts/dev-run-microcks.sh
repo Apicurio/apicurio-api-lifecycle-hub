@@ -4,7 +4,6 @@ set -e
 BASE_DIR=`dirname $0`
 cd $BASE_DIR
 BASE_DIR=`pwd`
-LOG_DIR=$BASE_DIR/.logs
 WORK_DIR=$BASE_DIR/.work
 cd ..
 HUB_DIR=`pwd`
