@@ -17,16 +17,22 @@ npm install
 cd $WORK_DIR/apicurio-registry/ui
 npm install
 cd $WORK_DIR/apicurio-registry/client
-mvn clean install
-cd $HUB_DIR/hub/client
-mvn clean install
-cd $HUB_DIR/workflows/client
-mvn clean install
+mvn clean install -DskipTests
+echo ">>>>>>>>>>>>>>>> before hub client"
+cd $HUB_DIR/hub
+mvn clean install -pl client -am -DskipTests
+echo ">>>>>>>>>>>>>>>> before workflows client"
+cd $HUB_DIR/workflows
+mvn clean install -pl client -am -DskipTests
+echo ">>>>>>>>>>>>>>>> before UI"
 cd $HUB_DIR/ui
 npm install
+npm run generate-hub-client
+npm run generate-workflows-client
 
+echo ">>>>>>>>>>>>>>>> before hub"
 cd $HUB_DIR/hub
-mvn clean install
+mvn clean install -DskipTests
+echo ">>>>>>>>>>>>>>>> before workflows"
 cd $HUB_DIR/workflows
-mvn clean install
-
+mvn clean install -DskipTests

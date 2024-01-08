@@ -9,7 +9,7 @@ WORK_DIR=$BASE_DIR/.work
 
 # API Designer UI (dev mode) on port 8000
 cd $WORK_DIR/apicurio-registry/ui/ui-app
-source ./init-dev.sh
+./init-dev.sh
 cp $BASE_DIR/configs/config-registry-ui.js config.js
 export SERVER_PORT=8001
 npm run dev

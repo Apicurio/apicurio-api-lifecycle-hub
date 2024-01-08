@@ -10,6 +10,6 @@ HUB_DIR=`pwd`
 
 # Run hub UI on port 8888
 cd $HUB_DIR/ui
-source ./init-dev.sh
+./init-dev.sh
 cp $BASE_DIR/configs/config-api-lifecycle-ui.js config.js
 npm run dev
