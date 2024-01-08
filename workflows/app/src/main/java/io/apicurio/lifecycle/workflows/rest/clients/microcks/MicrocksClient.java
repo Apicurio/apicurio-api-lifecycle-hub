@@ -25,7 +25,7 @@ public class MicrocksClient {
      * @param fileName
      * @param content
      */
-    public void upload(String fileName, String content) {
+    public String upload(String fileName, String content) {
         try {
             // Specify the URL of the server
             String serverUrl = baseUrl + "/artifact/upload";
@@ -85,9 +85,11 @@ public class MicrocksClient {
 
             // Close the connection
             connection.disconnect();
-
+            
+            return response.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            return "";
         }
     }
 

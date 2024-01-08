@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,7 +11,7 @@ import {
     Gallery,
     GalleryItem, List, ListItem, ListVariant,
     PageSection,
-    PageSectionVariants, Tab, Tabs, TabTitleText,
+    PageSectionVariants, Tab, TabContent, Tabs, TabTitleText,
     Text,
     TextContent,
     TextList,
@@ -23,10 +23,10 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { Api, Labels, UpdateVersion, Version } from "@client/hub/models";
 import { Services } from "@services/services.ts";
-import { BpmnDiagram, EditLabelsModal, NavPage, ShowLabels } from "@app/components";
+import { BpmnDiagram, EditLabelsModal, NavPage, RegistryVersionDetails, ShowLabels } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
-import { IfNotLoading, FromNow, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { IfNotLoading, FromNow, PleaseWaitModal, If } from "@apicurio/common-ui-components";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import { CloseIcon, DownloadIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 
@@ -57,6 +57,13 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
 
     const apiIdParam: string = params["apiId"] as string;
     const versionParam: string = params["version"] as string;
+
+    const labels: any = version?.labels || {};
+    const isReadOnly: boolean = labels["version:readOnly"] === "true";
+    const isRegistered: boolean = labels["registry:artifactId"] !== undefined;
+    const registryGroupId: string = labels["registry:groupId"] || "default";
+    const registryArtifactId: string = labels["registry:artifactId"] || "";
+    const registryVersion: string = labels["registry:version"] || "1";
 
     const pleaseWait = (message: string): void => {
         setIsPleaseWaitModalOpen(true);
@@ -146,6 +153,42 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
         </Breadcrumb>
     );
 
+    const infoTabRef = React.createRef<HTMLElement>();
+    const contentTabRef = React.createRef<HTMLElement>();
+    const workflowTabRef = React.createRef<HTMLElement>();
+    const registryTabRef = React.createRef<HTMLElement>();
+
+    let tabList = [
+        <Tab
+            eventKey={0}
+            title={<TabTitleText>Info</TabTitleText>}
+            aria-label="Basic version info"
+            tabContentId="info-tab"
+            tabContentRef={infoTabRef} />,
+        <Tab
+            eventKey={1}
+            title={<TabTitleText>Content</TabTitleText>}
+            aria-label="Content"
+            tabContentId="content-tab"
+            tabContentRef={contentTabRef} />,
+        <Tab
+            eventKey={2}
+            title={<TabTitleText>Lifecycle</TabTitleText>}
+            aria-label="Lifecycle"
+            tabContentId="workflow-tab"
+            tabContentRef={workflowTabRef} />,
+    ];
+
+    if (isRegistered) {
+        const registryTab = <Tab
+            eventKey={3}
+            title={<TabTitleText>Registry</TabTitleText>}
+            aria-label="Registry"
+            tabContentId="registry-tab"
+            tabContentRef={registryTabRef} />;
+        tabList = [...tabList, registryTab];
+    }
+
     return (
         <AppPage page={NavPage.APIS} breadcrumb={breadcrumb}>
             <PageSection variant={PageSectionVariants.light} isWidthLimited>
@@ -166,7 +209,16 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                         aria-label="Version details tabs"
                         role="region"
                     >
-                        <Tab eventKey={0} title={<TabTitleText>Info</TabTitleText>} aria-label="Basic version info">
+                        {
+                            tabList
+                        }
+                    </Tabs>
+                    <>
+                        <TabContent
+                            eventKey={0}
+                            id="info-tab"
+                            ref={infoTabRef}
+                        >
                             <Gallery hasGutter={false} minWidths={splitGalleryWidths} maxWidths={splitGalleryWidths}>
                                 <GalleryItem className="left-panel" style={{ padding: "20px" }}>
                                     <Flex direction={{ default: "column" }}>
@@ -228,15 +280,17 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                             </TextContent>
                                         </CardHeader>
                                         <CardBody>
-                                            <List variant={ListVariant.inline}>
-                                                <ListItem>
-                                                    <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
-                                                </ListItem>
-                                                <ListItem>
-                                                    <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
-                                                </ListItem>
-                                            </List>
-                                            <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                                            <If condition={!isReadOnly}>
+                                                <List variant={ListVariant.inline}>
+                                                    <ListItem>
+                                                        <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
+                                                    </ListItem>
+                                                    <ListItem>
+                                                        <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
+                                                    </ListItem>
+                                                </List>
+                                                <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                                            </If>
                                             <List variant={ListVariant.inline}>
                                                 <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
                                             </List>
@@ -246,8 +300,13 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                     </Card>
                                 </GalleryItem>
                             </Gallery>
-                        </Tab>
-                        <Tab eventKey={1} title={<TabTitleText>Content</TabTitleText>} aria-label="Content">
+                        </TabContent>
+                        <TabContent
+                            eventKey={1}
+                            id="content-tab"
+                            ref={contentTabRef}
+                            hidden={true}
+                        >
                             <IfNotLoading isLoading={isLoadingContent}>
                                 <CodeEditor
                                     code={content}
@@ -261,11 +320,30 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                     height="sizeToFit"
                                 />
                             </IfNotLoading>
-                        </Tab>
-                        <Tab eventKey={2} title={<TabTitleText>Lifecycle</TabTitleText>} aria-label="Lifecycle">
+                        </TabContent>
+                        <TabContent
+                            eventKey={2}
+                            id="workflow-tab"
+                            ref={workflowTabRef}
+                            hidden={true}
+                        >
                             <BpmnDiagram diagramUrl="/workflow_default.bpmn" />
-                        </Tab>
-                    </Tabs>
+                        </TabContent>
+                        <TabContent
+                            eventKey={3}
+                            id="registry-tab"
+                            ref={registryTabRef}
+                            hidden={true}
+                            style={{ height: "100%" }}
+                        >
+                            <RegistryVersionDetails
+                                isRegistered={isRegistered}
+                                groupId={registryGroupId}
+                                artifactId={registryArtifactId}
+                                version={registryVersion} />
+                        </TabContent>
+
+                    </>
                 </PageSection>
             </IfNotLoading>
             <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />

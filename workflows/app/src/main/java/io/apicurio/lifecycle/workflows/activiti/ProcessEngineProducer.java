@@ -5,6 +5,7 @@ import java.util.List;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.delegate.event.ActivitiActivityEvent;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.ActivitiEventType;
@@ -102,9 +103,10 @@ public class ProcessEngineProducer {
         engine.getRuntimeService().addEventListener(new ActivitiEventListener() {
             @Override
             public void onEvent(ActivitiEvent event) {
-                logger.info("Process event: " + event.getType());
                 if (event.getType() == ActivitiEventType.PROCESS_STARTED) {
                     logger.info("Process instance created/started.");
+                } else if (event.getType() == ActivitiEventType.ACTIVITY_STARTED) {
+                    logger.info("Executing activity: " + ((ActivitiActivityEvent) event).getActivityId());
                 } else if (event.getType() == ActivitiEventType.PROCESS_COMPLETED) {
                     logger.info("Process completed!");
                 }

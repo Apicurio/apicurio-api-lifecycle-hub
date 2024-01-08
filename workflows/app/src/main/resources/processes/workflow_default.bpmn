@@ -1,270 +1,255 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
-        xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
-        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
-        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
-        xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
-        xmlns:activiti="http://activiti.org/bpmn"
-        id="workflow_default_defs"
-        targetNamespace="http://bpmn.io/schema/bpmn" 
-        exporter="bpmn-js (https://demo.bpmn.io)" 
-        exporterVersion="15.1.3">
-
-  <!-- Message Definitions -->
-  <bpmn:message id="ApiChangeMessage" name="ApiChangeMessage"/>
-
-  <!-- Process -->
-  <bpmn:process id="workflow_default" isExecutable="true">
-
-    <!-- Activities -->
-    <bpmn:startEvent id="StartEvent">
-      <bpmn:extensionElements>
-        <activiti:formProperty id="apiId" name="API Id" type="string"/>
-        <activiti:formProperty id="apiVersion" name="Version" type="string"/>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>fromStartToAddWorkflowLabelTask</bpmn:outgoing>
-    </bpmn:startEvent>
-    <bpmn:serviceTask id="AddWorkflowLabelTask" name="Add Workflow Label" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.AddWorkflowLabelTask">
-      <bpmn:incoming>fromStartToAddWorkflowLabelTask</bpmn:incoming>
-      <bpmn:outgoing>fromAddWorkflowLabelToValidate</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="ValidateTask" name="Validate API Design" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.ValidateTask">
-      <bpmn:incoming>fromAddWorkflowLabelToValidate</bpmn:incoming>
-      <bpmn:incoming>fromEventTypeGatewayToValidate</bpmn:incoming>
-      <bpmn:outgoing>fromValidateToMicrocks</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="MicrocksTask" name="Push to Microcks" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.MicrocksTask">
-      <bpmn:incoming>fromValidateToMicrocks</bpmn:incoming>
-      <bpmn:outgoing>fromMicrocksToCatchEvent</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="RegistryTask" name="Push to Registry" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.RegistryTask">
-      <bpmn:incoming>fromApprovalGatewayToRegistry</bpmn:incoming>
-      <bpmn:outgoing>fromRegistryToEnd</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:intermediateCatchEvent id="CatchEvent">
-      <bpmn:incoming>fromMicrocksToCatchEvent</bpmn:incoming>
-      <bpmn:incoming>fromApprovalGatewayToCatch</bpmn:incoming>
-      <bpmn:outgoing>fromCatchToGateway</bpmn:outgoing>
-      <bpmn:messageEventDefinition messageRef="ApiChangeMessage"/>
-    </bpmn:intermediateCatchEvent>
-    <bpmn:serviceTask id="SetReadOnlyTrue" name="Set Read Only (true)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
-      <bpmn:extensionElements>
-        <activiti:field name="isReadOnly" stringValue="true"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>fromEventTypeGatewayToSetReadOnlyTrue</bpmn:incoming>
-      <bpmn:outgoing>fromSetReadOnlyTrueToApproval</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="SetReadOnlyFalse" name="Set Read Only (false)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
-      <bpmn:extensionElements>
-        <activiti:field name="isReadOnly" stringValue="false"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>fromApprovalGatewayToSetReadOnlyFalse</bpmn:incoming>
-      <bpmn:outgoing>fromSetReadOnlyFalseToCatch</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:userTask id="ApprovalTask" name="Approval">
-      <bpmn:documentation>
-          API ${apiId} (version ${apiVersion}) is ready to register.  Do you approve?
-      </bpmn:documentation>
-      <bpmn:extensionElements>
-        <activiti:formProperty id="approval" name="Approval" type="boolean"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>fromSetReadOnlyTrueToApproval</bpmn:incoming>
-      <bpmn:outgoing>fromApprovalToGateway</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="EventTypeGateway">
-      <bpmn:incoming>fromCatchToGateway</bpmn:incoming>
-      <bpmn:outgoing>fromEventTypeGatewayToValidate</bpmn:outgoing>
-      <bpmn:outgoing>fromEventTypeGatewayToSetReadOnlyTrue</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="ApprovalGateway">
-      <bpmn:incoming>fromApprovalToGateway</bpmn:incoming>
-      <bpmn:outgoing>fromApprovalGatewayToSetReadOnlyFalse</bpmn:outgoing>
-      <bpmn:outgoing>fromApprovalGatewayToRegistry</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="EndEvent">
-      <bpmn:incoming>fromRegistryToEnd</bpmn:incoming>
-    </bpmn:endEvent>
-
-    <!-- Sequence Flows -->
-    <bpmn:sequenceFlow id="fromStartToAddWorkflowLabelTask" sourceRef="StartEvent" targetRef="AddWorkflowLabelTask" />
-    <bpmn:sequenceFlow id="fromAddWorkflowLabelToValidate" sourceRef="AddWorkflowLabelTask" targetRef="ValidateTask" />
-    <bpmn:sequenceFlow id="fromValidateToMicrocks" sourceRef="ValidateTask" targetRef="MicrocksTask" />
-    <bpmn:sequenceFlow id="fromRegistryToEnd" sourceRef="RegistryTask" targetRef="EndEvent" />
-    <bpmn:sequenceFlow id="fromMicrocksToCatchEvent" sourceRef="MicrocksTask" targetRef="CatchEvent" />
-    <bpmn:sequenceFlow id="fromCatchToGateway" sourceRef="CatchEvent" targetRef="EventTypeGateway" />
-    <bpmn:sequenceFlow id="fromEventTypeGatewayToValidate" sourceRef="EventTypeGateway" targetRef="ValidateTask">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${eventType == 'change'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="fromEventTypeGatewayToApproval" sourceRef="EventTypeGateway" targetRef="ApprovalTask">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${eventType == 'done'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="fromSetReadOnlyFalseToCatch" sourceRef="SetReadOnlyFalse" targetRef="CatchEvent" />
-    <bpmn:sequenceFlow id="fromSetReadOnlyTrueToApproval" sourceRef="SetReadOnlyTrue" targetRef="ApprovalTask" />
-    <bpmn:sequenceFlow id="fromApprovalToGateway" sourceRef="ApprovalTask" targetRef="ApprovalGateway" />
-    <bpmn:sequenceFlow id="fromApprovalGatewayToSetReadOnlyFalse" sourceRef="ApprovalGateway" targetRef="SetReadOnlyFalse">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="fromApprovalGatewayToRegistry" sourceRef="ApprovalGateway" targetRef="RegistryTask">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-
-    <!-- Annotations -->
-    <bpmn:textAnnotation id="TextAnnotation_1idhfmq">
-      <bpmn:text>API Changed OR API Done</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_1p9i6ko" sourceRef="CatchEvent" targetRef="TextAnnotation_1idhfmq" />
-    <bpmn:textAnnotation id="TextAnnotation_1ef6ar4">
-      <bpmn:text>API Changed</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_0renw9u" sourceRef="fromEventTypeGatewayToValidate" targetRef="TextAnnotation_1ef6ar4" />
-    <bpmn:textAnnotation id="TextAnnotation_1yu9ig7">
-      <bpmn:text>API Done</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_1056l0k" sourceRef="fromEventTypeGatewayToApproval" targetRef="TextAnnotation_1yu9ig7" />
-    <bpmn:textAnnotation id="TextAnnotation_00kog3n">
-      <bpmn:text>API Created</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_0pfpjdw" sourceRef="StartEvent" targetRef="TextAnnotation_00kog3n" />
-    <bpmn:textAnnotation id="TextAnnotation_18lsunx">
-      <bpmn:text>Approved</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_1gaeubg" sourceRef="fromApprovalGatewayToRegistry" targetRef="TextAnnotation_18lsunx" />
-    <bpmn:textAnnotation id="TextAnnotation_0vdsyn0">
-      <bpmn:text>Not Approved</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_14kaykj" sourceRef="fromApprovalGatewayToCatch" targetRef="TextAnnotation_0vdsyn0" />    
-  </bpmn:process>
-
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="workflow_default_defs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="50c6516" camunda:diagramRelationId="ea9b8b7a-253b-4ab9-9a98-375be265d47a">
+  <bpmn2:message id="ApiChangeMessage" name="ApiChangeMessage" />
+  <bpmn2:process id="workflow_default" name="Default Workflow" isExecutable="true">
+    <bpmn2:startEvent id="StartEvent" name="Start">
+      <bpmn2:extensionElements>
+        <activiti:formProperty id="apiId" name="API Id" type="string" />
+        <activiti:formProperty id="version" name="Version" type="string" />
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>toAddWorkflowLabels</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:serviceTask id="AddWorkflowLabels" name="Add Workflow Labels" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.AddWorkflowLabelTask">
+      <bpmn2:incoming>toAddWorkflowLabels</bpmn2:incoming>
+      <bpmn2:outgoing>fromAddWorkflowLabelToValidate</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="ValidateTask" name="Validate API Design" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.ValidateTask">
+      <bpmn2:incoming>toValidate</bpmn2:incoming>
+      <bpmn2:outgoing>toMicrocks</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="MicrocksTask" name="Push to Microcks" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.MicrocksTask">
+      <bpmn2:extensionElements />
+      <bpmn2:incoming>toMicrocks</bpmn2:incoming>
+      <bpmn2:outgoing>fromMicrocksToCatchEvent</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="RegistryTask" name="Push to Registry" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.RegistryTask">
+      <bpmn2:incoming>fromApprovalGatewayToRegistry</bpmn2:incoming>
+      <bpmn2:outgoing>toEnd</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:intermediateCatchEvent id="CatchEvent" name="Catch Event">
+      <bpmn2:incoming>toCatchEvent</bpmn2:incoming>
+      <bpmn2:outgoing>fromCatchToGateway</bpmn2:outgoing>
+      <bpmn2:messageEventDefinition messageRef="ApiChangeMessage" />
+    </bpmn2:intermediateCatchEvent>
+    <bpmn2:userTask id="ApprovalTask" name="Approval">
+      <bpmn2:documentation>
+          API ${apiId} (version ${version}) is ready to register.  Do you approve?
+      </bpmn2:documentation>
+      <bpmn2:extensionElements>
+        <activiti:formProperty id="approval" name="Approval" type="boolean" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>toApproval</bpmn2:incoming>
+      <bpmn2:outgoing>toApprovalGateway</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:exclusiveGateway id="EventTypeGateway" name="Check Event Type">
+      <bpmn2:incoming>fromCatchToGateway</bpmn2:incoming>
+      <bpmn2:outgoing>fromCatchEventGatewayToValidate</bpmn2:outgoing>
+      <bpmn2:outgoing>fromCatchEventGatewayToSetReadOnlyTrue</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:exclusiveGateway id="ApprovalGateway" name="Check Approval">
+      <bpmn2:incoming>toApprovalGateway</bpmn2:incoming>
+      <bpmn2:outgoing>fromApprovalGatewayToSetReadOnlyFalse</bpmn2:outgoing>
+      <bpmn2:outgoing>fromApprovalGatewayToRegistry</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:endEvent id="EndEvent" name="End">
+      <bpmn2:incoming>toEnd</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="toAddWorkflowLabels" sourceRef="StartEvent" targetRef="AddWorkflowLabels" />
+    <bpmn2:sequenceFlow id="fromAddWorkflowLabelToValidate" sourceRef="AddWorkflowLabels" targetRef="ApiChangedOrCreatedJoin" />
+    <bpmn2:sequenceFlow id="toMicrocks" sourceRef="ValidateTask" targetRef="MicrocksTask" />
+    <bpmn2:sequenceFlow id="toEnd" sourceRef="RegistryTask" targetRef="EndEvent" />
+    <bpmn2:sequenceFlow id="fromMicrocksToCatchEvent" sourceRef="MicrocksTask" targetRef="ApiReadyToChangeJoin" />
+    <bpmn2:sequenceFlow id="fromCatchToGateway" sourceRef="CatchEvent" targetRef="EventTypeGateway" />
+    <bpmn2:sequenceFlow id="fromCatchEventGatewayToValidate" name="API Changed" sourceRef="EventTypeGateway" targetRef="ApiChangedOrCreatedJoin">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'change'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="fromCatchEventGatewayToSetReadOnlyTrue" name="API Done" sourceRef="EventTypeGateway" targetRef="SetReadOnlyTrue">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'done'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="toApprovalGateway" sourceRef="ApprovalTask" targetRef="ApprovalGateway" />
+    <bpmn2:sequenceFlow id="fromApprovalGatewayToSetReadOnlyFalse" name="Not Approved" sourceRef="ApprovalGateway" targetRef="SetReadOnlyFalse">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == false}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="fromApprovalGatewayToRegistry" name="Approved" sourceRef="ApprovalGateway" targetRef="RegistryTask">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == true}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:exclusiveGateway id="ApiChangedOrCreatedJoin">
+      <bpmn2:incoming>fromAddWorkflowLabelToValidate</bpmn2:incoming>
+      <bpmn2:incoming>fromCatchEventGatewayToValidate</bpmn2:incoming>
+      <bpmn2:outgoing>toValidate</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="toValidate" sourceRef="ApiChangedOrCreatedJoin" targetRef="ValidateTask" />
+    <bpmn2:exclusiveGateway id="ApiReadyToChangeJoin">
+      <bpmn2:incoming>fromMicrocksToCatchEvent</bpmn2:incoming>
+      <bpmn2:incoming>fromSetReadOnlyFalseToCatchEvent</bpmn2:incoming>
+      <bpmn2:outgoing>toCatchEvent</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="toCatchEvent" sourceRef="ApiReadyToChangeJoin" targetRef="CatchEvent" />
+    <bpmn2:sequenceFlow id="toApproval" sourceRef="SetReadOnlyTrue" targetRef="ApprovalTask" />
+    <bpmn2:serviceTask id="SetReadOnlyTrue" name="Set Read Only (true)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
+      <bpmn2:extensionElements>
+        <activiti:field name="isReadOnly" stringValue="true" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>fromCatchEventGatewayToSetReadOnlyTrue</bpmn2:incoming>
+      <bpmn2:outgoing>toApproval</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="fromSetReadOnlyFalseToCatchEvent" sourceRef="SetReadOnlyFalse" targetRef="ApiReadyToChangeJoin" />
+    <bpmn2:serviceTask id="SetReadOnlyFalse" name="Set Read Only (false)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
+      <bpmn2:extensionElements>
+        <activiti:field name="isReadOnly" stringValue="false" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>fromApprovalGatewayToSetReadOnlyFalse</bpmn2:incoming>
+      <bpmn2:outgoing>fromSetReadOnlyFalseToCatchEvent</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:textAnnotation id="TextAnnotation_00kog3n">
+      <bpmn2:text>API Created</bpmn2:text>
+    </bpmn2:textAnnotation>
+    <bpmn2:association id="Association_0pfpjdw" sourceRef="StartEvent" targetRef="TextAnnotation_00kog3n" />
+  </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1giaibf">
-      <bpmndi:BPMNShape id="TextAnnotation_1idhfmq_di" bpmnElement="TextAnnotation_1idhfmq">
-        <dc:Bounds x="840" y="340" width="120" height="41" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1yu9ig7_di" bpmnElement="TextAnnotation_1yu9ig7">
-        <dc:Bounds x="980" y="346" width="100" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_00kog3n_di" bpmnElement="TextAnnotation_00kog3n">
-        <dc:Bounds x="200" y="170" width="100" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1ef6ar4_di" bpmnElement="TextAnnotation_1ef6ar4">
-        <dc:Bounds x="771" y="110" width="100" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_18lsunx_di" bpmnElement="TextAnnotation_18lsunx">
-        <dc:Bounds x="1280" y="170" width="100" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0vdsyn0_di" bpmnElement="TextAnnotation_0vdsyn0">
-        <dc:Bounds x="1030" y="470" width="100" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="workflow_default">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
-        <dc:Bounds x="156" y="252" width="36" height="36" />
+        <dc:Bounds x="156" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="162" y="215" width="25" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_102umu3_di" bpmnElement="AddWorkflowLabelTask">
-        <dc:Bounds x="270" y="230" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_102umu3_di" bpmnElement="AddWorkflowLabels">
+        <dc:Bounds x="240" y="150" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1was45b_di" bpmnElement="ValidateTask">
-        <dc:Bounds x="450" y="230" width="100" height="80" />
+        <dc:Bounds x="480" y="150" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1wuu97k_di" bpmnElement="MicrocksTask">
-        <dc:Bounds x="630" y="230" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1nmpxlg_di" bpmnElement="CatchEvent">
-        <dc:Bounds x="803" y="252" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EventTypeGateway_di" bpmnElement="EventTypeGateway" isMarkerVisible="true">
-        <dc:Bounds x="895" y="245" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0y9uddr_di" bpmnElement="ApprovalTask">
-        <dc:Bounds x="1030" y="230" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ApprovalGateway_di" bpmnElement="ApprovalGateway" isMarkerVisible="true">
-        <dc:Bounds x="1205" y="245" width="50" height="50" />
+        <dc:Bounds x="630" y="150" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_01w5470_di" bpmnElement="RegistryTask">
-        <dc:Bounds x="1370" y="230" width="100" height="80" />
+        <dc:Bounds x="1454" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1nmpxlg_di" bpmnElement="CatchEvent">
+        <dc:Bounds x="872" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="860" y="152" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0y9uddr_di" bpmnElement="ApprovalTask">
+        <dc:Bounds x="1200" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EventTypeGateway_di" bpmnElement="EventTypeGateway" isMarkerVisible="true">
+        <dc:Bounds x="945" y="165" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="925" y="222" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ApprovalGateway_di" bpmnElement="ApprovalGateway" isMarkerVisible="true">
+        <dc:Bounds x="1335" y="165" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1320" y="135" width="80" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_di" bpmnElement="EndEvent">
-        <dc:Bounds x="1552" y="252" width="36" height="36" />
+        <dc:Bounds x="1606" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1614" y="215" width="20" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_1p9i6ko_di" bpmnElement="Association_1p9i6ko">
-        <di:waypoint x="832" y="284" />
-        <di:waypoint x="878" y="340" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_1056l0k_di" bpmnElement="Association_1056l0k">
-        <di:waypoint x="987.5" y="270" />
-        <di:waypoint x="1023" y="346" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_0pfpjdw_di" bpmnElement="Association_0pfpjdw">
-        <di:waypoint x="186" y="257" />
-        <di:waypoint x="237" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_0renw9u_di" bpmnElement="Association_0renw9u">
-        <di:waypoint x="717.5" y="180" />
-        <di:waypoint x="793" y="140" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_1gaeubg_di" bpmnElement="Association_1gaeubg">
-        <di:waypoint x="1312.5" y="270" />
-        <di:waypoint x="1327" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_14kaykj_di" bpmnElement="Association_14kaykj">
-        <di:waypoint x="1022" y="430" />
-        <di:waypoint x="1064" y="470" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromStartToAddWorkflowLabelTask_di" bpmnElement="fromStartToAddWorkflowLabelTask">
-        <di:waypoint x="192" y="270" />
-        <di:waypoint x="270" y="270" />
+      <bpmndi:BPMNShape id="Gateway_1c1gnuz_di" bpmnElement="ApiChangedOrCreatedJoin" isMarkerVisible="true">
+        <dc:Bounds x="385" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_01juo2m_di" bpmnElement="ApiReadyToChangeJoin" isMarkerVisible="true">
+        <dc:Bounds x="785" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_075e1qb_di" bpmnElement="SetReadOnlyTrue">
+        <dc:Bounds x="1059" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dkisha_di" bpmnElement="SetReadOnlyFalse">
+        <dc:Bounds x="1030" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_00kog3n_di" bpmnElement="TextAnnotation_00kog3n">
+        <dc:Bounds x="200" y="90" width="100" height="30" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="fromStartToAddWorkflowLabelTask_di" bpmnElement="toAddWorkflowLabels">
+        <di:waypoint x="192" y="190" />
+        <di:waypoint x="240" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromAddWorkflowLabelToValidate_di" bpmnElement="fromAddWorkflowLabelToValidate">
-        <di:waypoint x="370" y="270" />
-        <di:waypoint x="450" y="270" />
+        <di:waypoint x="340" y="190" />
+        <di:waypoint x="385" y="190" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromValidateToMicrocks_di" bpmnElement="fromValidateToMicrocks">
-        <di:waypoint x="550" y="270" />
-        <di:waypoint x="630" y="270" />
+      <bpmndi:BPMNEdge id="fromValidateToMicrocks_di" bpmnElement="toMicrocks">
+        <di:waypoint x="580" y="190" />
+        <di:waypoint x="630" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="fromRegistryToEnd_di" bpmnElement="toEnd">
+        <di:waypoint x="1554" y="190" />
+        <di:waypoint x="1606" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromMicrocksToCatchEvent_di" bpmnElement="fromMicrocksToCatchEvent">
-        <di:waypoint x="730" y="270" />
-        <di:waypoint x="803" y="270" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromEventTypeGatewayToValidate_di" bpmnElement="fromEventTypeGatewayToValidate">
-        <di:waypoint x="920" y="245" />
-        <di:waypoint x="920" y="180" />
-        <di:waypoint x="500" y="180" />
-        <di:waypoint x="500" y="230" />
+        <di:waypoint x="730" y="190" />
+        <di:waypoint x="785" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromCatchToGateway_di" bpmnElement="fromCatchToGateway">
-        <di:waypoint x="839" y="270" />
-        <di:waypoint x="895" y="270" />
+        <di:waypoint x="908" y="190" />
+        <di:waypoint x="945" y="190" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromEventTypeGatewayToApproval_di" bpmnElement="fromEventTypeGatewayToApproval">
-        <di:waypoint x="945" y="270" />
-        <di:waypoint x="1030" y="270" />
+      <bpmndi:BPMNEdge id="fromEventTypeGatewayToValidate_di" bpmnElement="fromCatchEventGatewayToValidate">
+        <di:waypoint x="970" y="165" />
+        <di:waypoint x="970" y="100" />
+        <di:waypoint x="410" y="100" />
+        <di:waypoint x="410" y="165" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="657" y="82" width="67" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromApprovalToGateway_di" bpmnElement="fromApprovalToGateway">
-        <di:waypoint x="1130" y="270" />
-        <di:waypoint x="1205" y="270" />
+      <bpmndi:BPMNEdge id="fromEventTypeGatewayToApproval_di" bpmnElement="fromCatchEventGatewayToSetReadOnlyTrue">
+        <di:waypoint x="995" y="190" />
+        <di:waypoint x="1059" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1002" y="172" width="48" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromApprovalGatewayToCatch_di" bpmnElement="fromApprovalGatewayToCatch">
-        <di:waypoint x="1230" y="295" />
-        <di:waypoint x="1230" y="430" />
-        <di:waypoint x="821" y="430" />
-        <di:waypoint x="821" y="288" />
+      <bpmndi:BPMNEdge id="fromApprovalToGateway_di" bpmnElement="toApprovalGateway">
+        <di:waypoint x="1300" y="190" />
+        <di:waypoint x="1335" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="fromApprovalGatewayToCatch_di" bpmnElement="fromApprovalGatewayToSetReadOnlyFalse">
+        <di:waypoint x="1360" y="215" />
+        <di:waypoint x="1360" y="320" />
+        <di:waypoint x="1130" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1221" y="302" width="72" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromApprovalGatewayToRegistry_di" bpmnElement="fromApprovalGatewayToRegistry">
-        <di:waypoint x="1255" y="270" />
-        <di:waypoint x="1370" y="270" />
+        <di:waypoint x="1385" y="190" />
+        <di:waypoint x="1454" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1395" y="172" width="50" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromRegistryToEnd_di" bpmnElement="fromRegistryToEnd">
-        <di:waypoint x="1470" y="270" />
-        <di:waypoint x="1552" y="270" />
+      <bpmndi:BPMNEdge id="Flow_0mzdxlo_di" bpmnElement="toValidate">
+        <di:waypoint x="435" y="190" />
+        <di:waypoint x="480" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1beftb8_di" bpmnElement="toCatchEvent">
+        <di:waypoint x="835" y="190" />
+        <di:waypoint x="872" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ih9hmh_di" bpmnElement="toApproval">
+        <di:waypoint x="1159" y="190" />
+        <di:waypoint x="1200" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vbsduo_di" bpmnElement="fromSetReadOnlyFalseToCatchEvent">
+        <di:waypoint x="1030" y="320" />
+        <di:waypoint x="810" y="320" />
+        <di:waypoint x="810" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0pfpjdw_di" bpmnElement="Association_0pfpjdw">
+        <di:waypoint x="186" y="177" />
+        <di:waypoint x="237" y="120" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-
-</bpmn:definitions>
+</bpmn2:definitions>

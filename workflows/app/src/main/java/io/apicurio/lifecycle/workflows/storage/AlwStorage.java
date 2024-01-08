@@ -46,7 +46,7 @@ public class AlwStorage {
     AlwSqlStatements sqlStatements;
 
     @Inject
-    BaseSqlStorageComponent storageEngine;
+    AlwSqlStorageComponent storageEngine;
 
     @Inject
     StorageExceptionMapper exceptionMapper;

@@ -23,46 +23,46 @@ echo "--"
 echo "Installing Keycloak"
 kubectl create namespace keycloak --dry-run=client -o yaml | kubectl apply -f -
 kubectl create configmap keycloak-realm-config --from-file=deployments/keycloak/config/keycloak-realm-full.json -n keycloak
-kubectl apply -f ./deployments/keycloak/database.yaml -n keycloak
+kubectl apply -f ./keycloak/database.yaml -n keycloak
 sleep 5
-kubectl apply -f ./deployments/keycloak/application.yaml -n keycloak
+kubectl apply -f ./keycloak/application.yaml -n keycloak
 sleep 20
 
 # Install Apicurio API Designer
 echo "--"
 echo "Installing Apicurio API Designer"
 kubectl create namespace designer --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f ./deployments/apicurio/api-designer/database.yaml -n designer
+kubectl apply -f ./apicurio/api-designer/database.yaml -n designer
 sleep 5
-kubectl apply -f ./deployments/apicurio/api-designer/application.yaml -n designer
-kubectl apply -f ./deployments/apicurio/api-designer/ui.yaml -n designer
+kubectl apply -f ./apicurio/api-designer/application.yaml -n designer
+kubectl apply -f ./apicurio/api-designer/ui.yaml -n designer
 sleep 1
 
 # Install Apicurio Registry
 echo "--"
 echo "Installing Apicurio Registry"
 kubectl create namespace registry --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f ./deployments/apicurio/api-registry/database.yaml -n registry
+kubectl apply -f ./apicurio/api-registry/database.yaml -n registry
 sleep 5
-kubectl apply -f ./deployments/apicurio/api-registry/application.yaml -n registry
-kubectl apply -f ./deployments/apicurio/api-registry/ui.yaml -n registry
+kubectl apply -f ./apicurio/api-registry/application.yaml -n registry
+kubectl apply -f ./apicurio/api-registry/ui.yaml -n registry
 sleep 1
 
 # Install Microcks
 echo "--"
 echo "Installing Microcks"
 kubectl create namespace microcks --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f ./deployments/microcks/mongo.yaml -n microcks
+kubectl apply -f ./microcks/mongo.yaml -n microcks
 sleep 5
-kubectl apply -f ./deployments/microcks/postman.yaml -n microcks
-kubectl apply -f ./deployments/microcks/application.yaml -n microcks
+kubectl apply -f ./microcks/postman.yaml -n microcks
+kubectl apply -f ./microcks/application.yaml -n microcks
 sleep 1
 
 # Install Apicurio API Lifecycle Components
 echo "--"
 echo "Installing Lifecycle Hub Components"
 kubectl create namespace lifecycle-hub --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f ./deployments/apicurio/validator/application.yaml -n lifecycle-hub
+kubectl apply -f ./apicurio/validator/application.yaml -n lifecycle-hub
 
 
 # Summary

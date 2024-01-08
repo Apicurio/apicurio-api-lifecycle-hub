@@ -33,12 +33,13 @@ public class MicrocksTask extends AbstractTask {
             String content = IoUtil.toString(contentStream);
             
             // Push to microcks
-            microcksClient.upload(apiId + ".json", content);
+            String ref = microcksClient.upload(apiId + ".json", content);
 
             // Update labels
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             addLabels(apiId, version, Map.of(
-                    "microcks:pushedOn", sdf.format(new Date())));
+                    "microcks:pushedOn", sdf.format(new Date()),
+                    "microcks:ref", ref));
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -15,6 +15,7 @@ import io.apicurio.lifecycle.workflows.rest.clients.LifecycleHubClientAccessor;
 import io.apicurio.lifecycle.workflows.rest.clients.RegistryClientAccessor;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
+import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 
 public class RegistryTask extends AbstractTask {
 
@@ -46,7 +47,7 @@ public class RegistryTask extends AbstractTask {
             final String artifactId = apiId;
             final String name = api.getName() != null ? api.getName() : artifactId;
             final String description = apiVersion.getDescription() != null ? apiVersion.getDescription() : "";
-            registryClient.groups().byGroupId(groupId).artifacts().post(newArtifact, config -> {
+            ArtifactMetaData amd = registryClient.groups().byGroupId(groupId).artifacts().post(newArtifact, config -> {
                 config.queryParameters.ifExists = "RETURN_OR_UPDATE";
                 config.headers.add("X-Registry-ArtifactType", "OPENAPI");
                 config.headers.add("X-Registry-ArtifactId", artifactId);
@@ -58,7 +59,9 @@ public class RegistryTask extends AbstractTask {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             addLabels(apiId, version, Map.of(
                     "registry:registeredOn", sdf.format(new Date()),
-                    "registry:coordinates", groupId + "/" + artifactId));
+                    "registry:groupId", groupId,
+                    "registry:artifactId", artifactId,
+                    "registry:version", amd.getVersion()));
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

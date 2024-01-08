@@ -76,7 +76,7 @@ public class AlhStorage {
     AlhSqlStatements sqlStatements;
 
     @Inject
-    BaseSqlStorageComponent storageEngine;
+    AlhSqlStorageComponent storageEngine;
 
     @Inject
     StorageExceptionMapper exceptionMapper;
