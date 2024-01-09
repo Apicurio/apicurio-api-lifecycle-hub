@@ -2,7 +2,8 @@
 set -e
 
 # Needed to pull in 'nvm', which is set up in .bashrc
-source ~/.bashrc
+#source ~/.bashrc
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 BASE_DIR=`dirname $0`
 cd $BASE_DIR
