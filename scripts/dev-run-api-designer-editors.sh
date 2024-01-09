@@ -2,7 +2,7 @@
 set -e
 
 # Needed to pull in 'nvm', which is set up in .bashrc
-#source ~/.bashrc
+: ${NVM_DIR=$HOME/.nvm} # Set NVM_DIR if it's not already configured
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 BASE_DIR=`dirname $0`
