@@ -11,6 +11,10 @@ HUB_DIR=`pwd`
 
 mkdir -p $LOGS_DIR
 
+echo ""
+echo "---"
+echo "Building some required dependencies that aren't yet docker images."
+echo "---"
 
 ## 
 # Do some software builds (be targeted to reduce time)

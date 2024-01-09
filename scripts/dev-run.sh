@@ -8,6 +8,10 @@ WORK_DIR=$BASE_DIR/.work
 cd ..
 HUB_DIR=`pwd`
 
+echo ""
+echo "---"
+echo "Starting up all Lifecycle Hub components."
+echo "---"
 
 ########################################################################
 # Open gnome-terminal with a bunch of tabs - one for each component

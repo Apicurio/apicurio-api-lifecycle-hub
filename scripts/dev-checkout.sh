@@ -9,9 +9,12 @@ LOGS_DIR=$BASE_DIR/.logs
 cd ..
 HUB_DIR=`pwd`
 
+mkdir -p $LOGS_DIR
+
+echo ""
 echo "---"
-echo "Checking out some required projects from GitHub.
-echo "---
+echo "Checking out some required projects from GitHub."
+echo "---"
 
 ##
 # Clone or update some repositories that we'll need
