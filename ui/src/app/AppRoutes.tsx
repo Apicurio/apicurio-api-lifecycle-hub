@@ -7,6 +7,7 @@ import {
     ApisPage,
     DashboardPage,
     MicrocksPage,
+    TaskDetailsPage,
     TasksPage,
     VersionDetailsPage,
     VersionEditorPage,
@@ -32,6 +33,7 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = () => {
             <Route path="/apis/:apiId/versions/:version" element={ <VersionDetailsPage /> } />
             <Route path="/apis/:apiId/versions/:version/editor" element={ <VersionEditorPage /> } />
             <Route path="/tasks" element={ <TasksPage /> } />
+            <Route path="/tasks/:taskId" element={ <TaskDetailsPage /> } />
             <Route path="/designer" element={ <ApicurioApiDesignerPage /> } />
             <Route path="/registry" element={ <ApicurioRegistryPage /> } />
             <Route path="/microcks" element={ <MicrocksPage /> } />

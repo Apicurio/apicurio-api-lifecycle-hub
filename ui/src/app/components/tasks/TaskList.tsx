@@ -2,14 +2,14 @@ import { FunctionComponent } from "react";
 import { SearchedApi } from "@client/hub/models";
 import { ObjectDropdown, ResponsiveTable } from "@apicurio/common-ui-components";
 import { Task } from "@client/workflows/models";
+import { useAppNavigation } from "@hooks/useAppNavigation.ts";
+import { Link } from "react-router-dom";
 
 /**
  * Properties
  */
 export type TaskListProps = {
     tasks: Task[];
-    onApprove: (taskId: string) => void;
-    onReject: (taskId: string) => void;
 };
 
 type TaskAction = {
@@ -24,18 +24,19 @@ type TaskActionSeparator = {
 
 
 export const TaskList: FunctionComponent<TaskListProps> = (props: TaskListProps) => {
+    const appNav = useAppNavigation();
+
     const columns: any[] = [
         { index: 0, id: "name", label: "Name", width: 25, sortable: false },
         { index: 1, id: "description", label: "Description", width: 50, sortable: false },
         { index: 2, id: "assignee", label: "Assignee", width: 25, sortable: false }
     ];
 
-
     const renderColumnData = (column: Task, colIndex: number): React.ReactNode => {
         // Name.
         if (colIndex === 0) {
             return (
-                <span>{column.name}</span>
+                <Link to={appNav.createLink(`/tasks/${column.id}`)}>{column.name}</Link>
             );
         }
         // Description.
@@ -47,7 +48,7 @@ export const TaskList: FunctionComponent<TaskListProps> = (props: TaskListProps)
         // Assignee
         if (colIndex === 2) {
             return (
-                <span>{column.assignee}</span>
+                <span>{column.assignee || "Demo User"}</span>
             );
         }
         return (
@@ -55,10 +56,13 @@ export const TaskList: FunctionComponent<TaskListProps> = (props: TaskListProps)
         );
     };
 
+    const navigateToTask = (taskId: string): void => {
+        appNav.navigateTo(`/tasks/${taskId}`);
+    };
+
     const actionsFor = (task: Task): (TaskAction | TaskActionSeparator)[] => {
         return [
-            { label: "Approve", testId: `approve-${task.id}`, onClick: () => props.onApprove(task.id as string) },
-            { label: "Reject", testId: `delete-api-${task.id}`, onClick: () => props.onReject(task.id as string) }
+            { label: "View Task", testId: `view-${task.id}`, onClick: () => navigateToTask(task.id as string) }
         ];
     };
 

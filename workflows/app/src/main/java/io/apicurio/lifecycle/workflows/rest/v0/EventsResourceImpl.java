@@ -70,7 +70,7 @@ public class EventsResourceImpl implements EventsResource {
             // Start a workflow process instance for this API version.
             final RuntimeService runtimeService = engine.getRuntimeService();
 
-            // Find the right execution (1.0)
+            // Find the right execution
             Execution execution = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("ApiChangeMessage")
                 .processVariableValueEquals("apiId", apiId)

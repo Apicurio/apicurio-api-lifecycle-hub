@@ -5,6 +5,7 @@ export * from "./ApisPage.tsx";
 export * from "./DashboardPage.tsx";
 export * from "./MicrocksPage.tsx";
 export * from "./TasksPage.tsx";
+export * from "./TaskDetailsPage.tsx";
 export * from "./VersionDetailsPage.tsx";
 export * from "./VersionEditorPage.tsx";
 export * from "./VersionsPage.tsx";

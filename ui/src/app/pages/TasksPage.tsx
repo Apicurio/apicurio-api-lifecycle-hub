@@ -11,7 +11,7 @@ import {
 } from "@patternfly/react-core";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { NavPage, TaskList } from "@app/components";
-import { IfNotLoading, ListWithToolbar, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { IfNotLoading, ListWithToolbar } from "@apicurio/common-ui-components";
 import { Task } from "@client/workflows/models";
 import { Services } from "@services/services.ts";
 import { CubesIcon } from "@patternfly/react-icons";
@@ -23,8 +23,6 @@ export type TasksPageProps = {
 export const TasksPage: FunctionComponent<TasksPageProps> = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false);
-    const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
 
     const doListTasks = (): void => {
         Services.getTasksService().getTasks().then(results => {
@@ -34,37 +32,6 @@ export const TasksPage: FunctionComponent<TasksPageProps> = () => {
             // TODO proper error handling
             Services.getLoggerService().error("[ApisPage] Error searching for tasks: ", error);
             setIsLoading(false);
-        });
-    };
-
-    const pleaseWait = (message: string): void => {
-        setIsPleaseWaitModalOpen(true);
-        setPleaseWaitModalMessage(message);
-    };
-
-    const closePleaseWaitModal = (): void => {
-        setIsPleaseWaitModalOpen(false);
-    };
-
-    const doApprove = (taskId: string): void => {
-        pleaseWait("Approving task, please wait...");
-        Services.getTasksService().complete(taskId).then(() => {
-            closePleaseWaitModal();
-            doListTasks();
-        }).catch(error => {
-            Services.getLoggerService().error("Error approving task: ", error);
-            closePleaseWaitModal();
-        });
-    };
-
-    const doReject = (taskId: string): void => {
-        pleaseWait("Rejecting task, please wait...");
-        Services.getTasksService().reject(taskId).then(() => {
-            closePleaseWaitModal();
-            doListTasks();
-        }).catch(error => {
-            Services.getLoggerService().error("Error approving task: ", error);
-            closePleaseWaitModal();
         });
     };
 
@@ -103,14 +70,10 @@ export const TasksPage: FunctionComponent<TasksPageProps> = () => {
                         isFiltered={false}
                         isEmpty={tasks.length === 0}
                     >
-                        <TaskList
-                            tasks={tasks}
-                            onApprove={doApprove}
-                            onReject={doReject} />
+                        <TaskList tasks={tasks} />
                     </ListWithToolbar>
                 </IfNotLoading>
             </PageSection>
-            <PleaseWaitModal message={pleaseWaitModalMessage} isOpen={isPleaseWaitModalOpen} />
         </AppPage>
     );
 };

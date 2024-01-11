@@ -2,7 +2,7 @@ import { BaseService } from "../baseService";
 import { CompleteTask, Task, Event } from "@client/workflows/models";
 
 /**
- * The System service.
+ * The Tasks service.
  */
 export class TasksService extends BaseService {
 
@@ -10,6 +10,12 @@ export class TasksService extends BaseService {
         this.logger?.debug("[TasksService] Getting all tasks.");
 
         return this.workflowsClient().tasks.get();
+    }
+
+    public getTask(taskId: string): Promise<Task | undefined> {
+        this.logger?.debug("[TasksService] Getting a single task.");
+
+        return this.workflowsClient().tasks.byTaskId(taskId).get();
     }
 
     public complete(taskId: string, data?: any): Promise<void> {

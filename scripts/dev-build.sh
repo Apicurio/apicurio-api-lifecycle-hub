@@ -29,21 +29,6 @@ echo "    tail -f $LOGS_DIR/api-designer-ui-npm.log"
 cd $WORK_DIR/apicurio-registry/ui
 npm install &> $LOGS_DIR/api-designer-ui-npm.log
 
-echo "Building Registry API Client..."
-echo "    tail -f $LOGS_DIR/registry-client-mvn.log"
-cd $WORK_DIR/apicurio-registry/client
-mvn clean install -DskipTests &> $LOGS_DIR/registry-client-mvn.log
-
-echo "Building Hub Client..."
-echo "    tail -f $LOGS_DIR/lifecycle-hub-client-mvn.log"
-cd $HUB_DIR/hub
-mvn clean install -pl client -am -DskipTests &> $LOGS_DIR/lifecycle-hub-client-mvn.log
-
-echo "Building Workflows Client..."
-echo "    tail -f $LOGS_DIR/lifecycle-workflows-client-mvn.log"
-cd $HUB_DIR/workflows
-mvn clean install -pl client -am -DskipTests &> $LOGS_DIR/lifecycle-workflows-client-mvn.log
-
 echo "Installing Hub UI dependencies..."
 echo "    tail -f $LOGS_DIR/hub-ui-npm.log"
 cd $HUB_DIR/ui
