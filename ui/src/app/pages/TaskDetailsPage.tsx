@@ -2,15 +2,21 @@ import { FunctionComponent, useEffect, useState } from "react";
 import {
     ActionGroup,
     Breadcrumb,
-    BreadcrumbItem, Button, Form, FormGroup, FormSection,
+    BreadcrumbItem,
+    Button,
+    Form,
+    FormGroup,
+    FormSection,
     PageSection,
-    PageSectionVariants, Switch,
-    Text, TextArea,
-    TextContent, TextInput
+    PageSectionVariants,
+    Switch,
+    Text,
+    TextContent,
+    TextInput
 } from "@patternfly/react-core";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { NavPage } from "@app/components";
-import { If, IfNotLoading, ObjectSelect, PleaseWaitModal } from "@apicurio/common-ui-components";
+import { If, IfNotLoading, PleaseWaitModal } from "@apicurio/common-ui-components";
 import { Task } from "@client/workflows/models";
 import { Services } from "@services/services.ts";
 import { Link, useParams } from "react-router-dom";
@@ -45,8 +51,26 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
 
     const doCompleteApproval = (): void => {
         pleaseWait("Completing approval task, please wait...");
+        const taskData: any = {
+            approved: true,
+            registryGroup,
+            registryArtifactId,
+            registryVersion
+        };
+        Services.getTasksService().complete(taskId, taskData).then(() => {
+            closePleaseWaitModal();
+            appNav.navigateTo("/tasks");
+        }).catch(error => {
+            Services.getLoggerService().error("Error completing task: ", error);
+            closePleaseWaitModal();
+        });
+    };
+
+    const doCompleteImplement = (): void => {
+        pleaseWait("Completing Implement API task, please wait...");
         Services.getTasksService().complete(taskId).then(() => {
             closePleaseWaitModal();
+            appNav.navigateTo("/tasks");
         }).catch(error => {
             Services.getLoggerService().error("Error completing task: ", error);
             closePleaseWaitModal();
@@ -112,7 +136,7 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
                                         name="task-registry-group"
                                         aria-describedby="task-registry-group-helper"
                                         value={registryGroup}
-                                        onChange={(_event, value) => {setRegistryGroup(value)}}
+                                        onChange={(_event, value) => {setRegistryGroup(value);}}
                                     />
                                 </FormGroup>
                                 <FormGroup label="Group" isRequired={true} fieldId="task-registry-artifactId">
@@ -124,7 +148,7 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
                                         name="task-registry-artifactId"
                                         aria-describedby="task-registry-artifactId-helper"
                                         value={registryArtifactId}
-                                        onChange={(_event, value) => {setRegistryArtifactId(value)}}
+                                        onChange={(_event, value) => {setRegistryArtifactId(value);}}
                                     />
                                 </FormGroup>
                                 <FormGroup label="Version" isRequired={true} fieldId="task-registry-version">
@@ -136,7 +160,7 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
                                         name="task-registry-version"
                                         aria-describedby="task-registry-version-helper"
                                         value={registryVersion}
-                                        onChange={(_event, value) => {setRegistryVersion(value)}}
+                                        onChange={(_event, value) => {setRegistryVersion(value);}}
                                     />
                                 </FormGroup>
                             </FormSection>
@@ -159,7 +183,25 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
                         </Form>
                     </If>
                     <If condition={task?.name === "Implement API"}>
-                        IMPLEMENT API TASK DETAILS
+                        <Form>
+                            <FormSection title="Instructions">
+                                <FormGroup fieldId="task-instructions">
+                                    <Text>
+                                        You have been asked to implement version 1.0 of Test API.  Please check out
+                                        the GitHub branch, write any necessary code, and push your changes to the
+                                        branch.  When done, come back here and mark this task as complete.
+                                    </Text>
+                                    <Text>
+                                        <Link to={appNav.createLink("/apis/test-api/versions/1.0")}>Click here</Link>
+                                        &nbsp;to review the Pull Request and check it out locally.
+                                    </Text>
+                                </FormGroup>
+                            </FormSection>
+                            <ActionGroup>
+                                <Button variant="primary" onClick={doCompleteImplement}>Complete Task</Button>
+                                <Button variant="link">Reject Task</Button>
+                            </ActionGroup>
+                        </Form>
                     </If>
                 </IfNotLoading>
             </PageSection>

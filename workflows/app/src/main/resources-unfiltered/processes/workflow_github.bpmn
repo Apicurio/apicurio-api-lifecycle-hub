@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:activiti="http://activiti.org/bpmn" id="workflow_default_defs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="66740e0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:activiti="http://activiti.org/bpmn" id="workflow_default_defs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="cacbd2b" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
   <bpmn2:message id="ApiChangeMessage" name="ApiChangeMessage">
     <bpmn2:extensionElements>
       <zeebe:subscription correlationKey="=ApiVersionChange" />
@@ -123,8 +123,7 @@
       <bpmn2:outgoing>toEnd</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:userTask id="ImplementAPI" name="Implement API">
-      <bpmn2:documentation>
-          API ${apiId} (version ${version}) is ready to register.  Do you approve?
+      <bpmn2:documentation>It's time to implement ${apiId} (version ${version}).
       </bpmn2:documentation>
       <bpmn2:incoming>toImplementAPI</bpmn2:incoming>
       <bpmn2:outgoing>toMarkPR</bpmn2:outgoing>
