@@ -21,7 +21,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 
-import io.apicurio.lifecycle.rest.client.LifecycleHubClient;
+import io.apicurio.lifecycle.rest.clients.self.LifecycleHubClient;
 
 /**
  * @author eric.wittmann@gmail.com

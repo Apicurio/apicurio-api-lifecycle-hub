@@ -3,7 +3,7 @@ package io.apicurio.lifecycle.workflows.rest.clients;
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 
-import io.apicurio.registry.rest.client.RegistryClient;
+import io.apicurio.lifecycle.workflows.rest.clients.registry.RegistryClient;
 
 public class RegistryClientAccessor {
 

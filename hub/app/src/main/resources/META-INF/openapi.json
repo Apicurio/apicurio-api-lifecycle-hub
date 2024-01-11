@@ -1118,6 +1118,10 @@
                     "content": {
                         "$ref": "#/components/schemas/NewContent",
                         "description": ""
+                    },
+                    "workflow": {
+                        "description": "",
+                        "type": "string"
                     }
                 },
                 "example": {

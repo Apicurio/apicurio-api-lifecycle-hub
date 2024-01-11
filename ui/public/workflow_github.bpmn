@@ -5,27 +5,20 @@
       <zeebe:subscription correlationKey="=ApiVersionChange" />
     </bpmn2:extensionElements>
   </bpmn2:message>
-  <bpmn2:process id="workflow_default" name="Default Workflow" isExecutable="true">
+  <bpmn2:process id="workflow_github" name="Git Workflow" isExecutable="true">
     <bpmn2:startEvent id="StartEvent" name="Start">
       <bpmn2:extensionElements>
         <activiti:formProperty id="apiId" name="API Id" type="string" />
         <activiti:formProperty id="version" name="Version" type="string" />
       </bpmn2:extensionElements>
-      <bpmn2:outgoing>toAddWorkflowLabels</bpmn2:outgoing>
+      <bpmn2:outgoing>toFetchContent</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:serviceTask id="AddWorkflowLabels" name="Add Workflow Labels" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.AddWorkflowLabelTask">
       <bpmn2:extensionElements>
         <zeebe:taskDefinition type="main" />
       </bpmn2:extensionElements>
       <bpmn2:incoming>toAddWorkflowLabels</bpmn2:incoming>
-      <bpmn2:outgoing>fromAddWorkflowLabelToValidate</bpmn2:outgoing>
-    </bpmn2:serviceTask>
-    <bpmn2:serviceTask id="ValidateTask" name="Validate API Design" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.ValidateTask">
-      <bpmn2:extensionElements>
-        <zeebe:taskDefinition type="main" />
-      </bpmn2:extensionElements>
-      <bpmn2:incoming>toValidate</bpmn2:incoming>
-      <bpmn2:outgoing>toMicrocks</bpmn2:outgoing>
+      <bpmn2:outgoing>fromAddWorkflowLabelToCatchEvent</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:serviceTask id="MicrocksTask" name="Push to Microcks" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.MicrocksTask">
       <bpmn2:extensionElements>
@@ -39,11 +32,11 @@
         <zeebe:taskDefinition type="main" />
       </bpmn2:extensionElements>
       <bpmn2:incoming>fromApprovalGatewayToRegistry</bpmn2:incoming>
-      <bpmn2:outgoing>toEnd</bpmn2:outgoing>
+      <bpmn2:outgoing>toImplementAPI</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:intermediateCatchEvent id="CatchEvent" name="Catch Event">
       <bpmn2:incoming>toCatchEvent</bpmn2:incoming>
-      <bpmn2:outgoing>fromCatchToGateway</bpmn2:outgoing>
+      <bpmn2:outgoing>toCatchEventGateway</bpmn2:outgoing>
       <bpmn2:messageEventDefinition messageRef="ApiChangeMessage" />
     </bpmn2:intermediateCatchEvent>
     <bpmn2:userTask id="ApprovalTask" name="Approval">
@@ -60,9 +53,9 @@
       <bpmn2:outgoing>toApprovalGateway</bpmn2:outgoing>
     </bpmn2:userTask>
     <bpmn2:exclusiveGateway id="EventTypeGateway" name="Check Event Type">
-      <bpmn2:incoming>fromCatchToGateway</bpmn2:incoming>
-      <bpmn2:outgoing>fromCatchEventGatewayToValidate</bpmn2:outgoing>
+      <bpmn2:incoming>toCatchEventGateway</bpmn2:incoming>
       <bpmn2:outgoing>fromCatchEventGatewayToSetReadOnlyTrue</bpmn2:outgoing>
+      <bpmn2:outgoing>fromCatchEventGatewayToOpenPR</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>
     <bpmn2:exclusiveGateway id="ApprovalGateway" name="Check Approval">
       <bpmn2:incoming>toApprovalGateway</bpmn2:incoming>
@@ -72,15 +65,8 @@
     <bpmn2:endEvent id="EndEvent" name="End">
       <bpmn2:incoming>toEnd</bpmn2:incoming>
     </bpmn2:endEvent>
-    <bpmn2:sequenceFlow id="toAddWorkflowLabels" sourceRef="StartEvent" targetRef="AddWorkflowLabels" />
-    <bpmn2:sequenceFlow id="fromAddWorkflowLabelToValidate" sourceRef="AddWorkflowLabels" targetRef="ApiChangedOrCreatedJoin" />
-    <bpmn2:sequenceFlow id="toMicrocks" sourceRef="ValidateTask" targetRef="MicrocksTask" />
-    <bpmn2:sequenceFlow id="toEnd" sourceRef="RegistryTask" targetRef="EndEvent" />
-    <bpmn2:sequenceFlow id="fromMicrocksToCatchEvent" sourceRef="MicrocksTask" targetRef="ApiReadyToChangeJoin" />
-    <bpmn2:sequenceFlow id="fromCatchToGateway" sourceRef="CatchEvent" targetRef="EventTypeGateway" />
-    <bpmn2:sequenceFlow id="fromCatchEventGatewayToValidate" name="API Changed" sourceRef="EventTypeGateway" targetRef="ApiChangedOrCreatedJoin">
-      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'change'}</bpmn2:conditionExpression>
-    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="toFetchContent" sourceRef="StartEvent" targetRef="FetchGitHubContent" />
+    <bpmn2:sequenceFlow id="fromAddWorkflowLabelToCatchEvent" sourceRef="AddWorkflowLabels" targetRef="ApiChangedOrCreatedJoin" />
     <bpmn2:sequenceFlow id="fromCatchEventGatewayToSetReadOnlyTrue" name="API Done" sourceRef="EventTypeGateway" targetRef="SetReadOnlyTrue">
       <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'done'}</bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
@@ -92,17 +78,11 @@
       <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approved == true}</bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
     <bpmn2:exclusiveGateway id="ApiChangedOrCreatedJoin">
-      <bpmn2:incoming>fromAddWorkflowLabelToValidate</bpmn2:incoming>
-      <bpmn2:incoming>fromCatchEventGatewayToValidate</bpmn2:incoming>
-      <bpmn2:outgoing>toValidate</bpmn2:outgoing>
-    </bpmn2:exclusiveGateway>
-    <bpmn2:sequenceFlow id="toValidate" sourceRef="ApiChangedOrCreatedJoin" targetRef="ValidateTask" />
-    <bpmn2:exclusiveGateway id="ApiReadyToChangeJoin">
+      <bpmn2:incoming>fromAddWorkflowLabelToCatchEvent</bpmn2:incoming>
       <bpmn2:incoming>fromMicrocksToCatchEvent</bpmn2:incoming>
       <bpmn2:incoming>fromSetReadOnlyFalseToCatchEvent</bpmn2:incoming>
       <bpmn2:outgoing>toCatchEvent</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>
-    <bpmn2:sequenceFlow id="toCatchEvent" sourceRef="ApiReadyToChangeJoin" targetRef="CatchEvent" />
     <bpmn2:sequenceFlow id="toApproval" sourceRef="SetReadOnlyTrue" targetRef="ApprovalTask" />
     <bpmn2:serviceTask id="SetReadOnlyTrue" name="Set Read Only (true)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
       <bpmn2:extensionElements>
@@ -112,7 +92,6 @@
       <bpmn2:incoming>fromCatchEventGatewayToSetReadOnlyTrue</bpmn2:incoming>
       <bpmn2:outgoing>toApproval</bpmn2:outgoing>
     </bpmn2:serviceTask>
-    <bpmn2:sequenceFlow id="fromSetReadOnlyFalseToCatchEvent" sourceRef="SetReadOnlyFalse" targetRef="ApiReadyToChangeJoin" />
     <bpmn2:serviceTask id="SetReadOnlyFalse" name="Set Read Only (false)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
       <bpmn2:extensionElements>
         <activiti:field name="isReadOnly" stringValue="false" />
@@ -121,154 +100,215 @@
       <bpmn2:incoming>fromApprovalGatewayToSetReadOnlyFalse</bpmn2:incoming>
       <bpmn2:outgoing>fromSetReadOnlyFalseToCatchEvent</bpmn2:outgoing>
     </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="toCatchEvent" sourceRef="ApiChangedOrCreatedJoin" targetRef="CatchEvent" />
+    <bpmn2:sequenceFlow id="toCatchEventGateway" sourceRef="CatchEvent" targetRef="EventTypeGateway" />
+    <bpmn2:serviceTask id="CreateDraftPR" name="Create or Update Draft PR" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.CreateOrUpdateDraftPullRequestTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>fromCatchEventGatewayToOpenPR</bpmn2:incoming>
+      <bpmn2:outgoing>toMicrocks</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="fromCatchEventGatewayToOpenPR" name="API Change" sourceRef="EventTypeGateway" targetRef="CreateDraftPR">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${eventType == 'change'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="toMicrocks" sourceRef="CreateDraftPR" targetRef="MicrocksTask" />
+    <bpmn2:sequenceFlow id="fromMicrocksToCatchEvent" sourceRef="MicrocksTask" targetRef="ApiChangedOrCreatedJoin" />
+    <bpmn2:sequenceFlow id="fromSetReadOnlyFalseToCatchEvent" sourceRef="SetReadOnlyFalse" targetRef="ApiChangedOrCreatedJoin" />
+    <bpmn2:serviceTask id="MarkPRReady" name="Mark PR as Ready" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.MarkPullRequestReadyTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>toMarkPR</bpmn2:incoming>
+      <bpmn2:outgoing>toEnd</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:userTask id="ImplementAPI" name="Implement API">
+      <bpmn2:documentation>
+          API ${apiId} (version ${version}) is ready to register.  Do you approve?
+      </bpmn2:documentation>
+      <bpmn2:incoming>toImplementAPI</bpmn2:incoming>
+      <bpmn2:outgoing>toMarkPR</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="toImplementAPI" sourceRef="RegistryTask" targetRef="ImplementAPI" />
+    <bpmn2:sequenceFlow id="toMarkPR" sourceRef="ImplementAPI" targetRef="MarkPRReady" />
+    <bpmn2:sequenceFlow id="toEnd" sourceRef="MarkPRReady" targetRef="EndEvent" />
+    <bpmn2:sequenceFlow id="toAddWorkflowLabels" sourceRef="FetchGitHubContent" targetRef="AddWorkflowLabels" />
+    <bpmn2:serviceTask id="FetchGitHubContent" name="Fetch Content from GitHub" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.FetchGitHubContentTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>toFetchContent</bpmn2:incoming>
+      <bpmn2:outgoing>toAddWorkflowLabels</bpmn2:outgoing>
+    </bpmn2:serviceTask>
     <bpmn2:textAnnotation id="TextAnnotation_00kog3n">
       <bpmn2:text>API Created</bpmn2:text>
     </bpmn2:textAnnotation>
     <bpmn2:association id="Association_0pfpjdw" sourceRef="StartEvent" targetRef="TextAnnotation_00kog3n" />
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="workflow_default">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="workflow_github">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
-        <dc:Bounds x="156" y="172" width="36" height="36" />
+        <dc:Bounds x="152" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="162" y="215" width="25" height="14" />
+          <dc:Bounds x="158" y="238" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_102umu3_di" bpmnElement="AddWorkflowLabels">
-        <dc:Bounds x="240" y="150" width="100" height="80" />
+        <dc:Bounds x="380" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1was45b_di" bpmnElement="ValidateTask">
-        <dc:Bounds x="480" y="150" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1wuu97k_di" bpmnElement="MicrocksTask">
-        <dc:Bounds x="630" y="150" width="100" height="80" />
+        <dc:Bounds x="980" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_01w5470_di" bpmnElement="RegistryTask">
-        <dc:Bounds x="1454" y="150" width="100" height="80" />
+        <dc:Bounds x="1270" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1nmpxlg_di" bpmnElement="CatchEvent">
-        <dc:Bounds x="872" y="172" width="36" height="36" />
+        <dc:Bounds x="612" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="860" y="152" width="61" height="14" />
+          <dc:Bounds x="601" y="242" width="60" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0y9uddr_di" bpmnElement="ApprovalTask">
-        <dc:Bounds x="1200" y="150" width="100" height="80" />
+        <dc:Bounds x="980" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EventTypeGateway_di" bpmnElement="EventTypeGateway" isMarkerVisible="true">
-        <dc:Bounds x="945" y="165" width="50" height="50" />
+        <dc:Bounds x="685" y="255" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="925" y="222" width="90" height="14" />
+          <dc:Bounds x="665" y="312" width="90" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ApprovalGateway_di" bpmnElement="ApprovalGateway" isMarkerVisible="true">
-        <dc:Bounds x="1335" y="165" width="50" height="50" />
+        <dc:Bounds x="1125" y="255" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1320" y="135" width="80" height="14" />
+          <dc:Bounds x="1111" y="237" width="78" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_di" bpmnElement="EndEvent">
-        <dc:Bounds x="1606" y="172" width="36" height="36" />
+        <dc:Bounds x="1732" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1614" y="215" width="20" height="14" />
+          <dc:Bounds x="1740" y="305" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1c1gnuz_di" bpmnElement="ApiChangedOrCreatedJoin" isMarkerVisible="true">
-        <dc:Bounds x="385" y="165" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_01juo2m_di" bpmnElement="ApiReadyToChangeJoin" isMarkerVisible="true">
-        <dc:Bounds x="785" y="165" width="50" height="50" />
+        <dc:Bounds x="525" y="255" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_075e1qb_di" bpmnElement="SetReadOnlyTrue">
-        <dc:Bounds x="1059" y="150" width="100" height="80" />
+        <dc:Bounds x="820" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0dkisha_di" bpmnElement="SetReadOnlyFalse">
-        <dc:Bounds x="1030" y="280" width="100" height="80" />
+        <dc:Bounds x="900" y="380" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_00kog3n_di" bpmnElement="TextAnnotation_00kog3n">
-        <dc:Bounds x="200" y="90" width="100" height="30" />
+      <bpmndi:BPMNShape id="Activity_0z0fnh5_di" bpmnElement="CreateDraftPR">
+        <dc:Bounds x="820" y="130" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="fromStartToAddWorkflowLabelTask_di" bpmnElement="toAddWorkflowLabels">
-        <di:waypoint x="192" y="190" />
-        <di:waypoint x="240" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromAddWorkflowLabelToValidate_di" bpmnElement="fromAddWorkflowLabelToValidate">
-        <di:waypoint x="340" y="190" />
-        <di:waypoint x="385" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromValidateToMicrocks_di" bpmnElement="toMicrocks">
-        <di:waypoint x="580" y="190" />
-        <di:waypoint x="630" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromRegistryToEnd_di" bpmnElement="toEnd">
-        <di:waypoint x="1554" y="190" />
-        <di:waypoint x="1606" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromMicrocksToCatchEvent_di" bpmnElement="fromMicrocksToCatchEvent">
-        <di:waypoint x="730" y="190" />
-        <di:waypoint x="785" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromCatchToGateway_di" bpmnElement="fromCatchToGateway">
-        <di:waypoint x="908" y="190" />
-        <di:waypoint x="945" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="fromEventTypeGatewayToValidate_di" bpmnElement="fromCatchEventGatewayToValidate">
-        <di:waypoint x="970" y="165" />
-        <di:waypoint x="970" y="100" />
-        <di:waypoint x="410" y="100" />
-        <di:waypoint x="410" y="165" />
+      <bpmndi:BPMNShape id="BPMNShape_189g5qu" bpmnElement="MarkPRReady">
+        <dc:Bounds x="1570" y="240" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0rya0yw" bpmnElement="ImplementAPI">
+        <dc:Bounds x="1420" y="240" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0yoa25w_di" bpmnElement="FetchGitHubContent">
+        <dc:Bounds x="240" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_00kog3n_di" bpmnElement="TextAnnotation_00kog3n">
+        <dc:Bounds x="180" y="360" width="100" height="30" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="fromStartToAddWorkflowLabelTask_di" bpmnElement="toFetchContent">
+        <di:waypoint x="188" y="280" />
+        <di:waypoint x="240" y="280" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="657" y="82" width="67" height="14" />
+          <dc:Bounds x="179" y="331" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="fromAddWorkflowLabelToValidate_di" bpmnElement="fromAddWorkflowLabelToCatchEvent">
+        <di:waypoint x="480" y="280" />
+        <di:waypoint x="525" y="280" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromEventTypeGatewayToApproval_di" bpmnElement="fromCatchEventGatewayToSetReadOnlyTrue">
-        <di:waypoint x="995" y="190" />
-        <di:waypoint x="1059" y="190" />
+        <di:waypoint x="735" y="280" />
+        <di:waypoint x="820" y="280" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1002" y="172" width="48" height="14" />
+          <dc:Bounds x="751" y="262" width="48" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromApprovalToGateway_di" bpmnElement="toApprovalGateway">
-        <di:waypoint x="1300" y="190" />
-        <di:waypoint x="1335" y="190" />
+        <di:waypoint x="1080" y="280" />
+        <di:waypoint x="1125" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromApprovalGatewayToCatch_di" bpmnElement="fromApprovalGatewayToSetReadOnlyFalse">
-        <di:waypoint x="1360" y="215" />
-        <di:waypoint x="1360" y="320" />
-        <di:waypoint x="1130" y="320" />
+        <di:waypoint x="1150" y="305" />
+        <di:waypoint x="1150" y="420" />
+        <di:waypoint x="1000" y="420" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1221" y="302" width="72" height="14" />
+          <dc:Bounds x="1076" y="399" width="68" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="fromApprovalGatewayToRegistry_di" bpmnElement="fromApprovalGatewayToRegistry">
-        <di:waypoint x="1385" y="190" />
-        <di:waypoint x="1454" y="190" />
+        <di:waypoint x="1175" y="280" />
+        <di:waypoint x="1270" y="280" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1395" y="172" width="50" height="14" />
+          <dc:Bounds x="1199" y="262" width="48" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0mzdxlo_di" bpmnElement="toValidate">
-        <di:waypoint x="435" y="190" />
-        <di:waypoint x="480" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1beftb8_di" bpmnElement="toCatchEvent">
-        <di:waypoint x="835" y="190" />
-        <di:waypoint x="872" y="190" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ih9hmh_di" bpmnElement="toApproval">
-        <di:waypoint x="1159" y="190" />
-        <di:waypoint x="1200" y="190" />
+        <di:waypoint x="920" y="280" />
+        <di:waypoint x="980" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1vbsduo_di" bpmnElement="fromSetReadOnlyFalseToCatchEvent">
-        <di:waypoint x="1030" y="320" />
-        <di:waypoint x="810" y="320" />
-        <di:waypoint x="810" y="215" />
+      <bpmndi:BPMNEdge id="Flow_1u6tklb_di" bpmnElement="toCatchEvent">
+        <di:waypoint x="575" y="280" />
+        <di:waypoint x="612" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bldy28_di" bpmnElement="toCatchEventGateway">
+        <di:waypoint x="648" y="280" />
+        <di:waypoint x="685" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wh9xrb_di" bpmnElement="fromCatchEventGatewayToOpenPR">
+        <di:waypoint x="710" y="255" />
+        <di:waypoint x="710" y="170" />
+        <di:waypoint x="820" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="730" y="153" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12kf40b_di" bpmnElement="toMicrocks">
+        <di:waypoint x="920" y="170" />
+        <di:waypoint x="980" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0coxfid_di" bpmnElement="fromMicrocksToCatchEvent">
+        <di:waypoint x="1030" y="130" />
+        <di:waypoint x="1030" y="90" />
+        <di:waypoint x="550" y="90" />
+        <di:waypoint x="550" y="255" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0060pql_di" bpmnElement="fromSetReadOnlyFalseToCatchEvent">
+        <di:waypoint x="900" y="420" />
+        <di:waypoint x="550" y="420" />
+        <di:waypoint x="550" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13qyael_di" bpmnElement="toImplementAPI">
+        <di:waypoint x="1370" y="280" />
+        <di:waypoint x="1420" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ouz50x_di" bpmnElement="toMarkPR">
+        <di:waypoint x="1520" y="280" />
+        <di:waypoint x="1570" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ih8k1r_di" bpmnElement="toEnd">
+        <di:waypoint x="1670" y="280" />
+        <di:waypoint x="1732" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0aahqyr_di" bpmnElement="toAddWorkflowLabels">
+        <di:waypoint x="340" y="280" />
+        <di:waypoint x="380" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0pfpjdw_di" bpmnElement="Association_0pfpjdw">
-        <di:waypoint x="186" y="177" />
-        <di:waypoint x="237" y="120" />
+        <di:waypoint x="179" y="295" />
+        <di:waypoint x="221" y="360" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

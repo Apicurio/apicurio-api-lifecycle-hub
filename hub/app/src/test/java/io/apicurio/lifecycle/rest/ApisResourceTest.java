@@ -24,16 +24,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.apicurio.common.apps.content.IoUtil;
-import io.apicurio.lifecycle.rest.client.models.Api;
-import io.apicurio.lifecycle.rest.client.models.ApiType;
-import io.apicurio.lifecycle.rest.client.models.Labels;
-import io.apicurio.lifecycle.rest.client.models.NewApi;
-import io.apicurio.lifecycle.rest.client.models.NewContent;
-import io.apicurio.lifecycle.rest.client.models.NewVersion;
-import io.apicurio.lifecycle.rest.client.models.UpdateApi;
-import io.apicurio.lifecycle.rest.client.models.UpdateVersion;
-import io.apicurio.lifecycle.rest.client.models.Version;
-import io.apicurio.lifecycle.rest.client.models.VersionSearchResults;
+import io.apicurio.lifecycle.rest.clients.self.models.Api;
+import io.apicurio.lifecycle.rest.clients.self.models.ApiType;
+import io.apicurio.lifecycle.rest.clients.self.models.Labels;
+import io.apicurio.lifecycle.rest.clients.self.models.NewApi;
+import io.apicurio.lifecycle.rest.clients.self.models.NewContent;
+import io.apicurio.lifecycle.rest.clients.self.models.NewVersion;
+import io.apicurio.lifecycle.rest.clients.self.models.UpdateApi;
+import io.apicurio.lifecycle.rest.clients.self.models.UpdateVersion;
+import io.apicurio.lifecycle.rest.clients.self.models.Version;
+import io.apicurio.lifecycle.rest.clients.self.models.VersionSearchResults;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**

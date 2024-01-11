@@ -8,9 +8,9 @@
         <version>0.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>apicurio-api-lifecycle-hub-client</artifactId>
+    <artifactId>apicurio-api-lifecycle-hub-clients</artifactId>
     <packaging>jar</packaging>
-    <name>apicurio-api-lifecycle-hub-client</name>
+    <name>apicurio-api-lifecycle-hub-clients</name>
     <properties>
         <kiota.libs.version>0.7.8</kiota.libs.version>
     </properties>
@@ -64,16 +64,28 @@
                 <version>0.0.7</version>
                 <executions>
                     <execution>
+                        <id>self</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
+                        <configuration>
+                            <file>../app/src/main/resources/META-INF/openapi.json</file>
+                            <namespace>io.apicurio.lifecycle.rest.clients.self</namespace>
+                            <clientClass>LifecycleHubClient</clientClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>workflows</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <file>../../workflows/app/src/main/resources/META-INF/openapi.json</file>
+                            <namespace>io.apicurio.lifecycle.rest.clients.workflows</namespace>
+                            <clientClass>LifecycleWorkflowsClient</clientClass>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <file>../app/src/main/resources/META-INF/openapi.json</file>
-                    <namespace>io.apicurio.lifecycle.rest.client</namespace>
-                    <clientClass>LifecycleHubClient</clientClass>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

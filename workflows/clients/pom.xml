@@ -8,9 +8,9 @@
         <version>0.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>apicurio-api-lifecycle-workflows-client</artifactId>
+    <artifactId>apicurio-api-lifecycle-workflows-clients</artifactId>
     <packaging>jar</packaging>
-    <name>apicurio-api-lifecycle-workflows-client</name>
+    <name>apicurio-api-lifecycle-workflows-clients</name>
     <properties>
         <kiota.libs.version>0.7.8</kiota.libs.version>
     </properties>
@@ -64,16 +64,39 @@
                 <version>0.0.7</version>
                 <executions>
                     <execution>
+                        <id>self</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
+                        <configuration>
+                            <file>../app/src/main/resources/META-INF/openapi.json</file>
+                            <namespace>io.apicurio.lifecycle.workflows.rest.clients.self</namespace>
+                            <clientClass>LifecycleWorkflowsClient</clientClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>hub</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <file>../../hub/app/src/main/resources/META-INF/openapi.json</file>
+                            <namespace>io.apicurio.lifecycle.workflows.rest.clients.hub</namespace>
+                            <clientClass>LifecycleHubClient</clientClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>registry</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <file>specs/openapi-registry-v3.json</file>
+                            <namespace>io.apicurio.lifecycle.workflows.rest.clients.registry</namespace>
+                            <clientClass>RegistryClient</clientClass>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <file>../app/src/main/resources/META-INF/openapi.json</file>
-                    <namespace>io.apicurio.lifecycle.workflows.rest.client</namespace>
-                    <clientClass>LifecycleWorkflowsClient</clientClass>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

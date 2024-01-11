@@ -14,6 +14,13 @@
     <name>apicurio-api-lifecycle-hub-app</name>
 
     <dependencies>
+        <!-- Project Components -->
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-api-lifecycle-hub-clients</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <!-- Common App Components -->
         <dependency>
             <groupId>io.apicurio</groupId>
@@ -34,13 +41,6 @@
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-web</artifactId>
             <version>${apicurio-common-app-components.version}</version>
-        </dependency>
-
-        <!-- Workflows Components -->
-        <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-api-lifecycle-workflows-client</artifactId>
-            <version>${apicurio-api-lifecycle-workflows.version}</version>
         </dependency>
 
         <!-- Quarkus Dependencies -->
@@ -94,12 +94,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-api-lifecycle-hub-client</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

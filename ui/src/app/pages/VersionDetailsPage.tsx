@@ -51,6 +51,7 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
     const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
     const [isEditLabelsModalOpen, setIsEditLabelsModalOpen] = useState(false);
     const [tabKey, setTabKey] = useState(0);
+    const [workflowUri, setWorkflowUri] = useState("");
 
     const params = useParams();
     const appNav = useAppNavigation();
@@ -143,6 +144,18 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
             });
         }
     }, [tabKey]);
+
+    useEffect(() => {
+        const allLabels: any = version?.labels || {};
+        if (allLabels["workflow:definitionId"]) {
+            const workflowDef: string = allLabels["workflow:definitionId"];
+            if (workflowDef && workflowDef.includes("default")) {
+                setWorkflowUri("/workflow_default.bpmn");
+            } else if (workflowDef && workflowDef.includes("github")) {
+                setWorkflowUri("/workflow_github.bpmn");
+            }
+        }
+    }, [version]);
 
     const breadcrumb = (
         <Breadcrumb>
@@ -327,7 +340,9 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                             ref={workflowTabRef}
                             hidden={true}
                         >
-                            <BpmnDiagram diagramUrl="/workflow_default.bpmn" />
+                            <If condition={workflowUri !== ""}>
+                                <BpmnDiagram diagramUrl={workflowUri} />
+                            </If>
                         </TabContent>
                         <TabContent
                             eventKey={3}

@@ -8,27 +8,27 @@ import java.util.Map;
 import org.activiti.engine.delegate.DelegateExecution;
 
 import io.apicurio.common.apps.content.IoUtil;
-import io.apicurio.lifecycle.rest.client.LifecycleHubClient;
-import io.apicurio.lifecycle.rest.client.models.Api;
-import io.apicurio.lifecycle.rest.client.models.Version;
-import io.apicurio.lifecycle.workflows.rest.clients.LifecycleHubClientAccessor;
 import io.apicurio.lifecycle.workflows.rest.clients.RegistryClientAccessor;
-import io.apicurio.registry.rest.client.RegistryClient;
-import io.apicurio.registry.rest.client.models.ArtifactContent;
-import io.apicurio.registry.rest.client.models.ArtifactMetaData;
+import io.apicurio.lifecycle.workflows.rest.clients.hub.models.Api;
+import io.apicurio.lifecycle.workflows.rest.clients.hub.models.Version;
+import io.apicurio.lifecycle.workflows.rest.clients.registry.RegistryClient;
+import io.apicurio.lifecycle.workflows.rest.clients.registry.models.ArtifactContent;
+import io.apicurio.lifecycle.workflows.rest.clients.registry.models.ArtifactMetaData;
 
 public class RegistryTask extends AbstractTask {
 
     private final RegistryClient registryClient = RegistryClientAccessor.getClient();
-    private final LifecycleHubClient hubClient = LifecycleHubClientAccessor.getClient();
     
     /**
      * @see org.activiti.engine.delegate.JavaDelegate#execute(org.activiti.engine.delegate.DelegateExecution)
      */
     @Override
     public void execute(DelegateExecution execution) {
-        String apiId = execution.getVariable("apiId").toString();
-        String version = execution.getVariable("apiVersion").toString();
+        String apiId = getProcessVariable(execution, "apiId");
+        String version = getProcessVariable(execution, "version");
+        String registryGroup = getProcessVariable(execution, "registryGroup", "default");
+        String registryArtifactId = getProcessVariable(execution, "registryArtifactId", apiId);
+        String registryVersion = getProcessVariable(execution, "registryVersion", version);
 
         try {
             System.out.println("[RegistryTask] Executing for: " + apiId + "@" + version);
@@ -43,15 +43,13 @@ public class RegistryTask extends AbstractTask {
             // Register on Registry
             ArtifactContent newArtifact = new ArtifactContent();
             newArtifact.setContent(content);
-            final String groupId = "default";
-            final String artifactId = apiId;
-            final String name = api.getName() != null ? api.getName() : artifactId;
+            final String name = api.getName() != null ? api.getName() : registryArtifactId;
             final String description = apiVersion.getDescription() != null ? apiVersion.getDescription() : "";
-            ArtifactMetaData amd = registryClient.groups().byGroupId(groupId).artifacts().post(newArtifact, config -> {
+            ArtifactMetaData amd = registryClient.groups().byGroupId(registryGroup).artifacts().post(newArtifact, config -> {
                 config.queryParameters.ifExists = "RETURN_OR_UPDATE";
                 config.headers.add("X-Registry-ArtifactType", "OPENAPI");
-                config.headers.add("X-Registry-ArtifactId", artifactId);
-                config.headers.add("X-Registry-Version", version);
+                config.headers.add("X-Registry-ArtifactId", registryArtifactId);
+                config.headers.add("X-Registry-Version", registryVersion);
                 config.headers.add("X-Registry-Name", name);
                 config.headers.add("X-Registry-Description", description);
             }).get();
@@ -59,8 +57,8 @@ public class RegistryTask extends AbstractTask {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             addLabels(apiId, version, Map.of(
                     "registry:registeredOn", sdf.format(new Date()),
-                    "registry:groupId", groupId,
-                    "registry:artifactId", artifactId,
+                    "registry:groupId", registryGroup,
+                    "registry:artifactId", registryArtifactId,
                     "registry:version", amd.getVersion()));
         } catch (Exception e) {
             e.printStackTrace();

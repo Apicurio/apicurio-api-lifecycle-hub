@@ -31,8 +31,8 @@ public class SetReadOnlyTask extends AbstractTask {
      */
     @Override
     public void execute(DelegateExecution execution) {
-        String apiId = execution.getVariable("apiId").toString();
-        String version = execution.getVariable("apiVersion").toString();
+        String apiId = getProcessVariable(execution, "apiId");
+        String version = getProcessVariable(execution, "version");
         
         addLabels(apiId, version, Map.of("version:readOnly", isReadOnly.getValue(execution)));
     }

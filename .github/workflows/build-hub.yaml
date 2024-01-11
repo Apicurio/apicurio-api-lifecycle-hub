@@ -58,11 +58,6 @@ jobs:
           echo "Flags:     ${{ steps.buildx.outputs.flags }}"
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
 
-      - name: Build Workflows Client (required, not yet in Maven Central)
-        run: |
-          cd workflows
-          mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
-
       - name: Build Apicurio API Lifecycle Hub
         run: |
           cd hub

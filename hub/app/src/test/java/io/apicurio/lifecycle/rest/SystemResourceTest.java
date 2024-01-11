@@ -19,7 +19,7 @@ package io.apicurio.lifecycle.rest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.apicurio.lifecycle.rest.client.models.SystemInfo;
+import io.apicurio.lifecycle.rest.clients.self.models.SystemInfo;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**

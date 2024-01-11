@@ -13,11 +13,11 @@
     <name>apicurio-api-lifecycle-workflows-app</name>
     <dependencies>
         <!-- Project Dependencies -->
-<!--        <dependency>-->
-<!--            <groupId>${project.groupId}</groupId>-->
-<!--            <artifactId>apicurio-api-lifecycle-workflows-microcks-client</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apicurio-api-lifecycle-workflows-clients</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         
         <!-- Common App Components -->
         <dependency>
@@ -39,20 +39,6 @@
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-common-app-components-web</artifactId>
             <version>${apicurio-common-app-components.version}</version>
-        </dependency>
-
-        <!-- Lifecycle Hub Dependencies -->
-        <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-api-lifecycle-hub-client</artifactId>
-            <version>${apicurio-api-lifecycle-hub.version}</version>
-        </dependency>
-
-        <!-- Apicurio Registry Dependencies -->
-        <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-registry-client</artifactId>
-            <version>${apicurio-registry.version}</version>
         </dependency>
         
         <!-- Quarkus Dependencies -->

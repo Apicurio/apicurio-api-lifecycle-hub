@@ -59,6 +59,8 @@ public class ProcessEngineProducer {
         logger.info("----------- Deploying workflows");
         List<String> processNames = List.of(
                 "workflow_default.bpmn",
+                "workflow_github.bpmn",
+                
                 "process_1.bpmn", 
                 "process_startMessage.bpmn",
                 "process_twoMessages.bpmn",

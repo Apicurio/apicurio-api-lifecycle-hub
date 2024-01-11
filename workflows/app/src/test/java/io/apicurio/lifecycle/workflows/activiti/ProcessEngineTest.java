@@ -129,6 +129,7 @@ public class ProcessEngineTest {
             System.out.println("      " + task.getDescription());
             System.out.println("      " + task.getAssignee());
             System.out.println("      " + task.getExecutionId());
+            System.out.println("      " + task.getTaskDefinitionKey());
             engine.getTaskService().claim(task.getId(), "user");
             engine.getTaskService().complete(task.getId(), Map.of("approval", true));
         }

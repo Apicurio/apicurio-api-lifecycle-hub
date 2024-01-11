@@ -12,12 +12,13 @@ export class TasksService extends BaseService {
         return this.workflowsClient().tasks.get();
     }
 
-    public approve(taskId: string): Promise<void> {
+    public complete(taskId: string, data?: any): Promise<void> {
         this.logger?.debug("[TasksService] Approving task: ", taskId);
 
         const approval: CompleteTask = {
             additionalData: {
-                approval: true
+                ...data,
+                approved: true
             }
         };
         return this.workflowsClient().tasks.byTaskId(taskId).put(approval);
@@ -28,7 +29,7 @@ export class TasksService extends BaseService {
 
         const approval: CompleteTask = {
             additionalData: {
-                approval: false
+                approved: false
             }
         };
         return this.workflowsClient().tasks.byTaskId(taskId).put(approval);

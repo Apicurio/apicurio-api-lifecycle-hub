@@ -3,7 +3,7 @@ package io.apicurio.lifecycle.workflows.rest.clients;
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 
-import io.apicurio.lifecycle.rest.client.LifecycleHubClient;
+import io.apicurio.lifecycle.workflows.rest.clients.hub.LifecycleHubClient;
 
 public class LifecycleHubClientAccessor {
 

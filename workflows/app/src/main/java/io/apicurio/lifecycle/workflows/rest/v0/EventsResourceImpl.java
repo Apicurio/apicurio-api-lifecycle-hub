@@ -37,7 +37,7 @@ public class EventsResourceImpl implements EventsResource {
             logger.info("Detected a version:create event.  Starting workflow: " + workflow + " for: " + apiId + "@" + version);
             
             // Start a workflow process instance for this API version.
-            final Map<String, Object> variables = Map.of("apiId", apiId, "apiVersion", version);
+            final Map<String, Object> variables = Map.of("apiId", apiId, "version", version);
             final RuntimeService runtimeService = engine.getRuntimeService();
             ProcessInstance id = runtimeService.startProcessInstanceByKey("workflow_" + workflow, variables);
             logger.info("Started a workflow process with id=" + id.getId());
@@ -54,11 +54,13 @@ public class EventsResourceImpl implements EventsResource {
             Execution execution = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("ApiChangeMessage")
                 .processVariableValueEquals("apiId", apiId)
-                .processVariableValueEquals("apiVersion", version)
+                .processVariableValueEquals("version", version)
                 .singleResult();
 
             // Dispatch message to the right process execution
-            runtimeService.messageEventReceived("ApiChangeMessage", execution.getId(), Map.of("eventType", "change"));
+            if (execution != null) {
+                runtimeService.messageEventReceived("ApiChangeMessage", execution.getId(), Map.of("eventType", "change"));
+            }
         } else if ("version:done".equals(data.getType())) {
             String apiId = data.getContext().getAdditionalProperties().get("apiId").toString();
             String version = data.getContext().getAdditionalProperties().get("version").toString();
@@ -72,7 +74,7 @@ public class EventsResourceImpl implements EventsResource {
             Execution execution = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("ApiChangeMessage")
                 .processVariableValueEquals("apiId", apiId)
-                .processVariableValueEquals("apiVersion", version)
+                .processVariableValueEquals("version", version)
                 .singleResult();
 
             // Dispatch message to the right process execution

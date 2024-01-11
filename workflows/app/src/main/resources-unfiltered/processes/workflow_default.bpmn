@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="workflow_default_defs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="50c6516" camunda:diagramRelationId="ea9b8b7a-253b-4ab9-9a98-375be265d47a">
-  <bpmn2:message id="ApiChangeMessage" name="ApiChangeMessage" />
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:activiti="http://activiti.org/bpmn" id="workflow_default_defs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="66740e0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
+  <bpmn2:message id="ApiChangeMessage" name="ApiChangeMessage">
+    <bpmn2:extensionElements>
+      <zeebe:subscription correlationKey="=ApiVersionChange" />
+    </bpmn2:extensionElements>
+  </bpmn2:message>
   <bpmn2:process id="workflow_default" name="Default Workflow" isExecutable="true">
     <bpmn2:startEvent id="StartEvent" name="Start">
       <bpmn2:extensionElements>
@@ -10,19 +14,30 @@
       <bpmn2:outgoing>toAddWorkflowLabels</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:serviceTask id="AddWorkflowLabels" name="Add Workflow Labels" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.AddWorkflowLabelTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
       <bpmn2:incoming>toAddWorkflowLabels</bpmn2:incoming>
       <bpmn2:outgoing>fromAddWorkflowLabelToValidate</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:serviceTask id="ValidateTask" name="Validate API Design" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.ValidateTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
       <bpmn2:incoming>toValidate</bpmn2:incoming>
       <bpmn2:outgoing>toMicrocks</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:serviceTask id="MicrocksTask" name="Push to Microcks" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.MicrocksTask">
-      <bpmn2:extensionElements />
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
       <bpmn2:incoming>toMicrocks</bpmn2:incoming>
       <bpmn2:outgoing>fromMicrocksToCatchEvent</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:serviceTask id="RegistryTask" name="Push to Registry" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.RegistryTask">
+      <bpmn2:extensionElements>
+        <zeebe:taskDefinition type="main" />
+      </bpmn2:extensionElements>
       <bpmn2:incoming>fromApprovalGatewayToRegistry</bpmn2:incoming>
       <bpmn2:outgoing>toEnd</bpmn2:outgoing>
     </bpmn2:serviceTask>
@@ -36,7 +51,10 @@
           API ${apiId} (version ${version}) is ready to register.  Do you approve?
       </bpmn2:documentation>
       <bpmn2:extensionElements>
-        <activiti:formProperty id="approval" name="Approval" type="boolean" />
+        <activiti:formProperty id="registryGroup" name="Group" type="string" value="default" />
+        <activiti:formProperty id="registryArtifactId" name="Artifact ID" type="string" value="${apiId}" />
+        <activiti:formProperty id="registryVersion" name="Version" type="string" value="${version}" />
+        <activiti:formProperty id="approved" name="Approved" type="boolean" />
       </bpmn2:extensionElements>
       <bpmn2:incoming>toApproval</bpmn2:incoming>
       <bpmn2:outgoing>toApprovalGateway</bpmn2:outgoing>
@@ -68,10 +86,10 @@
     </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="toApprovalGateway" sourceRef="ApprovalTask" targetRef="ApprovalGateway" />
     <bpmn2:sequenceFlow id="fromApprovalGatewayToSetReadOnlyFalse" name="Not Approved" sourceRef="ApprovalGateway" targetRef="SetReadOnlyFalse">
-      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == false}</bpmn2:conditionExpression>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approved == false}</bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="fromApprovalGatewayToRegistry" name="Approved" sourceRef="ApprovalGateway" targetRef="RegistryTask">
-      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approval == true}</bpmn2:conditionExpression>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${approved == true}</bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
     <bpmn2:exclusiveGateway id="ApiChangedOrCreatedJoin">
       <bpmn2:incoming>fromAddWorkflowLabelToValidate</bpmn2:incoming>
@@ -89,6 +107,7 @@
     <bpmn2:serviceTask id="SetReadOnlyTrue" name="Set Read Only (true)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
       <bpmn2:extensionElements>
         <activiti:field name="isReadOnly" stringValue="true" />
+        <zeebe:taskDefinition type="main" />
       </bpmn2:extensionElements>
       <bpmn2:incoming>fromCatchEventGatewayToSetReadOnlyTrue</bpmn2:incoming>
       <bpmn2:outgoing>toApproval</bpmn2:outgoing>
@@ -97,6 +116,7 @@
     <bpmn2:serviceTask id="SetReadOnlyFalse" name="Set Read Only (false)" activiti:class="io.apicurio.lifecycle.workflows.activiti.tasks.SetReadOnlyTask">
       <bpmn2:extensionElements>
         <activiti:field name="isReadOnly" stringValue="false" />
+        <zeebe:taskDefinition type="main" />
       </bpmn2:extensionElements>
       <bpmn2:incoming>fromApprovalGatewayToSetReadOnlyFalse</bpmn2:incoming>
       <bpmn2:outgoing>fromSetReadOnlyFalseToCatchEvent</bpmn2:outgoing>

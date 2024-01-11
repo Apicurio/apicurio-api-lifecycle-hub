@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 
-import io.apicurio.lifecycle.workflows.rest.client.LifecycleWorkflowsClient;
+import io.apicurio.lifecycle.rest.clients.workflows.LifecycleWorkflowsClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;

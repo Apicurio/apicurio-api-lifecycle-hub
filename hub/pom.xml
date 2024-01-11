@@ -51,7 +51,7 @@
 
     <modules>
         <module>app</module>
-        <module>client</module>
+        <module>clients</module>
         <module>dist/docker</module>
     </modules>
 

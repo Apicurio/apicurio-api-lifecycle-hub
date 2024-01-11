@@ -48,7 +48,7 @@ export const TasksPage: FunctionComponent<TasksPageProps> = () => {
 
     const doApprove = (taskId: string): void => {
         pleaseWait("Approving task, please wait...");
-        Services.getTasksService().approve(taskId).then(() => {
+        Services.getTasksService().complete(taskId).then(() => {
             closePleaseWaitModal();
             doListTasks();
         }).catch(error => {
@@ -59,7 +59,7 @@ export const TasksPage: FunctionComponent<TasksPageProps> = () => {
 
     const doReject = (taskId: string): void => {
         pleaseWait("Rejecting task, please wait...");
-        Services.getTasksService().approve(taskId).then(() => {
+        Services.getTasksService().reject(taskId).then(() => {
             closePleaseWaitModal();
             doListTasks();
         }).catch(error => {

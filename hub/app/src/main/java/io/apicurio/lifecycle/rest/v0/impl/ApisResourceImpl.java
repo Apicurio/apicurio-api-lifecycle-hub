@@ -25,6 +25,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 
 import io.apicurio.common.apps.content.IoUtil;
+import io.apicurio.lifecycle.rest.clients.workflows.LifecycleWorkflowsClient;
+import io.apicurio.lifecycle.rest.clients.workflows.models.Event;
+import io.apicurio.lifecycle.rest.clients.workflows.models.EventContext;
 import io.apicurio.lifecycle.rest.v0.ApisResource;
 import io.apicurio.lifecycle.rest.v0.beans.Api;
 import io.apicurio.lifecycle.rest.v0.beans.ApiSearchResults;
@@ -45,15 +48,12 @@ import io.apicurio.lifecycle.storage.dtos.ToDto;
 import io.apicurio.lifecycle.storage.dtos.UpdateVersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionContentDto;
 import io.apicurio.lifecycle.storage.dtos.VersionSearchResultsDto;
-import io.apicurio.lifecycle.workflows.rest.client.LifecycleWorkflowsClient;
-import io.apicurio.lifecycle.workflows.rest.client.models.Event;
-import io.apicurio.lifecycle.workflows.rest.client.models.EventContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Context;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -145,11 +145,15 @@ public class ApisResourceImpl implements ApisResource {
         storage.createVersion(apiId, ToDto.newVersion(data));
         
         // Fire event (trigger workflow)
+        String workflow = "default";
+        if (data.getWorkflow() != null && data.getWorkflow().trim().length() > 0) {
+            workflow = data.getWorkflow();
+        }
         Event event = new Event();
         event.setType("version:create");
         event.setId(UUID.randomUUID().toString());
         event.setContext(new EventContext());
-        event.getContext().setAdditionalData(Map.of("apiId", apiId, "version", data.getVersion()));
+        event.getContext().setAdditionalData(Map.of("apiId", apiId, "version", data.getVersion(), "workflow", workflow));
         workflowsClient.events().post(event);
     }
     
