@@ -27,6 +27,10 @@ public class AlwAppException extends RuntimeException {
         super(message);
     }
 
+    public AlwAppException(Throwable cause) {
+        super(cause);
+    }
+
     public AlwAppException(String message, Throwable cause) {
         super(message, cause);
     }

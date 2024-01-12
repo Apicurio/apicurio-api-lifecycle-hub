@@ -79,6 +79,9 @@
         <lombok.version>1.18.30</lombok.version>
         <apicurio-common-app-components.version>0.2.4.Final</apicurio-common-app-components.version>
         <apicurio-api-lifecycle-hub.version>0.1.0-SNAPSHOT</apicurio-api-lifecycle-hub.version>
+        <jgit.version>6.7.0.202309050840-r</jgit.version>
+        <commons-codec.version>1.16.0</commons-codec.version>
+        <github-api.version>1.318</github-api.version>
 
         <!-- Specifications -->
         <annotation-api.version>1.3.5</annotation-api.version>
@@ -131,6 +134,22 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kohsuke</groupId>
+                <artifactId>github-api</artifactId>
+                <version>${github-api.version}</version>
             </dependency>
 
             <!-- Tests -->

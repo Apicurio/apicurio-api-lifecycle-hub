@@ -1,0 +1,6 @@
+- GitHub URL must have a specific format, document this in the UI.
+- Cannot start from an empty spec.
+- Can content type be detected from GitHub?
+- API delete does not work yet in UI.
+- When a version is created from GitHub and user clicks to edit quickly, wrong version is shown?
+- Version change event is executed even when the version is created (this casues double execution of some tasks).
