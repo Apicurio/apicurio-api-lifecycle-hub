@@ -31,6 +31,7 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
     const [task, setTask] = useState<Task>();
     const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false);
     const [pleaseWaitModalMessage, setPleaseWaitModalMessage] = useState("Please wait.");
+    const [approved, setApproved] = useState(false);
     const [registryGroup, setRegistryGroup] = useState("default");
     const [registryArtifactId, setRegistryArtifactId] = useState("Demo API");
     const [registryVersion, setRegistryVersion] = useState("1.0");
@@ -120,62 +121,64 @@ export const TaskDetailsPage: FunctionComponent<TaskDetailsPageProps> = () => {
                                     </Text>
                                 </FormGroup>
                             </FormSection>
-                            <FormSection title="Registry" style={{ marginTop: "5px" }}>
-                                <FormGroup fieldId="task-registry-info">
-                                    <Text>
-                                        Please provide Apicurio Registry coordinates - this is where you want the
-                                        API definition to land.
-                                    </Text>
-                                </FormGroup>
-                                <FormGroup label="Group" isRequired={true} fieldId="task-registry-group">
-                                    <TextInput
-                                        isRequired
-                                        type="text"
-                                        id="task-registry-group"
-                                        data-testid="task-registry-group"
-                                        name="task-registry-group"
-                                        aria-describedby="task-registry-group-helper"
-                                        value={registryGroup}
-                                        onChange={(_event, value) => {setRegistryGroup(value);}}
-                                    />
-                                </FormGroup>
-                                <FormGroup label="Group" isRequired={true} fieldId="task-registry-artifactId">
-                                    <TextInput
-                                        isRequired
-                                        type="text"
-                                        id="task-registry-artifactId"
-                                        data-testid="task-registry-artifactId"
-                                        name="task-registry-artifactId"
-                                        aria-describedby="task-registry-artifactId-helper"
-                                        value={registryArtifactId}
-                                        onChange={(_event, value) => {setRegistryArtifactId(value);}}
-                                    />
-                                </FormGroup>
-                                <FormGroup label="Version" isRequired={true} fieldId="task-registry-version">
-                                    <TextInput
-                                        isRequired
-                                        type="text"
-                                        id="task-registry-version"
-                                        data-testid="task-registry-version"
-                                        name="task-registry-version"
-                                        aria-describedby="task-registry-version-helper"
-                                        value={registryVersion}
-                                        onChange={(_event, value) => {setRegistryVersion(value);}}
-                                    />
-                                </FormGroup>
-                            </FormSection>
                             <FormSection title="Approval" style={{ marginTop: "5px" }}>
                                 <FormGroup label="Do you approve?" isRequired={true} fieldId="task-approval">
                                     <Switch
                                         id="approval-switch"
                                         label="I approve"
                                         labelOff="I do NOT approve"
-                                        isChecked={true}
-                                        onChange={() => {}}
+                                        isChecked={approved}
+                                        onChange={() => {setApproved(!approved);}}
                                         ouiaId="BasicSwitch"
                                     />
                                 </FormGroup>
                             </FormSection>
+                            <If condition={approved}>
+                                <FormSection title="Registry" style={{ marginTop: "5px" }}>
+                                    <FormGroup fieldId="task-registry-info">
+                                        <Text>
+                                            Please provide Apicurio Registry coordinates - this is where you want the
+                                            approved API definition to be registered.
+                                        </Text>
+                                    </FormGroup>
+                                    <FormGroup label="Group" isRequired={true} fieldId="task-registry-group">
+                                        <TextInput
+                                            isRequired
+                                            type="text"
+                                            id="task-registry-group"
+                                            data-testid="task-registry-group"
+                                            name="task-registry-group"
+                                            aria-describedby="task-registry-group-helper"
+                                            value={registryGroup}
+                                            onChange={(_event, value) => {setRegistryGroup(value);}}
+                                        />
+                                    </FormGroup>
+                                    <FormGroup label="Artifact Id" isRequired={true} fieldId="task-registry-artifactId">
+                                        <TextInput
+                                            isRequired
+                                            type="text"
+                                            id="task-registry-artifactId"
+                                            data-testid="task-registry-artifactId"
+                                            name="task-registry-artifactId"
+                                            aria-describedby="task-registry-artifactId-helper"
+                                            value={registryArtifactId}
+                                            onChange={(_event, value) => {setRegistryArtifactId(value);}}
+                                        />
+                                    </FormGroup>
+                                    <FormGroup label="Version" isRequired={true} fieldId="task-registry-version">
+                                        <TextInput
+                                            isRequired
+                                            type="text"
+                                            id="task-registry-version"
+                                            data-testid="task-registry-version"
+                                            name="task-registry-version"
+                                            aria-describedby="task-registry-version-helper"
+                                            value={registryVersion}
+                                            onChange={(_event, value) => {setRegistryVersion(value);}}
+                                        />
+                                    </FormGroup>
+                                </FormSection>
+                            </If>
                             <ActionGroup>
                                 <Button variant="primary" onClick={doCompleteApproval}>Complete Task</Button>
                                 <Button variant="link">Reject Task</Button>

@@ -66,6 +66,15 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
     const registryArtifactId: string = labels["registry:artifactId"] || "";
     const registryVersion: string = labels["registry:version"] || "1";
 
+    const getLabelValue = (name: string): string => {
+        return labels[name];
+    };
+
+    const hasLabel = (name: string): boolean => {
+        console.info("LABELS: ", labels);
+        return labels[name] !== undefined;
+    };
+
     const pleaseWait = (message: string): void => {
         setIsPleaseWaitModalOpen(true);
         setPleaseWaitModalMessage(message);
@@ -286,31 +295,66 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                     </Flex>
                                 </GalleryItem>
                                 <GalleryItem className="right-panel" style={{ padding: "20px" }}>
-                                    <Card>
-                                        <CardHeader>
-                                            <TextContent>
-                                                <Text component={TextVariants.h3}>Actions</Text>
-                                            </TextContent>
-                                        </CardHeader>
-                                        <CardBody>
-                                            <If condition={!isReadOnly}>
-                                                <List variant={ListVariant.inline}>
-                                                    <ListItem>
-                                                        <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
-                                                    </ListItem>
-                                                    <ListItem>
-                                                        <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
-                                                    </ListItem>
-                                                </List>
-                                                <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
-                                            </If>
-                                            <List variant={ListVariant.inline}>
-                                                <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
-                                            </List>
-                                            <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
-                                            <Button icon={<TrashIcon />} variant="danger">Delete</Button>
-                                        </CardBody>
-                                    </Card>
+
+                                    <Flex direction={{ default: "column" }}>
+                                        <FlexItem>
+                                            <Card>
+                                                <CardHeader>
+                                                    <TextContent>
+                                                        <Text component={TextVariants.h3}>Actions</Text>
+                                                    </TextContent>
+                                                </CardHeader>
+                                                <CardBody>
+                                                    <If condition={!isReadOnly}>
+                                                        <List variant={ListVariant.inline}>
+                                                            <ListItem>
+                                                                <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
+                                                            </ListItem>
+                                                            <ListItem>
+                                                                <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
+                                                            </ListItem>
+                                                        </List>
+                                                        <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                                                    </If>
+                                                    <List variant={ListVariant.inline}>
+                                                        <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
+                                                    </List>
+                                                    <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                                                    <Button icon={<TrashIcon />} variant="danger">Delete</Button>
+                                                </CardBody>
+                                            </Card>
+                                        </FlexItem>
+                                        <If condition={hasLabel("microcks:ref")}>
+                                            <FlexItem>
+                                                <Card>
+                                                    <CardHeader>
+                                                        <TextContent>
+                                                            <Text component={TextVariants.h3}>Microcks</Text>
+                                                        </TextContent>
+                                                    </CardHeader>
+                                                    <CardBody>
+                                                        <TextContent>
+                                                            <TextList component={TextListVariants.dl}>
+                                                                <TextListItem component={TextListItemVariants.dt}>Reference:</TextListItem>
+                                                                <TextListItem component={TextListItemVariants.dd}>{getLabelValue("microcks:ref")}</TextListItem>
+
+                                                                <TextListItem component={TextListItemVariants.dt}>Pushed:</TextListItem>
+                                                                <TextListItem component={TextListItemVariants.dd}>
+                                                                    <FromNow date={getLabelValue("microcks:pushedOn")} />
+                                                                </TextListItem>
+
+                                                                <TextListItem component={TextListItemVariants.dt}></TextListItem>
+                                                                <TextListItem component={TextListItemVariants.dd}>
+                                                                    <Link to={appNav.createLink("/microcks")}>View in Microcks</Link>
+                                                                </TextListItem>
+                                                            </TextList>
+                                                        </TextContent>
+
+                                                    </CardBody>
+                                                </Card>
+                                            </FlexItem>
+                                        </If>
+                                    </Flex>
                                 </GalleryItem>
                             </Gallery>
                         </TabContent>

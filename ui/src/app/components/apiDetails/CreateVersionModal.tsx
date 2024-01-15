@@ -6,8 +6,8 @@ import { If, ObjectSelect } from "@apicurio/common-ui-components";
 const EMPTY_CONTENT: string = `{
     "openapi": "3.0.2",
     "info": {
-        "title": "Empty API",
-        "version": "1.0.0",
+        "title": "Test API",
+        "version": "1.0",
         "description": "Just an empty API."
     }
 }
