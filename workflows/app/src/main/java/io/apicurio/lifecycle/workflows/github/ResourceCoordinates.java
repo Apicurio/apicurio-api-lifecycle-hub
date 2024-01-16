@@ -18,6 +18,11 @@ public class ResourceCoordinates {
     private String repository;
     private String branch;
     private String path;
+
+    private String ghPRWebURL;
+    private String ghPRBranch;
+    private Long ghPRId;
+    private String ghPRNodeId;
     
     public static ResourceCoordinates fromUrl(String url) {
         String regex = "https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)";
@@ -44,6 +49,7 @@ public class ResourceCoordinates {
             throw new RuntimeException("Invalid GitHub URL");
         }
     }
+
     
     public URI toURI() {
         String rawDownloadUrlFormat = "https://raw.githubusercontent.com/%s/%s/%s/%s";
