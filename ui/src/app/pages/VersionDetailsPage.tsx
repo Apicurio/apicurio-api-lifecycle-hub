@@ -1,17 +1,25 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import {
+    Alert,
     Breadcrumb,
     BreadcrumbItem,
     Button,
     Card,
     CardBody,
-    CardHeader, Divider,
+    CardHeader,
     Flex,
     FlexItem,
     Gallery,
-    GalleryItem, List, ListItem, ListVariant,
+    GalleryItem,
+    List,
+    ListItem,
+    ListVariant,
     PageSection,
-    PageSectionVariants, Tab, TabContent, Tabs, TabTitleText,
+    PageSectionVariants,
+    Tab,
+    TabContent,
+    Tabs,
+    TabTitleText,
     Text,
     TextContent,
     TextList,
@@ -26,9 +34,9 @@ import { Services } from "@services/services.ts";
 import { BpmnDiagram, EditLabelsModal, NavPage, RegistryVersionDetails, ShowLabels } from "@app/components";
 import { AppPage } from "@app/components/layout/AppPage.tsx";
 import { useAppNavigation } from "@hooks/useAppNavigation.ts";
-import { IfNotLoading, FromNow, PleaseWaitModal, If } from "@apicurio/common-ui-components";
+import { FromNow, If, IfNotLoading, PleaseWaitModal } from "@apicurio/common-ui-components";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import { CloseIcon, DownloadIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
+import { CloseIcon, DownloadIcon, GithubIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 
 const splitGalleryWidths = {
     sm: "100%",
@@ -108,6 +116,7 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
         pleaseWait("Finalizing API version, please wait...");
         Services.getTasksService().finalizeApiVersion(apiIdParam, versionParam).then(() => {
             closePleaseWaitModal();
+            Services.getApisService().getVersion(apiIdParam, versionParam).then(setVersion);
         }).catch(error => {
             console.error("[VersionDetailsPage] Failed to finalize API version: ", error);
             closePleaseWaitModal();
@@ -305,53 +314,61 @@ export const VersionDetailsPage: FunctionComponent<VersionDetailsPageProps> = ()
                                                     </TextContent>
                                                 </CardHeader>
                                                 <CardBody>
-                                                    <If condition={!isReadOnly}>
-                                                        <List variant={ListVariant.inline}>
+                                                    <List variant={ListVariant.inline}>
+                                                        <If condition={!isReadOnly}>
                                                             <ListItem>
                                                                 <Button icon={<PencilAltIcon />} variant="primary" onClick={() => appNav.navigateTo(`/apis/${apiIdParam}/versions/${versionParam}/editor`)}>Edit content</Button>
                                                             </ListItem>
                                                             <ListItem>
                                                                 <Button icon={<CloseIcon />} variant="secondary" onClick={onFinalize}>Finalize Version</Button>
                                                             </ListItem>
-                                                        </List>
-                                                        <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
-                                                    </If>
-                                                    <List variant={ListVariant.inline}>
+                                                        </If>
                                                         <ListItem><Button icon={<DownloadIcon />} variant="secondary">Download</Button></ListItem>
+                                                        <ListItem><Button icon={<TrashIcon />} variant="danger">Delete</Button></ListItem>
                                                     </List>
-                                                    <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
-                                                    <Button icon={<TrashIcon />} variant="danger">Delete</Button>
                                                 </CardBody>
                                             </Card>
                                         </FlexItem>
+
+                                        <If condition={hasLabel("github:pr:webURL")}>
+                                            <FlexItem>
+                                                <Alert
+                                                    variant="info"
+                                                    title="GitHub Integration"
+                                                    ouiaId="GitHubAlert"
+                                                    actionLinks={
+                                                        <React.Fragment>
+                                                            <Link to={getLabelValue("github:pr:webURL")}>View pull request</Link>
+                                                        </React.Fragment>
+                                                    }
+                                                    customIcon={<GithubIcon />}>
+                                                    <p>
+                                                        Changes have been made to this API Design.  As a result, a Draft Pull Request has
+                                                        been opened in GitHub.
+                                                    </p>
+                                                </Alert>
+                                            </FlexItem>
+                                        </If>
                                         <If condition={hasLabel("microcks:ref")}>
                                             <FlexItem>
-                                                <Card>
-                                                    <CardHeader>
-                                                        <TextContent>
-                                                            <Text component={TextVariants.h3}>Microcks</Text>
-                                                        </TextContent>
-                                                    </CardHeader>
-                                                    <CardBody>
-                                                        <TextContent>
-                                                            <TextList component={TextListVariants.dl}>
-                                                                <TextListItem component={TextListItemVariants.dt}>Reference:</TextListItem>
-                                                                <TextListItem component={TextListItemVariants.dd}>{getLabelValue("microcks:ref")}</TextListItem>
-
-                                                                <TextListItem component={TextListItemVariants.dt}>Pushed:</TextListItem>
-                                                                <TextListItem component={TextListItemVariants.dd}>
-                                                                    <FromNow date={getLabelValue("microcks:pushedOn")} />
-                                                                </TextListItem>
-
-                                                                <TextListItem component={TextListItemVariants.dt}></TextListItem>
-                                                                <TextListItem component={TextListItemVariants.dd}>
-                                                                    <Link to={appNav.createLink("/microcks")}>View in Microcks</Link>
-                                                                </TextListItem>
-                                                            </TextList>
-                                                        </TextContent>
-
-                                                    </CardBody>
-                                                </Card>
+                                                <Alert
+                                                    variant="info"
+                                                    title="Microcks Integration"
+                                                    ouiaId="MicrocksAlert"
+                                                    actionLinks={
+                                                        <React.Fragment>
+                                                            <Link to={appNav.createLink("/microcks")}>View in Microcks</Link>
+                                                        </React.Fragment>
+                                                    }>
+                                                    <p>
+                                                        The API design was pushed to Microcks
+                                                        &nbsp;
+                                                        <b><FromNow date={getLabelValue("microcks:pushedOn")} /></b>.
+                                                        &nbsp;
+                                                        Every time changes are made, Microcks will be automatically
+                                                        updated.
+                                                    </p>
+                                                </Alert>
                                             </FlexItem>
                                         </If>
                                     </Flex>
